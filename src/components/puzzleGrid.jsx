@@ -1,13 +1,16 @@
 import React, { Component } from "react";
 import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
+import { getWord } from "../services/xwdService";
 
 class PuzzleGrid extends Component {
   state = {
     width: 5,
     height: 5,
     grid: [],
-    cursor: [1, 1]
+    cursor: [1, 1],
+    direction: [1, 0],
+    word: []
   };
 
   mod(m, n) {
@@ -21,7 +24,8 @@ class PuzzleGrid extends Component {
         return { guess: " " };
       })
     );
-    this.setState({ grid });
+    const cursor = [0, 0];
+    this.setState({ grid, cursor });
     window.addEventListener("keydown", this.handleKeyDown.bind(this));
   }
 
@@ -81,28 +85,52 @@ class PuzzleGrid extends Component {
     const cell = this.cloneCell();
     cell.guess = a;
     this.updateCell(cell);
+    this.moveCursor(...this.state.direction);
   }
 
   toggleBlack() {
     const cell = this.cloneCell();
     cell.isBlack = !cell.isBlack;
     this.updateCell(cell);
+    this.moveCursor(...this.state.direction);
+  }
+
+  inFocus(row, col) {
+    return _.includes(this.state.word, [row, col]);
   }
 
   moveCursor(i, j) {
-    const mod = this.mod;
-    const { width, height } = this.state;
-    const [row, col] = this.state.cursor;
-    const cursor = [mod(row + i, height), mod(col + j, width)];
-    this.setState({ cursor });
+    const [down, across] = this.state.direction;
+    if ((across && i) || (down && j)) this.toggleDirection();
+    else {
+      const mod = this.mod;
+      const { width, height, grid, direction } = this.state;
+      const [row, col] = this.state.cursor;
+      const cursor = [mod(row + i, height), mod(col + j, width)];
+      const word = getWord(grid, cursor, direction);
+      this.setState({ cursor, word });
+    }
+  }
+
+  toggleDirection() {
+    const { direction } = this.state;
+    this.setState({ direction: [direction[1], direction[0]] });
   }
 
   cursorAt(i, j) {
     return _.isEqual([i, j], this.state.cursor);
   }
 
-  setCursor(i, j) {
-    this.setState({ cursor: [i, j] });
+  handleCellClick(row, col) {
+    if (_.isEqual([row, col], this.state.cursor)) {
+      this.toggleDirection();
+    } else {
+      this.setCursor(row, col);
+    }
+  }
+
+  setCursor(row, col) {
+    this.setState({ cursor: [row, col] });
   }
 
   rowKey(row) {
@@ -129,9 +157,10 @@ class PuzzleGrid extends Component {
                     number={grid[row][col].number}
                     settings={{
                       cursor: this.cursorAt(row, col),
-                      black: grid[row][col].isBlack
+                      black: grid[row][col].isBlack,
+                      focus: this.inFocus(row, col)
                     }}
-                    onClick={() => this.setCursor(row, col)}
+                    onClick={() => this.handleCellClick(row, col)}
                   />
                 ))}
               </tr>
