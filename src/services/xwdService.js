@@ -3,18 +3,15 @@ import _ from "lodash";
 export function getWord(grid, cursor, direction) {
   const [row, col] = cursor;
   const height = grid.length;
+  if (height === 0) return [];
   const width = grid[0].length;
-
-  function getCell(row, col) {
-    return grid[row][col];
-  }
 
   function off(row, col) {
     return !_.inRange(row, 0, height) || !_.inRange(col, 0, width);
   }
 
   function black(row, col) {
-    return getCell(row, col).isBlack;
+    return grid[row][col].isBlack;
   }
 
   function add(a, b) {

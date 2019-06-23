@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
 import { getWord } from "../services/xwdService";
+import { includesEqual } from "../services/common/utils";
 
 class PuzzleGrid extends Component {
   state = {
@@ -24,8 +25,7 @@ class PuzzleGrid extends Component {
         return { guess: " " };
       })
     );
-    const cursor = [0, 0];
-    this.setState({ grid, cursor });
+    this.setState({ grid, cursor: [0, 0] });
     window.addEventListener("keydown", this.handleKeyDown.bind(this));
   }
 
@@ -35,7 +35,7 @@ class PuzzleGrid extends Component {
 
   handleKeyDown(event) {
     const keyCode = event.keyCode;
-    console.log("keyCode", keyCode);
+    //console.log("keyCode", keyCode);
     const keys = {
       37: () => this.moveCursor(0, -1), // arrow left
       38: () => this.moveCursor(-1, 0), // arrow up
@@ -96,7 +96,11 @@ class PuzzleGrid extends Component {
   }
 
   inFocus(row, col) {
-    return _.includes(this.state.word, [row, col]);
+    //console.log("focus? word", this.state.word, "pos", [row, col]);
+    return includesEqual(this.state.word, [row, col]);
+    const [down, across] = this.state.direction;
+    const [cursorRow, cursorCol] = this.state.cursor;
+    return (across && row === cursorRow) || (down && col === cursorCol);
   }
 
   moveCursor(i, j) {
@@ -104,11 +108,10 @@ class PuzzleGrid extends Component {
     if ((across && i) || (down && j)) this.toggleDirection();
     else {
       const mod = this.mod;
-      const { width, height, grid, direction } = this.state;
+      const { width, height } = this.state;
       const [row, col] = this.state.cursor;
       const cursor = [mod(row + i, height), mod(col + j, width)];
-      const word = getWord(grid, cursor, direction);
-      this.setState({ cursor, word });
+      this.setState({ cursor });
     }
   }
 
@@ -125,12 +128,8 @@ class PuzzleGrid extends Component {
     if (_.isEqual([row, col], this.state.cursor)) {
       this.toggleDirection();
     } else {
-      this.setCursor(row, col);
+      this.setState({ cursor: [row, col] });
     }
-  }
-
-  setCursor(row, col) {
-    this.setState({ cursor: [row, col] });
   }
 
   rowKey(row) {
@@ -142,7 +141,9 @@ class PuzzleGrid extends Component {
   }
 
   render() {
-    const { grid, height, width } = this.state;
+    const { grid, height, width, cursor, direction } = this.state;
+    const word = getWord(grid, cursor, direction);
+    //console.log("grid", grid);
     if (grid.length === 0) return null;
     return (
       <div className="grid">
@@ -158,7 +159,7 @@ class PuzzleGrid extends Component {
                     settings={{
                       cursor: this.cursorAt(row, col),
                       black: grid[row][col].isBlack,
-                      focus: this.inFocus(row, col)
+                      focus: includesEqual(word, [row, col])
                     }}
                     onClick={() => this.handleCellClick(row, col)}
                   />

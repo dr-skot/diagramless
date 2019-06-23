@@ -43,3 +43,7 @@ it("finds word from black to black", () => {
   const direction = [0, 1];
   expect(getWord(grid, cursor, direction)).toEqual([[0, 2], [0, 3], [0, 4]]);
 });
+
+it("doesn't break on empty grid", () => {
+  expect(getWord([], [1, 1], [0, 1])).toEqual([]);
+});
