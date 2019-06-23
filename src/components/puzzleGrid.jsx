@@ -1,8 +1,11 @@
 import React, { Component } from "react";
+import { observer } from "mobx-react";
 import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
 import { getWord } from "../services/xwdService";
 import { includesEqual } from "../services/common/utils";
+import XwdGrid from "../model/xwdGrid";
+import { mod } from "../services/common/utils";
 
 class PuzzleGrid extends Component {
   state = {
@@ -13,13 +16,11 @@ class PuzzleGrid extends Component {
     direction: [1, 0],
     word: []
   };
-
-  mod(m, n) {
-    return ((m % n) + n) % n;
-  }
+  grid = new XwdGrid(5, 5);
 
   componentDidMount() {
     const { width, height } = this.state;
+    this.grid = new XwdGrid(5, 5);
     const grid = _.range(0, height).map(row =>
       _.range(0, width).map(col => {
         return { guess: " " };
@@ -76,23 +77,20 @@ class PuzzleGrid extends Component {
   }
 
   handleDigit(d) {
-    const cell = this.cloneCell();
-    cell.number = d;
-    this.updateCell(cell);
+    this.grid.cell(...this.state.cursor).number = d;
   }
 
   handleAlpha(a) {
-    const cell = this.cloneCell();
-    cell.guess = a;
-    this.updateCell(cell);
+    this.grid.cell(...this.state.cursor).content = a;
     this.moveCursor(...this.state.direction);
   }
 
   toggleBlack() {
-    const cell = this.cloneCell();
-    cell.isBlack = !cell.isBlack;
-    this.updateCell(cell);
+    this.grid.cell(...this.state.cursor).toggleBlack();
     this.moveCursor(...this.state.direction);
+    // const cell = this.cloneCell();
+    // cell.isBlack = !cell.isBlack;
+    // this.updateCell(cell);
   }
 
   inFocus(row, col) {
@@ -107,7 +105,6 @@ class PuzzleGrid extends Component {
     const [down, across] = this.state.direction;
     if ((across && i) || (down && j)) this.toggleDirection();
     else {
-      const mod = this.mod;
       const { width, height } = this.state;
       const [row, col] = this.state.cursor;
       const cursor = [mod(row + i, height), mod(col + j, width)];
@@ -141,8 +138,9 @@ class PuzzleGrid extends Component {
   }
 
   render() {
-    const { grid, height, width, cursor, direction } = this.state;
-    const word = getWord(grid, cursor, direction);
+    const { height, width, cursor, direction } = this.state;
+    const grid = this.grid;
+    const word = getWord(this.grid.grid, cursor, direction);
     //console.log("grid", grid);
     if (grid.length === 0) return null;
     return (
@@ -154,11 +152,11 @@ class PuzzleGrid extends Component {
                 {_.range(0, width).map(col => (
                   <PuzzleCell
                     key={this.cellKey(row, col)}
-                    content={grid[row][col].guess}
-                    number={grid[row][col].number}
+                    content={this.grid.cell(row, col).content}
+                    number={this.grid.cell(row, col).number}
                     settings={{
                       cursor: this.cursorAt(row, col),
-                      black: grid[row][col].isBlack,
+                      black: this.grid.cell(row, col).isBlack,
                       focus: includesEqual(word, [row, col])
                     }}
                     onClick={() => this.handleCellClick(row, col)}
@@ -172,5 +170,7 @@ class PuzzleGrid extends Component {
     );
   }
 }
+
+observer(PuzzleGrid);
 
 export default PuzzleGrid;
