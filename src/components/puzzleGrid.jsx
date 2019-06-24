@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { observer } from "mobx-react";
 import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
-import { includesEqual } from "../services/common/utils";
 import CursoredXwdGrid from "../model/cursoredXwdGrid";
 
 const SET_CURSOR = "setCursor",
@@ -12,26 +11,10 @@ const SET_CURSOR = "setCursor",
   SET_NUMBER = "setNumber";
 
 class PuzzleGrid extends Component {
-  state = {
-    width: 5,
-    height: 5,
-    grid: [],
-    cursor: [1, 1],
-    direction: [1, 0],
-    word: []
-  };
   grid = new CursoredXwdGrid(5, 5);
   actionStack = [];
 
   componentDidMount() {
-    const { width, height } = this.state;
-    this.grid = new CursoredXwdGrid(5, 5);
-    const grid = _.range(0, height).map(row =>
-      _.range(0, width).map(col => {
-        return { guess: " " };
-      })
-    );
-    this.setState({ grid, cursor: [0, 0] });
     window.addEventListener("keydown", this.handleKeyDown.bind(this));
   }
 
@@ -113,17 +96,9 @@ class PuzzleGrid extends Component {
     this.advanceCursor();
   }
 
-  inFocus(row, col) {
-    return includesEqual(this.grid.word, [row, col]);
-  }
-
   toggleDirection() {
     this.grid.toggleDirection();
     this.recordAction(SET_DIRECTION, this.grid.direction.slice());
-  }
-
-  cursorAt(i, j) {
-    return _.isEqual([i, j], this.grid.cursor);
   }
 
   setCursor(row, col) {
@@ -164,9 +139,9 @@ class PuzzleGrid extends Component {
                     content={this.grid.cell(row, col).content}
                     number={this.grid.cell(row, col).number}
                     settings={{
-                      cursor: this.cursorAt(row, col),
-                      black: this.grid.cell(row, col).isBlack,
-                      focus: this.inFocus(row, col)
+                      cursor: grid.cursorIsAt(row, col),
+                      black: grid.cell(row, col).isBlack,
+                      focus: grid.wordContains(row, col)
                     }}
                     onClick={event => this.handleCellClick(row, col, event)}
                   />
