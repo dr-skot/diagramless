@@ -8,21 +8,14 @@ class CursoredXwdGrid extends XwdGrid {
   cursor = [0, 0];
   direction = [0, 1]; // across
 
-  handleArrow(i, j) {
-    const [down, across] = this.direction;
-    if ((across && i) || (down && j)) {
-      this.toggleDirection();
-    } else {
-      const { width, height } = this;
-      const [row, col] = this.cursor;
-      console.log({ width, height, row, col, i, j });
-      console.log("this.cursor", this.cursor);
-      console.log("setting cursor to", [
-        mod(row + i, height),
-        mod(col + j, width)
-      ]);
-      this.cursor = [mod(row + i, height), mod(col + j, width)];
-    }
+  cursorIsAt(row, col) {
+    return _.isEqual([row, col], this.cursor);
+  }
+
+  addToCursor(i, j) {
+    const { width, height } = this;
+    const [row, col] = this.cursor;
+    return [mod(row + i, height), mod(col + j, width)];
   }
 
   toggleDirection() {
@@ -36,10 +29,6 @@ class CursoredXwdGrid extends XwdGrid {
 
   get currentCell() {
     return this.cell(...this.cursor);
-  }
-
-  cursorAt(row, col) {
-    return _.isEqual([row, col], this.cursor);
   }
 }
 

@@ -52,10 +52,10 @@ class PuzzleGrid extends Component {
     const keyCode = event.keyCode;
     //console.log("keyCode", keyCode);
     const keys = {
-      37: () => this.moveCursor(0, -1), // arrow left
-      38: () => this.moveCursor(-1, 0), // arrow up
-      39: () => this.moveCursor(0, 1), // arrow right
-      40: () => this.moveCursor(1, 0), // arrow down
+      37: () => this.handleArrow(0, -1), // arrow left
+      38: () => this.handleArrow(-1, 0), // arrow up
+      39: () => this.handleArrow(0, 1), // arrow right
+      40: () => this.handleArrow(1, 0), // arrow down
       190: () => this.toggleBlack() // . (period)
     };
     let shouldPreventDefault = true;
@@ -76,15 +76,21 @@ class PuzzleGrid extends Component {
     if (shouldPreventDefault) event.preventDefault();
   }
 
-  moveCursor(i, j) {
-    // TODO move handle arrow here and separate setDirection from setCursor
-    this.grid.handleArrow(i, j);
-    this.recordAction(SET_DIRECTION, this.grid.direction.slice());
-    this.recordAction(SET_CURSOR, this.grid.cursor.slice());
-  }
-
   advanceCursor() {
     this.moveCursor(...this.grid.direction);
+  }
+
+  moveCursor(i, j) {
+    this.setCursor(...this.grid.addToCursor(i, j));
+  }
+
+  handleArrow(i, j) {
+    const [down, across] = this.grid.direction;
+    if ((across && i) || (down && j)) {
+      this.toggleDirection();
+    } else {
+      this.moveCursor(i, j); // to record action
+    }
   }
 
   handleDigit(d) {
@@ -125,12 +131,14 @@ class PuzzleGrid extends Component {
     this.recordAction(SET_CURSOR, this.grid.cursor.slice());
   }
 
-  handleCellClick(row, col) {
+  // TODO suppress word select on double click (prevent default isn't doing it)
+  handleCellClick(row, col, event) {
     if (this.cursorAt(row, col)) {
       this.toggleDirection();
     } else {
       this.setCursor(row, col);
     }
+    event.preventDefault();
   }
 
   rowKey(row) {
@@ -160,7 +168,7 @@ class PuzzleGrid extends Component {
                       black: this.grid.cell(row, col).isBlack,
                       focus: this.inFocus(row, col)
                     }}
-                    onClick={() => this.handleCellClick(row, col)}
+                    onClick={event => this.handleCellClick(row, col, event)}
                   />
                 ))}
               </tr>
