@@ -15,6 +15,7 @@ class PuzzleGrid extends Component {
     word: []
   };
   grid = new CursoredXwdGrid(5, 5);
+  actionStack = [];
 
   componentDidMount() {
     const { width, height } = this.state;
@@ -32,28 +33,46 @@ class PuzzleGrid extends Component {
     window.removeEventListener("keydown", this.handleKeyDown);
   }
 
+  actions = {
+    handleAlpha: this.handleAlpha.bind(this),
+    handleDigit: this.handleDigit.bind(this),
+    moveCursor: this.moveCursor.bind(this),
+    toggleBlack: this.moveCursor.bind(this),
+    setCursor: this.setCursor.bind(this)
+  };
+
+  doAction(action, ...args) {
+    this.actions[action](...args);
+    this.actionStack.unshift({ action, args });
+  }
+
+  get lastAction() {
+    if (this.actionStack.length === 0) return {};
+    return this.actionStack[0];
+  }
+
   handleKeyDown(event) {
     const keyCode = event.keyCode;
     //console.log("keyCode", keyCode);
     const keys = {
-      37: () => this.moveCursor(0, -1), // arrow left
-      38: () => this.moveCursor(-1, 0), // arrow up
-      39: () => this.moveCursor(0, 1), // arrow right
-      40: () => this.moveCursor(1, 0), // arrow down
-      190: () => this.toggleBlack() // . (period)
+      37: ["moveCursor", 0, -1], // arrow left
+      38: ["moveCursor", -1, 0], // arrow up
+      39: ["moveCursor", 0, 1], // arrow right
+      40: ["moveCursor", 1, 0], // arrow down
+      190: ["toggleBlack"] // . (period)
     };
-    const fn = keys[event.keyCode];
     let shouldPreventDefault = true;
 
-    if (fn) {
-      fn(event);
+    const keyAction = keys[event.keyCode];
+    const doAction = this.doAction.bind(this);
+    if (keyAction) {
+      doAction(...keyAction);
     } else if (_.inRange(keyCode, 48, 57 + 1)) {
       // digits
-      this.handleDigit(keyCode - 48);
-      event.preventDefault();
+      doAction("handleDigit", keyCode - 48);
     } else if (_.inRange(keyCode, 58, 90 + 1)) {
       // alpha
-      this.handleAlpha(String.fromCharCode(keyCode));
+      doAction("handleAlpha", String.fromCharCode(keyCode));
     } else {
       shouldPreventDefault = false;
     }
@@ -62,7 +81,10 @@ class PuzzleGrid extends Component {
   }
 
   handleDigit(d) {
-    this.grid.currentCell.number = d;
+    const cell = this.grid.currentCell;
+    const lastAction = this.lastAction.action;
+    console.log("lastAction", lastAction);
+    cell.number = "" + (lastAction === "handleDigit" ? cell.number : "") + d;
   }
 
   handleAlpha(a) {
@@ -91,12 +113,15 @@ class PuzzleGrid extends Component {
     return _.isEqual([i, j], this.grid.cursor);
   }
 
+  setCursor(row, col) {
+    this.grid.cursor = [row, col];
+  }
+
   handleCellClick(row, col) {
-    if (_.isEqual([row, col], this.grid.cursor)) {
-      this.toggleDirection();
-    } else {
-      this.grid.cursor = [row, col];
-    }
+    const action = this.cursorAt(row, col)
+      ? ["toggleDirection"]
+      : ["setCursor", row, col];
+    this.doAction(...action);
   }
 
   rowKey(row) {
