@@ -43,7 +43,8 @@ class PuzzleGrid extends Component {
     handleDigit: this.handleDigit.bind(this),
     moveCursor: this.moveCursor.bind(this),
     toggleBlack: this.toggleBlack.bind(this),
-    setCursor: this.setCursor.bind(this)
+    setCursor: this.setCursor.bind(this),
+    toggleDirection: this.toggleDirection.bind(this)
   };
 
   doAction(action, ...args) {
