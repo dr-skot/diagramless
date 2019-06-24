@@ -5,6 +5,11 @@ import PuzzleCell from "./puzzleCell";
 import { includesEqual } from "../services/common/utils";
 import CursoredXwdGrid from "../model/cursoredXwdGrid";
 
+const SET_CURSOR = "setCursor",
+  SET_BLACK = "setBlack",
+  SET_CONTENT = "setContent",
+  SET_NUMBER = "setNumber";
+
 class PuzzleGrid extends Component {
   state = {
     width: 5,
@@ -37,7 +42,7 @@ class PuzzleGrid extends Component {
     handleAlpha: this.handleAlpha.bind(this),
     handleDigit: this.handleDigit.bind(this),
     moveCursor: this.moveCursor.bind(this),
-    toggleBlack: this.moveCursor.bind(this),
+    toggleBlack: this.toggleBlack.bind(this),
     setCursor: this.setCursor.bind(this)
   };
 
@@ -89,12 +94,12 @@ class PuzzleGrid extends Component {
 
   handleAlpha(a) {
     this.grid.currentCell.content = a;
-    this.moveCursor(...this.state.direction);
+    this.moveCursor(...this.grid.direction);
   }
 
   toggleBlack() {
     this.grid.currentCell.toggleBlack();
-    this.moveCursor(...this.state.direction);
+    this.moveCursor(...this.grid.direction);
   }
 
   inFocus(row, col) {
@@ -102,6 +107,7 @@ class PuzzleGrid extends Component {
   }
 
   moveCursor(i, j) {
+    console.log("moveCursor!", i, j);
     this.grid.handleArrow(i, j);
   }
 

@@ -15,6 +15,12 @@ class CursoredXwdGrid extends XwdGrid {
     } else {
       const { width, height } = this;
       const [row, col] = this.cursor;
+      console.log({ width, height, row, col, i, j });
+      console.log("this.cursor", this.cursor);
+      console.log("setting cursor to", [
+        mod(row + i, height),
+        mod(col + j, width)
+      ]);
       this.cursor = [mod(row + i, height), mod(col + j, width)];
     }
   }
@@ -24,7 +30,7 @@ class CursoredXwdGrid extends XwdGrid {
   }
 
   get word() {
-    console.log("word");
+    console.log("word: cursor =", this.cursor.slice());
     return getWord(this.grid, this.cursor, this.direction);
   }
 
