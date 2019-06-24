@@ -9,8 +9,21 @@ class Puzzle extends Component {
       <div className="grid-and-clue-lists">
         <PuzzleGrid />
         <div class="clue-lists">
-          <ClueList label="across" />
-          <ClueList label="down" />
+          <ClueList
+            label="across"
+            clues={[
+              { number: 1, clue: "Your mama." },
+              { number: 2, clue: "Leave her out of it." }
+            ]}
+            current="1"
+            active="true"
+          />
+          <ClueList
+            label="down"
+            clues={[{ number: 1, clue: "And your sister too." }]}
+            current="1"
+            active=""
+          />
         </div>
       </div>
     );

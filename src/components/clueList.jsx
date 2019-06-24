@@ -1,9 +1,16 @@
 import React, { Component } from "react";
 
 class ClueList extends Component {
+  getClasses(clue) {
+    const { current, active } = this.props;
+    if (clue.number + "" === current + "") {
+      return active ? "lit" : "lit secondary";
+    } else {
+      return "";
+    }
+  }
   render() {
-    const label = this.props.label,
-      clues = [{ number: 1, clue: "What?" }];
+    const { label, clues } = this.props;
     return (
       <div className="clues" id="{label}">
         <h1>{label}</h1>
@@ -11,7 +18,7 @@ class ClueList extends Component {
           <table>
             <tbody>
               {clues.map(clue => (
-                <tr key={clue.number + label}>
+                <tr key={clue.number + label} className={this.getClasses(clue)}>
                   <td className="marker" />
                   <td className="number">{clue.number}</td>
                   <td className="clue">{clue.clue}</td>
