@@ -1,10 +1,10 @@
 import React from "react";
 import "./App.css";
 import "./xword.css";
-import PuzzleGrid from "./components/puzzleGrid.jsx";
+import Puzzle from "./components/puzzle.jsx";
 
 function App() {
-  return <PuzzleGrid />;
+  return <Puzzle />;
 }
 
 export default App;

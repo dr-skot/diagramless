@@ -11,7 +11,7 @@ const SET_CURSOR = "setCursor",
   SET_NUMBER = "setNumber";
 
 class PuzzleGrid extends Component {
-  grid = new CursoredXwdGrid(5, 5);
+  grid = new CursoredXwdGrid(15, 15);
   keyDownHandler = this.handleKeyDown.bind(this);
   actionStack = [];
 
@@ -34,7 +34,8 @@ class PuzzleGrid extends Component {
 
   handleKeyDown(event) {
     const keyCode = event.keyCode;
-    //console.log("keyCode", keyCode);
+    console.log("keyCode", keyCode, "which", event.which, "key", event.key);
+
     const keys = {
       37: () => this.handleArrow(0, -1), // arrow left
       38: () => this.handleArrow(-1, 0), // arrow up
@@ -109,7 +110,7 @@ class PuzzleGrid extends Component {
 
   // TODO suppress word select on double click (prevent default isn't doing it)
   handleCellClick(row, col, event) {
-    if (this.cursorAt(row, col)) {
+    if (this.grid.cursorIsAt(row, col)) {
       this.toggleDirection();
     } else {
       this.setCursor(row, col);
