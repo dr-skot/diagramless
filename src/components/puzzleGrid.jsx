@@ -12,14 +12,15 @@ const SET_CURSOR = "setCursor",
 
 class PuzzleGrid extends Component {
   grid = new CursoredXwdGrid(5, 5);
+  keyDownHandler = this.handleKeyDown.bind(this);
   actionStack = [];
 
   componentDidMount() {
-    window.addEventListener("keydown", this.handleKeyDown.bind(this));
+    window.addEventListener("keydown", this.keyDownHandler);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener("keydown", this.keyDownHandler);
   }
 
   recordAction(name, ...args) {
