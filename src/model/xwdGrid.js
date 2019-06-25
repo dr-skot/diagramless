@@ -19,6 +19,39 @@ class XwdGrid {
   cell(row, col) {
     return this.grid[row][col];
   }
+
+  // takes an array of strings
+  setContents(data) {
+    const { height, width, grid } = this;
+    if (data.length !== height * width)
+      throw "Crossword data is the wrong size";
+    _.range(0, height).forEach(row => {
+      _.range(0, width).forEach(col => {
+        const pos = row * width + col;
+        if (data[pos] === "." || data[pos] === ":") {
+          grid[row][col].isBlack = true;
+        } else {
+          grid[row][col].content = data[pos];
+        }
+      });
+    });
+  }
+
+  setNumbers(data) {
+    const { height, width, grid } = this;
+    _.range(0, height).forEach(row => {
+      _.range(0, width).forEach(col => {
+        const pos = row * width + col;
+        grid[row][col].number = data[pos] || "";
+      });
+    });
+  }
+
+  toString() {
+    return this.grid
+      .map(row => row.map(cell => cell.content).join(""))
+      .join("\n");
+  }
 }
 
 export default XwdGrid;

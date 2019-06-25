@@ -16,3 +16,11 @@ it("is made of XwdCells", () => {
   const xwd = new XwdGrid(5, 5);
   expect(xwd.cell(2, 3).constructor.name).toBe("XwdCell");
 });
+
+it("can read puzzle contents", () => {
+  const data = "abc:defghi:jkl".split("");
+  const xwd = new XwdGrid(2, 7);
+  xwd.setContents(data);
+  expect(xwd.cell(0, 0).content).toBe("a");
+  expect(xwd.cell(0, 3).isBlack).toBe(true);
+});

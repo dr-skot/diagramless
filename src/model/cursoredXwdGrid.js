@@ -16,6 +16,10 @@ class CursoredXwdGrid extends XwdGrid {
     return getWord(this.grid, this.cursor, this.direction);
   }
 
+  get crossingWord() {
+    return getWord(this.grid, this.cursor, this.direction.slice().reverse());
+  }
+
   cursorIsAt(row, col) {
     return _.isEqual([row, col], this.cursor);
   }
@@ -32,6 +36,15 @@ class CursoredXwdGrid extends XwdGrid {
     const { width, height } = this;
     const [row, col] = this.cursor;
     return [mod(row + i, height), mod(col + j, width)];
+  }
+
+  directionIs(direction) {
+    return _.isEqual(direction, this.direction);
+  }
+
+  clueNumber(direction) {
+    const word = this.directionIs(direction) ? this.word : this.crossingWord;
+    return word && word.length ? this.cell(...word[0]).number : "";
   }
 }
 

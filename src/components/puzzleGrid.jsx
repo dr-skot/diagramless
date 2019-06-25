@@ -11,7 +11,6 @@ const SET_CURSOR = "setCursor",
   SET_NUMBER = "setNumber";
 
 class PuzzleGrid extends Component {
-  grid = new CursoredXwdGrid(15, 15);
   keyDownHandler = this.handleKeyDown.bind(this);
   actionStack = [];
 
@@ -35,6 +34,8 @@ class PuzzleGrid extends Component {
   handleKeyDown(event) {
     const keyCode = event.keyCode;
     console.log("keyCode", keyCode, "which", event.which, "key", event.key);
+
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
 
     const keys = {
       37: () => this.handleArrow(0, -1), // arrow left
@@ -62,15 +63,15 @@ class PuzzleGrid extends Component {
   }
 
   advanceCursor() {
-    this.moveCursor(...this.grid.direction);
+    this.moveCursor(...this.props.grid.direction);
   }
 
   moveCursor(i, j) {
-    this.setCursor(...this.grid.addToCursor(i, j));
+    this.setCursor(...this.props.grid.addToCursor(i, j));
   }
 
   handleArrow(i, j) {
-    const [down, across] = this.grid.direction;
+    const [down, across] = this.props.grid.direction;
     if ((across && i) || (down && j)) {
       this.toggleDirection();
     } else {
@@ -79,38 +80,38 @@ class PuzzleGrid extends Component {
   }
 
   handleDigit(d) {
-    const cell = this.grid.currentCell;
+    const cell = this.props.grid.currentCell;
     cell.number =
       "" + (this.lastAction.name === SET_NUMBER ? cell.number : "") + d;
     this.recordAction(SET_NUMBER, cell.number);
   }
 
   handleAlpha(a) {
-    this.grid.currentCell.content = a;
+    this.props.grid.currentCell.content = a;
     this.recordAction(SET_CONTENT, a);
     this.advanceCursor();
   }
 
   toggleBlack() {
-    const cell = this.grid.currentCell;
+    const cell = this.props.grid.currentCell;
     cell.toggleBlack();
     this.recordAction(SET_BLACK, cell.isBlack);
     this.advanceCursor();
   }
 
   toggleDirection() {
-    this.grid.toggleDirection();
-    this.recordAction(SET_DIRECTION, this.grid.direction.slice());
+    this.props.grid.toggleDirection();
+    this.recordAction(SET_DIRECTION, this.props.grid.direction.slice());
   }
 
   setCursor(row, col) {
-    this.grid.cursor = [row, col];
-    this.recordAction(SET_CURSOR, this.grid.cursor.slice());
+    this.props.grid.cursor = [row, col];
+    this.recordAction(SET_CURSOR, this.props.grid.cursor.slice());
   }
 
   // TODO suppress word select on double click (prevent default isn't doing it)
   handleCellClick(row, col, event) {
-    if (this.grid.cursorIsAt(row, col)) {
+    if (this.props.grid.cursorIsAt(row, col)) {
       this.toggleDirection();
     } else {
       this.setCursor(row, col);
@@ -127,7 +128,7 @@ class PuzzleGrid extends Component {
   }
 
   render() {
-    const grid = this.grid;
+    const grid = this.props.grid;
     if (grid.length === 0) return null;
     return (
       <div className="grid">
@@ -138,8 +139,8 @@ class PuzzleGrid extends Component {
                 {_.range(0, grid.width).map(col => (
                   <PuzzleCell
                     key={this.cellKey(row, col)}
-                    content={this.grid.cell(row, col).content}
-                    number={this.grid.cell(row, col).number}
+                    content={grid.cell(row, col).content}
+                    number={grid.cell(row, col).number}
                     settings={{
                       cursor: grid.cursorIsAt(row, col),
                       black: grid.cell(row, col).isBlack,
