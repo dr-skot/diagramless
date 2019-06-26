@@ -8,8 +8,11 @@ import { observer } from "mobx-react";
 import FileDrop from "react-file-drop";
 
 class Puzzle extends Component {
+  state = {
+    puz: null
+  };
+
   grid = null;
-  puz = null;
 
   directionIs(direction) {
     return _.isEqual(direction, this.grid.direction);
@@ -21,18 +24,30 @@ class Puzzle extends Component {
     reader.onabort = () => console.log("file reading was aborted");
     reader.onerror = () => console.log("file reading has failed");
     reader.onload = () => {
-      // Do whatever you want with the file contents
+      // TODO check for integrity of contents & fail gracefully
       const binaryStr = reader.result;
       const puz = puzzleFromFileData(binaryStr);
       console.log({ puz });
       this.grid = new CursoredXwdGrid(puz.height, puz.width);
-      this.grid.setContents(puz.solution);
-      this.grid.setNumbers(puz.numbers);
+      //this.grid.setContents(puz.solution);
+      //this.grid.setNumbers(puz.numbers);
       this.setState({ puz });
     };
 
     reader.readAsArrayBuffer(files[0]);
   };
+
+  componentDidUpdate() {
+    localStorage.setItem("xword", JSON.stringify(this.state.puz));
+  }
+
+  componentDidMount() {
+    const puz = JSON.parse(localStorage.getItem("xword"));
+    console.log("will mount:", puz);
+    // TODO check for integrity of puzzle data & fail gracefully
+    if (puz) this.grid = new CursoredXwdGrid(puz.height, puz.width);
+    this.setState({ puz });
+  }
 
   render() {
     const styles = {
@@ -41,7 +56,13 @@ class Puzzle extends Component {
       color: "black",
       padding: 20
     };
-    return this.grid ? (
+    console.log("puz", this.state.puz, "grid", this.grid);
+    if (this.state.puz) {
+      console.log("width", this.state.puz.width);
+      console.log("solution", this.state.puz.solution);
+      console.log("clues", this.state.puz.clues);
+    }
+    return this.grid && this.state.puz && this.state.puz.clues ? (
       <div className="grid-and-clue-lists">
         <PuzzleGrid grid={this.grid} />
         <div className="clue-lists" onClick={() => this.test()}>

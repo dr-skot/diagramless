@@ -2,11 +2,11 @@ import _ from "lodash";
 
 var puzzle;
 
-export const ACROSS = [0, 1],
+export const LEFT = [0, -1],
+  RIGHT = [0, 1],
+  UP = [-1, 0],
   DOWN = [1, 0],
-  LEFT = ACROSS,
-  RIGHT = [0, -1],
-  UP = [-1, 0];
+  ACROSS = RIGHT;
 
 export function getWord(grid, cursor, direction) {
   const [row, col] = cursor;

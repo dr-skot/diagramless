@@ -24,7 +24,7 @@ class XwdGrid {
   setContents(data) {
     const { height, width, grid } = this;
     if (data.length !== height * width)
-      throw "Crossword data is the wrong size";
+      throw "Crossword data is the wrong size"; // TODO throw error object
     _.range(0, height).forEach(row => {
       _.range(0, width).forEach(col => {
         const pos = row * width + col;

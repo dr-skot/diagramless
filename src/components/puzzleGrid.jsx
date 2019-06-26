@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { observer } from "mobx-react";
 import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
-import CursoredXwdGrid from "../model/cursoredXwdGrid";
+import { LEFT, RIGHT, UP, DOWN } from "../services/xwdService";
 
 const SET_CURSOR = "setCursor",
   SET_DIRECTION = "setDirection",
@@ -38,11 +38,12 @@ class PuzzleGrid extends Component {
     if (event.metaKey || event.ctrlKey || event.altKey) return;
 
     const keys = {
-      37: () => this.handleArrow(0, -1), // arrow left
-      38: () => this.handleArrow(-1, 0), // arrow up
-      39: () => this.handleArrow(0, 1), // arrow right
-      40: () => this.handleArrow(1, 0), // arrow down
-      190: () => this.toggleBlack() // . (period)
+      37: () => this.handleArrow(LEFT), // arrow left
+      38: () => this.handleArrow(UP), // arrow up
+      39: () => this.handleArrow(RIGHT), // arrow right
+      40: () => this.handleArrow(DOWN), // arrow down
+      190: () => this.toggleBlack(), // . (period)
+      32: () => this.handleAlpha("") // space
     };
     let shouldPreventDefault = true;
 
@@ -70,7 +71,8 @@ class PuzzleGrid extends Component {
     this.setCursor(...this.props.grid.addToCursor(i, j));
   }
 
-  handleArrow(i, j) {
+  handleArrow(direction) {
+    const [i, j] = direction;
     const [down, across] = this.props.grid.direction;
     if ((across && i) || (down && j)) {
       this.toggleDirection();
@@ -83,6 +85,7 @@ class PuzzleGrid extends Component {
     const cell = this.props.grid.currentCell;
     cell.number =
       "" + (this.lastAction.name === SET_NUMBER ? cell.number : "") + d;
+    if (cell.number === "0") cell.number = ""; // delete if 0
     this.recordAction(SET_NUMBER, cell.number);
   }
 
@@ -96,7 +99,7 @@ class PuzzleGrid extends Component {
     const cell = this.props.grid.currentCell;
     cell.toggleBlack();
     this.recordAction(SET_BLACK, cell.isBlack);
-    this.advanceCursor();
+    //this.advanceCursor();
   }
 
   toggleDirection() {
