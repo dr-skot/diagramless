@@ -24,7 +24,7 @@ class XwdGrid {
   setContents(data) {
     const { height, width, grid } = this;
     if (data.length !== height * width)
-      throw "Crossword data is the wrong size"; // TODO throw error object
+      throw new Error("Crossword data is the wrong size");
     _.range(0, height).forEach(row => {
       _.range(0, width).forEach(col => {
         const pos = row * width + col;
@@ -45,6 +45,22 @@ class XwdGrid {
         grid[row][col].number = data[pos] || "";
       });
     });
+  }
+
+  serialize() {
+    const { height, width, grid } = this;
+    const data = {
+      numbers: [],
+      contents: []
+    };
+    _.range(0, height).forEach(row => {
+      _.range(0, width).forEach(col => {
+        const pos = row * width + col;
+        data.numbers[pos] = grid[row][col].number;
+        data.contents[pos] = grid[row][col].content;
+      });
+    });
+    return data;
   }
 
   toString() {

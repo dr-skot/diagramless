@@ -38,14 +38,24 @@ class Puzzle extends Component {
   };
 
   componentDidUpdate() {
-    localStorage.setItem("xword", JSON.stringify(this.state.puz));
+    const puz = { ...this.state.puz };
+    puz.user = this.grid.serialize();
+    console.log("saving user", puz.user);
+    localStorage.setItem("xword", JSON.stringify(puz));
   }
 
   componentDidMount() {
     const puz = JSON.parse(localStorage.getItem("xword"));
     console.log("will mount:", puz);
     // TODO check for integrity of puzzle data & fail gracefully
-    if (puz) this.grid = new CursoredXwdGrid(puz.height, puz.width);
+    if (puz) {
+      this.grid = new CursoredXwdGrid(puz.height, puz.width);
+      if (puz.user) {
+        console.log("reading user", puz.user);
+        this.grid.setContents(puz.user.contents);
+        this.grid.setNumbers(puz.user.numbers);
+      }
+    }
     this.setState({ puz });
   }
 
@@ -56,12 +66,6 @@ class Puzzle extends Component {
       color: "black",
       padding: 20
     };
-    console.log("puz", this.state.puz, "grid", this.grid);
-    if (this.state.puz) {
-      console.log("width", this.state.puz.width);
-      console.log("solution", this.state.puz.solution);
-      console.log("clues", this.state.puz.clues);
-    }
     return this.grid && this.state.puz && this.state.puz.clues ? (
       <div className="grid-and-clue-lists">
         <PuzzleGrid grid={this.grid} />
