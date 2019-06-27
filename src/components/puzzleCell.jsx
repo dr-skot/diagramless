@@ -8,11 +8,11 @@ class PuzzleCell extends Component {
     return _.keys(_.pickBy(settings)).join(" "); // keys w true values
   }
   render() {
-    const { content, number, onClick } = this.props;
+    const { content, number, onClick, settings } = this.props;
     return (
       <td className={this.getClasses()} onClick={onClick}>
-        <div className="content">{content}</div>
-        <div className="label">{number}</div>
+        <div className="content">{settings.black ? "" : content}</div>
+        <div className="label">{settings.black ? "" : number}</div>
       </td>
     );
   }
