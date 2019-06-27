@@ -47,17 +47,29 @@ class XwdGrid {
     });
   }
 
+  setBlacks(data) {
+    const { height, width, grid } = this;
+    _.range(0, height).forEach(row => {
+      _.range(0, width).forEach(col => {
+        const pos = row * width + col;
+        grid[row][col].isBlack = data[pos] || false;
+      });
+    });
+  }
+
   serialize() {
     const { height, width, grid } = this;
     const data = {
       numbers: [],
-      contents: []
+      contents: [],
+      blacks: []
     };
     _.range(0, height).forEach(row => {
       _.range(0, width).forEach(col => {
         const pos = row * width + col;
         data.numbers[pos] = grid[row][col].number;
         data.contents[pos] = grid[row][col].content;
+        data.blacks[pos] = grid[row][col].isBlack;
       });
     });
     return data;

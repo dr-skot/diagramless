@@ -6,6 +6,7 @@ import ClueList from "./clueList";
 import CursoredXwdGrid from "../model/cursoredXwdGrid";
 import { observer } from "mobx-react";
 import FileDrop from "react-file-drop";
+import { timingSafeEqual } from "crypto";
 
 class Puzzle extends Component {
   state = {
@@ -51,9 +52,11 @@ class Puzzle extends Component {
     if (puz) {
       this.grid = new CursoredXwdGrid(puz.height, puz.width);
       if (puz.user) {
+        // TODO refactor this serialization to model
         console.log("reading user", puz.user);
         this.grid.setContents(puz.user.contents);
         this.grid.setNumbers(puz.user.numbers);
+        if (puz.user.blacks) this.grid.setBlacks(puz.user.blacks);
       }
     }
     this.setState({ puz });
