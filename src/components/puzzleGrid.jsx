@@ -43,7 +43,8 @@ class PuzzleGrid extends Component {
       39: () => this.handleArrow(RIGHT), // arrow right
       40: () => this.handleArrow(DOWN), // arrow down
       190: () => this.toggleBlack(), // . (period)
-      32: () => this.handleAlpha("") // space
+      32: () => this.handleAlpha(""), // space
+      8: () => this.handleBackspace() //
     };
     let shouldPreventDefault = true;
 
@@ -93,6 +94,21 @@ class PuzzleGrid extends Component {
     this.props.grid.currentCell.content = a;
     this.recordAction(SET_CONTENT, a);
     this.advanceCursor();
+  }
+
+  handleBackspace() {
+    if (this.lastAction.name === SET_NUMBER) {
+      const cell = this.props.grid.currentCell;
+      if (cell.number && cell.number.length) {
+        cell.number = cell.number.slice(0, -1); // all but last letter
+        this.recordAction(SET_NUMBER, cell.number);
+      }
+    } else {
+      const [i, j] = this.props.grid.direction;
+      this.moveCursor(-i, -j);
+      this.props.grid.currentCell.content = "";
+      this.recordAction(SET_CONTENT, "");
+    }
   }
 
   toggleBlack() {
