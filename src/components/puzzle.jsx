@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import { ACROSS, DOWN, puzzleFromFileData } from "../services/xwdService";
+import { puzzleFromFileData } from "../services/xwdService";
 import PuzzleModel from "../model/puzzleModel";
 import PuzzleHeader from "./puzzleHeader";
 import PuzzleGrid from "./puzzleGrid";
 import ClueBar from "./clueBar";
-import ClueList from "./clueList";
+import ClueLists from "./clueLists";
 import PuzzleFileDrop from "./puzzleFileDrop";
 import { observer } from "mobx-react";
 
@@ -13,17 +13,12 @@ class Puzzle extends Component {
     puz: null
   };
 
-  grid = null;
-
   handleFileDrop = result => {
     console.log("fileDrop result", result);
     // TODO check for integrity of contents & fail gracefully
     const data = puzzleFromFileData(result);
     const puzzle = new PuzzleModel(data);
     this.puzzle = puzzle;
-    this.grid = puzzle.grid;
-    //this.grid.setContents(puz.solution);
-    //this.grid.setNumbers(puz.numbers);
     this.setState({ puz: puzzle.data });
   };
 
@@ -52,20 +47,7 @@ class Puzzle extends Component {
             <ClueBar clue={puzzle.currentClue} />
             <PuzzleGrid grid={grid} />
           </div>
-          <div className="layout-clue-lists">
-            <ClueList
-              label="across"
-              clues={puz.clues.filter(clue => clue.direction[1])}
-              current={grid.clueNumber(ACROSS)}
-              active={puzzle.directionIs(ACROSS)}
-            />
-            <ClueList
-              label="down"
-              clues={puz.clues.filter(clue => clue.direction[0])}
-              current={grid.clueNumber(DOWN)}
-              active={puzzle.directionIs(DOWN)}
-            />
-          </div>
+          <ClueLists puzzle={puzzle} />
         </div>
         <PuzzleFileDrop onFileLoad={this.handleFileDrop} />
       </div>
