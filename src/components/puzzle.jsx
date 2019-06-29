@@ -1,13 +1,12 @@
 import React, { Component } from "react";
-import _ from "lodash";
 import { ACROSS, DOWN, puzzleFromFileData } from "../services/xwdService";
+import PuzzleModel from "../model/puzzleModel";
 import PuzzleHeader from "./puzzleHeader";
 import PuzzleGrid from "./puzzleGrid";
 import ClueBar from "./clueBar";
 import ClueList from "./clueList";
-import CursoredXwdGrid from "../model/cursoredXwdGrid";
+import PuzzleFileDrop from "./puzzleFileDrop";
 import { observer } from "mobx-react";
-import FileDrop from "react-file-drop";
 
 class Puzzle extends Component {
   state = {
@@ -16,108 +15,62 @@ class Puzzle extends Component {
 
   grid = null;
 
-  directionIs(direction) {
-    return _.isEqual(direction, this.grid.direction);
-  }
-
-  handleDrop = (files, event) => {
-    const reader = new FileReader();
-
-    reader.onabort = () => console.log("file reading was aborted");
-    reader.onerror = () => console.log("file reading has failed");
-    reader.onload = () => {
-      // TODO check for integrity of contents & fail gracefully
-      const binaryStr = reader.result;
-      const puz = puzzleFromFileData(binaryStr);
-      console.log({ puz });
-      this.grid = new CursoredXwdGrid(puz.height, puz.width);
-      //this.grid.setContents(puz.solution);
-      //this.grid.setNumbers(puz.numbers);
-      this.setState({ puz });
-    };
-
-    reader.readAsArrayBuffer(files[0]);
+  handleFileDrop = result => {
+    console.log("fileDrop result", result);
+    // TODO check for integrity of contents & fail gracefully
+    const data = puzzleFromFileData(result);
+    const puzzle = new PuzzleModel(data);
+    this.puzzle = puzzle;
+    this.grid = puzzle.grid;
+    //this.grid.setContents(puz.solution);
+    //this.grid.setNumbers(puz.numbers);
+    this.setState({ puz: puzzle.data });
   };
 
   componentDidUpdate() {
-    const puz = { ...this.state.puz };
-    puz.user = this.grid.serialize();
-    localStorage.setItem("xword", JSON.stringify(puz));
+    if (this.puzzle) {
+      localStorage.setItem("xword", JSON.stringify(this.puzzle.serialize()));
+    }
   }
 
   componentDidMount() {
-    const puz = JSON.parse(localStorage.getItem("xword"));
-    console.log("will mount:", puz);
-    // TODO check for integrity of puzzle data & fail gracefully
-    if (puz) {
-      this.grid = new CursoredXwdGrid(puz.height, puz.width);
-      if (puz.user) {
-        // TODO refactor this serialization to model
-        console.log("reading user", puz.user);
-        this.grid.setContents(puz.user.contents);
-        this.grid.setNumbers(puz.user.numbers);
-        if (puz.user.blacks) this.grid.setBlacks(puz.user.blacks);
-      }
-    }
-    this.setState({ puz });
+    const puzzleData = JSON.parse(localStorage.getItem("xword"));
+    this.puzzle = PuzzleModel.deserialize(puzzleData);
+    this.setState({ puz: this.puzzle.data, puzzle: this.puzzle });
   }
-
-  calculateCurrentClue() {
-    const grid = this.grid,
-      puz = this.state.puz;
-    this.currentClue = {};
-    if (this.grid && this.grid.word) {
-      const number = this.grid.cell(...this.grid.word[0]).number,
-        dir = this.directionIs(ACROSS) ? "A" : "D";
-      const clue = _.find(
-        puz.clues,
-        clue =>
-          clue.number + "" === number + "" && this.directionIs(clue.direction)
-      );
-      this.currentClue = clue ? { number: number + dir, text: clue.clue } : {};
-    }
-  }
-
-  currentClueText() {}
 
   render() {
-    const styles = {
-      border: "1px solid black",
-      width: 600,
-      color: "black",
-      padding: 20
-    };
-    const grid = this.grid,
-      puz = this.state.puz;
-    this.calculateCurrentClue();
-    return grid && puz && puz.clues ? (
+    const puzzle = this.puzzle,
+      grid = puzzle ? puzzle.grid : null,
+      puz = puzzle ? puzzle.data : null;
+    if (puzzle) puzzle.calculateCurrentClue();
+    return puzzle && puz.clues ? (
       <div>
         <PuzzleHeader puzzle={puz} />
         <div className="layout-puzzle">
           <div className="layout-cluebar-and-board">
-            <ClueBar clue={this.currentClue} />
-            <PuzzleGrid grid={this.grid} />
+            <ClueBar clue={puzzle.currentClue} />
+            <PuzzleGrid grid={grid} />
           </div>
           <div className="layout-clue-lists">
             <ClueList
               label="across"
-              clues={this.state.puz.clues.filter(clue => clue.direction[1])}
-              current={this.grid.clueNumber(ACROSS)}
-              active={this.directionIs(ACROSS)}
+              clues={puz.clues.filter(clue => clue.direction[1])}
+              current={grid.clueNumber(ACROSS)}
+              active={puzzle.directionIs(ACROSS)}
             />
             <ClueList
               label="down"
-              clues={this.state.puz.clues.filter(clue => clue.direction[0])}
-              current={this.grid.clueNumber(DOWN)}
-              active={this.directionIs(DOWN)}
+              clues={puz.clues.filter(clue => clue.direction[0])}
+              current={grid.clueNumber(DOWN)}
+              active={puzzle.directionIs(DOWN)}
             />
           </div>
         </div>
+        <PuzzleFileDrop onFileLoad={this.handleFileDrop} />
       </div>
     ) : (
-      <div id="react-file-drop-demo" style={{ styles }}>
-        <FileDrop onDrop={this.handleDrop}>Drop some files here!</FileDrop>
-      </div>
+      <PuzzleFileDrop onFileLoad={this.handleFileDrop} />
     );
   }
 }

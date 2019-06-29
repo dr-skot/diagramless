@@ -84,6 +84,8 @@ export function puzzleFromFileData(data) {
     note = info[3 + clues.length],
     extras = {};
 
+  console.log("label", label);
+
   // process extras as binary data
   var index = 0x34 + size * 2 + (info.join("").length + info.length); // length of strings plus their null terminators
   var code, len, content;

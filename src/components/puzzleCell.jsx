@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { keysWithTrueValues } from "../services/common/utils";
-import _ from "lodash";
 
 class PuzzleCell extends Component {
   state = {};

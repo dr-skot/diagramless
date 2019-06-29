@@ -3,6 +3,7 @@
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   font-family: Arial;
+  font-size: 14px;
 }
 
 a,
@@ -219,7 +220,7 @@ table {
 .cluebar-text {
   padding-right: 10px;
   line-height: 23px;
-  text-align: center;
+  text-align: left;
 }
 
 .puzzle-board {
@@ -293,87 +294,6 @@ table {
   border-left-color: #a7d8ff;
 }
 
-.grid-and-clue-lists {
-  display: flex;
-}
-
-.grid {
-  width: 50%;
-}
-
-.clue-lists {
-  width: 25%;
-  height: 50%;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.clues {
-  font-family: sans-serif;
-  padding: 5px 5px 5px 10px;
-}
-
-.clues h1 {
-  border-top: 1px solid lightgray;
-  border-bottoms: 1px solid lightgray;
-  margin: 0 0 0.5em 0;
-  padding: 0;
-  font-size: 1.5em;
-}
-
-.clues .scroller {
-  overflow: scroll;
-  height: 220px;
-}
-
-.current-clue {
-  display: flex;
-  align-items: center;
-  width: 50%;
-  padding: 20px;
-  background-color: #dcefff;
-  margin-bottom: 10px;
-  height: 70px;
-}
-.current-clue .number {
-  font-weight: bold;
-}
-
-.clues td {
-  border: none;
-  vertical-align: top;
-  padding: 0.2em;
-}
-.clues td.number {
-  text-align: right;
-  font-weight: bold;
-}
-.clues td.clue {
-  text-align: left;
-}
-
-.clues tr.lit {
-  background-color: #98cffc;
-}
-
-.clues tr.lit.secondary {
-  background-color: transparent;
-}
-.clues tr.lit.secondary td.marker {
-  background-color: #98cffc;
-}
-
-.empty-dropzone {
-  border: 2px dashed #bbb;
-  border-radius: 5px;
-  padding: 25px;
-  text-align: center;
-  font: 20pt bold;
-  color: #bbb;
-  margin-bottom: 20px;
-}
-
 div.circle {
   position: absolute;
   top: 0;
@@ -393,4 +313,21 @@ div.circle {
   height: 32px;
   font-size: inherit;
   text-transform: uppercase;
+}
+
+.empty-dropzone {
+  border: 2px dashed #bbb;
+  border-radius: 5px;
+  padding: 25px;
+  text-align: center;
+  font: 20pt bold;
+  color: #bbb;
+  margin-bottom: 20px;
+}
+
+.file-drop-demo {
+  border: 1px solid black;
+  width: 600px;
+  color: black;
+  padding: 20px;
 }

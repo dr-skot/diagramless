@@ -43,15 +43,13 @@ class XwdGrid {
   // takes an array of strings
   setContents(data) {
     const { height, width, grid } = this;
-    if (data.length !== height * width)
-      throw new Error("Crossword data is the wrong size");
     _.range(0, height).forEach(row => {
       _.range(0, width).forEach(col => {
         const pos = row * width + col;
         if (data[pos] === "." || data[pos] === ":") {
           grid[row][col].isBlack = true;
         } else {
-          grid[row][col].content = data[pos];
+          grid[row][col].content = data[pos] || "";
         }
       });
     });
