@@ -138,6 +138,8 @@ class PuzzleGrid extends Component {
     event.preventDefault();
   }
 
+  // MARK: helper function for render
+
   rowKey(row) {
     return "row " + row;
   }
@@ -146,32 +148,37 @@ class PuzzleGrid extends Component {
     return "cell " + row + ", " + col;
   }
 
+  cursorSettings(row, col) {
+    const grid = this.props.grid;
+    return {
+      cell: grid.cursorIsAt(row, col),
+      word: grid.wordContains(row, col)
+    };
+  }
+
   render() {
     const grid = this.props.grid;
     if (grid.length === 0) return null;
     return (
-      <div className="grid">
-        <table id="board" tabIndex="0">
-          <tbody>
-            {_.range(0, grid.height).map(row => (
-              <tr key={this.rowKey(row)}>
-                {_.range(0, grid.width).map(col => (
-                  <PuzzleCell
-                    key={this.cellKey(row, col)}
-                    content={grid.cell(row, col).content}
-                    number={grid.cell(row, col).number}
-                    settings={{
-                      cursor: grid.cursorIsAt(row, col),
-                      black: grid.cell(row, col).isBlack,
-                      focus: grid.wordContains(row, col)
-                    }}
-                    onClick={event => this.handleCellClick(row, col, event)}
-                  />
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="puzzle-board">
+        <div className="grid puzzle-board-content">
+          <table id="board" tabIndex="0">
+            <tbody>
+              {_.range(0, grid.height).map(row => (
+                <tr key={this.rowKey(row)}>
+                  {_.range(0, grid.width).map(col => (
+                    <PuzzleCell
+                      key={this.cellKey(row, col)}
+                      cell={grid.cell(row, col)}
+                      cursor={this.cursorSettings(row, col)}
+                      onClick={event => this.handleCellClick(row, col, event)}
+                    />
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }

@@ -4,8 +4,9 @@ import _ from "lodash";
 class XwdGrid {
   grid = [];
 
-  constructor(height, width) {
+  constructor(height, width, data) {
     this.grid = _.times(height, () => _.times(width, () => new XwdCell()));
+    if (data) this.setData(data);
   }
 
   get height() {
@@ -18,6 +19,25 @@ class XwdGrid {
 
   cell(row, col) {
     return this.grid[row][col];
+  }
+
+  setData(data) {
+    const { height, width, grid } = this;
+    const { contents, numbers } = data;
+    _.range(0, height).forEach(row => {
+      _.range(0, width).forEach(col => {
+        const pos = row * width + col;
+        const cell = grid[row][col];
+        if (contents) {
+          if (contents[pos] === "." || contents[pos] === ":") {
+            cell.isBlack = true;
+          } else {
+            cell.content = contents[pos] || "";
+          }
+        }
+        if (numbers) grid[row][col].number = numbers[pos] || "";
+      });
+    });
   }
 
   // takes an array of strings

@@ -24,3 +24,9 @@ it("can read puzzle contents", () => {
   expect(xwd.cell(0, 0).content).toBe("a");
   expect(xwd.cell(0, 3).isBlack).toBe(true);
 });
+
+it("reads puzzle contents in the constructor", () => {
+  const xwd = new XwdGrid(2, 7, { contents: "abc:defghi:jkl" });
+  expect(xwd.cell(0, 0).content).toBe("a");
+  expect(xwd.cell(0, 3).isBlack).toBe(true);
+});

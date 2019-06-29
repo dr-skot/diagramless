@@ -1,4 +1,4 @@
-import { includesEqual, mod } from "./utils";
+import { includesEqual, mod, keysWithTrueValues } from "./utils";
 
 describe("includesEqual", () => {
   it("finds an array in a list of arrays", () => {
@@ -25,5 +25,12 @@ describe("mod", () => {
   });
   it("knows mod(-6,6) is 0", () => {
     expect(mod(-6, 6)).toBe(0);
+  });
+});
+
+describe("keysWithTrueValues", () => {
+  it("works", () => {
+    const obj = { a: true, b: false, c: "false", d: "" };
+    expect(keysWithTrueValues(obj)).toEqual(["a", "c"]);
   });
 });

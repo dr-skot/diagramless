@@ -12,3 +12,10 @@ export function includesEqual(array, item) {
 export function mod(m, n) {
   return ((m % n) + n) % n;
 }
+
+// returns the keys of an object that have truthy values
+//    obj = {a: true, b: false, c: "false", d: ""}
+//    keysWithTrueValues(obj) === ["a", "c"];
+export function keysWithTrueValues(object) {
+  return _.keys(_.pickBy(object));
+}

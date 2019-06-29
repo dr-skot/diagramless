@@ -1,18 +1,26 @@
 import React, { Component } from "react";
+import { keysWithTrueValues } from "../services/common/utils";
 import _ from "lodash";
 
 class PuzzleCell extends Component {
   state = {};
+
   getClasses() {
-    const { settings } = this.props;
-    return _.keys(_.pickBy(settings)).join(" "); // keys w true values
+    const { cell, cursor } = this.props;
+    const classes = {
+      black: cell.isBlack,
+      cursor: cursor.cell,
+      focus: cursor.word
+    };
+    return keysWithTrueValues(classes).join(" ");
   }
+
   render() {
-    const { content, number, onClick, settings } = this.props;
+    const { content, number, isBlack } = this.props.cell;
     return (
-      <td className={this.getClasses()} onClick={onClick}>
-        <div className="content">{settings.black ? "" : content}</div>
-        <div className="label">{settings.black ? "" : number}</div>
+      <td className={this.getClasses()} onClick={this.props.onClick}>
+        <div className="content">{isBlack ? "" : content}</div>
+        <div className="label">{isBlack ? "" : number}</div>
       </td>
     );
   }

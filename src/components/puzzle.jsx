@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import _ from "lodash";
 import { ACROSS, DOWN, puzzleFromFileData } from "../services/xwdService";
+import PuzzleHeader from "./puzzleHeader";
 import PuzzleGrid from "./puzzleGrid";
+import ClueBar from "./clueBar";
 import ClueList from "./clueList";
 import CursoredXwdGrid from "../model/cursoredXwdGrid";
 import { observer } from "mobx-react";
 import FileDrop from "react-file-drop";
-import { timingSafeEqual } from "crypto";
 
 class Puzzle extends Component {
   state = {
@@ -41,7 +42,6 @@ class Puzzle extends Component {
   componentDidUpdate() {
     const puz = { ...this.state.puz };
     puz.user = this.grid.serialize();
-    console.log("saving user", puz.user);
     localStorage.setItem("xword", JSON.stringify(puz));
   }
 
@@ -62,6 +62,24 @@ class Puzzle extends Component {
     this.setState({ puz });
   }
 
+  calculateCurrentClue() {
+    const grid = this.grid,
+      puz = this.state.puz;
+    this.currentClue = {};
+    if (this.grid && this.grid.word) {
+      const number = this.grid.cell(...this.grid.word[0]).number,
+        dir = this.directionIs(ACROSS) ? "A" : "D";
+      const clue = _.find(
+        puz.clues,
+        clue =>
+          clue.number + "" === number + "" && this.directionIs(clue.direction)
+      );
+      this.currentClue = clue ? { number: number + dir, text: clue.clue } : {};
+    }
+  }
+
+  currentClueText() {}
+
   render() {
     const styles = {
       border: "1px solid black",
@@ -69,22 +87,31 @@ class Puzzle extends Component {
       color: "black",
       padding: 20
     };
-    return this.grid && this.state.puz && this.state.puz.clues ? (
-      <div className="grid-and-clue-lists">
-        <PuzzleGrid grid={this.grid} />
-        <div className="clue-lists" onClick={() => this.test()}>
-          <ClueList
-            label="across"
-            clues={this.state.puz.clues.filter(clue => clue.direction[1])}
-            current={this.grid.clueNumber(ACROSS)}
-            active={_.isEqual(ACROSS, this.grid.direction)}
-          />
-          <ClueList
-            label="down"
-            clues={this.state.puz.clues.filter(clue => clue.direction[0])}
-            current={this.grid.clueNumber(DOWN)}
-            active={_.isEqual(DOWN, this.grid.direction)}
-          />
+    const grid = this.grid,
+      puz = this.state.puz;
+    this.calculateCurrentClue();
+    return grid && puz && puz.clues ? (
+      <div>
+        <PuzzleHeader puzzle={puz} />
+        <div className="layout-puzzle">
+          <div className="layout-cluebar-and-board">
+            <ClueBar clue={this.currentClue} />
+            <PuzzleGrid grid={this.grid} />
+          </div>
+          <div className="layout-clue-lists">
+            <ClueList
+              label="across"
+              clues={this.state.puz.clues.filter(clue => clue.direction[1])}
+              current={this.grid.clueNumber(ACROSS)}
+              active={this.directionIs(ACROSS)}
+            />
+            <ClueList
+              label="down"
+              clues={this.state.puz.clues.filter(clue => clue.direction[0])}
+              current={this.grid.clueNumber(DOWN)}
+              active={this.directionIs(DOWN)}
+            />
+          </div>
         </div>
       </div>
     ) : (

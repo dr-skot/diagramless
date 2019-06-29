@@ -12,11 +12,14 @@ class ClueList extends Component {
 
   // specifies the appropriate highlighting if any
   getClasses(clue) {
-    return this.clueIsLit(clue)
-      ? this.props.active
-        ? "lit"
-        : "lit secondary"
-      : "";
+    return (
+      "clue-list-item" +
+      (this.clueIsLit(clue)
+        ? this.props.active
+          ? " clue-selected"
+          : " clue-highlighted"
+        : "")
+    );
   }
 
   // marks the lit clue so we can scroll to it
@@ -27,36 +30,29 @@ class ClueList extends Component {
   // scrolls to the lit clue after an update
   componentDidUpdate() {
     if (this.scrollerRef.current && this.highlightRef.current) {
-      this.scrollerRef.current.scrollTop = this.highlightRef.current.offsetTop;
+      console.log("top", this.highlightRef.current.offsetTop);
+      this.scrollerRef.current.scrollTop =
+        this.highlightRef.current.offsetTop - 60; // TODO: why this 60?
     }
   }
 
   render() {
     const { label, clues } = this.props;
     return (
-      <div className="clues" id="{label}">
-        <h1>{label}</h1>
-        <div
-          className="scroller"
-          ref={this.scrollerRef}
-          id={label + "-scroller"}
-        >
-          <table>
-            <tbody>
-              {clues.map(clue => (
-                <tr
-                  key={clue.number + label}
-                  ref={this.getRef(clue)}
-                  className={this.getClasses(clue)}
-                >
-                  <td className="marker" />
-                  <td className="number">{clue.number}</td>
-                  <td className="clue">{clue.clue}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="clue-list-wrapper">
+        <h3 className="clue-list-title">{label}</h3>
+        <ol className="clue-list-list" ref={this.scrollerRef}>
+          {clues.map(clue => (
+            <li
+              key={clue.number + label}
+              ref={this.getRef(clue)}
+              className={this.getClasses(clue)}
+            >
+              <span className="clue-number">{clue.number}</span>
+              <span className="clue-text">{clue.clue}</span>
+            </li>
+          ))}
+        </ol>
       </div>
     );
   }
