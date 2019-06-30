@@ -21,6 +21,16 @@ class XwdGrid {
     return this.grid[row][col];
   }
 
+  allCells(callback) {
+    const { width, height } = this;
+    _.range(0, height).forEach(row => {
+      _.range(0, width).forEach(col => {
+        const pos = row * width + col;
+        callback(this.grid[row][col], { row, col, pos });
+      });
+    });
+  }
+
   setData(data) {
     const { height, width, grid } = this;
     const { contents, numbers } = data;

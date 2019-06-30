@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { puzzleFromFileData } from "../services/xwdService";
 import PuzzleModel from "../model/puzzleModel";
 import PuzzleHeader from "./puzzleHeader";
 import PuzzleGrid from "./puzzleGrid";
@@ -13,13 +12,9 @@ class Puzzle extends Component {
     puz: null
   };
 
-  handleFileDrop = result => {
-    console.log("fileDrop result", result);
-    // TODO check for integrity of contents & fail gracefully
-    const data = puzzleFromFileData(result);
-    const puzzle = new PuzzleModel(data);
-    this.puzzle = puzzle;
-    this.setState({ puz: puzzle.data });
+  handleFileDrop = fileContents => {
+    this.puzzle = PuzzleModel.fromFileData(fileContents);
+    this.setState({ puz: this.puzzle.data });
   };
 
   componentDidUpdate() {
@@ -38,9 +33,12 @@ class Puzzle extends Component {
     const puzzle = this.puzzle,
       grid = puzzle ? puzzle.grid : null,
       puz = puzzle ? puzzle.data : null;
+
     if (puzzle) puzzle.calculateCurrentClue();
-    return puzzle && puz.clues ? (
+
+    const puzzleHtml = puzzle ? (
       <div>
+        <p>Solved? {puzzle.isSolved() ? "yes" : "no"}</p>
         <PuzzleHeader puzzle={puz} />
         <div className="layout-puzzle">
           <div className="layout-cluebar-and-board">
@@ -52,7 +50,14 @@ class Puzzle extends Component {
         <PuzzleFileDrop onFileLoad={this.handleFileDrop} />
       </div>
     ) : (
-      <PuzzleFileDrop onFileLoad={this.handleFileDrop} />
+      ""
+    );
+
+    return (
+      <div>
+        {puzzleHtml}
+        <PuzzleFileDrop onFileLoad={this.handleFileDrop} />
+      </div>
     );
   }
 }

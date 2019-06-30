@@ -30,3 +30,11 @@ it("reads puzzle contents in the constructor", () => {
   expect(xwd.cell(0, 0).content).toBe("a");
   expect(xwd.cell(0, 3).isBlack).toBe(true);
 });
+
+it("can step through all cells", () => {
+  const xwd = new XwdGrid(2, 7);
+  xwd.allCells((cell, { pos }) => {
+    cell.pos = pos;
+  });
+  expect(xwd.cell(1, 0).pos).toBe(7);
+});
