@@ -10,10 +10,8 @@ class ReactFileDropDemo extends React.Component {
     reader.onerror = () => console.log("file reading has failed");
     reader.onload = () => {
       // Do whatever you want with the file contents
-      const binaryStr = reader.result;
-      console.log({ binaryStr });
-      const puz = puzzleFromFileData(binaryStr);
-      console.log({ puz });
+      const arrayBuffer = reader.result;
+      const puz = puzzleFromFileData(arrayBuffer);
     };
 
     reader.readAsArrayBuffer(files[0]);

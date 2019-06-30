@@ -33,7 +33,7 @@ class PuzzleModel {
   }
 
   calculateCurrentClue() {
-    console.log("this.grid", this.grid);
+    console.log("calculate current clue");
     const grid = this.grid,
       puz = this.data;
     this.currentClue = {};

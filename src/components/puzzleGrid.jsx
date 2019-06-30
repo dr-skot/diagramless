@@ -11,15 +11,14 @@ const SET_CURSOR = "setCursor",
   SET_NUMBER = "setNumber";
 
 class PuzzleGrid extends Component {
-  keyDownHandler = this.handleKeyDown.bind(this);
   actionStack = [];
 
   componentDidMount() {
-    window.addEventListener("keydown", this.keyDownHandler);
+    window.addEventListener("keydown", this.handleKeyDown);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("keydown", this.keyDownHandler);
+    window.removeEventListener("keydown", this.handleKeyDown);
   }
 
   recordAction(name, ...args) {
@@ -31,9 +30,9 @@ class PuzzleGrid extends Component {
     return this.actionStack[0];
   }
 
-  handleKeyDown(event) {
+  handleKeyDown = event => {
     const keyCode = event.keyCode;
-    console.log("keyCode", keyCode, "which", event.which, "key", event.key);
+    //console.log("keyCode", keyCode);
 
     if (event.metaKey || event.ctrlKey || event.altKey) return;
 
@@ -62,7 +61,7 @@ class PuzzleGrid extends Component {
     }
 
     if (shouldPreventDefault) event.preventDefault();
-  }
+  };
 
   advanceCursor() {
     this.moveCursor(...this.props.grid.direction);
@@ -88,6 +87,7 @@ class PuzzleGrid extends Component {
       "" + (this.lastAction.name === SET_NUMBER ? cell.number : "") + d;
     if (cell.number === "0") cell.number = ""; // delete if 0
     this.recordAction(SET_NUMBER, cell.number);
+    this.setState({});
   }
 
   handleAlpha(a) {
@@ -97,18 +97,22 @@ class PuzzleGrid extends Component {
   }
 
   handleBackspace() {
+    const grid = this.props.grid;
     if (this.lastAction.name === SET_NUMBER) {
-      const cell = this.props.grid.currentCell;
+      const cell = grid.currentCell;
       if (cell.number && cell.number.length) {
         cell.number = cell.number.slice(0, -1); // all but last letter
         this.recordAction(SET_NUMBER, cell.number);
       }
     } else {
-      const [i, j] = this.props.grid.direction;
-      this.moveCursor(-i, -j);
-      this.props.grid.currentCell.content = "";
+      if (!grid.currentCell.content) {
+        const [i, j] = grid.direction;
+        this.moveCursor(-i, -j);
+      }
+      grid.currentCell.content = "";
       this.recordAction(SET_CONTENT, "");
     }
+    this.setState({});
   }
 
   toggleBlack() {

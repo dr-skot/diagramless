@@ -84,8 +84,6 @@ export function puzzleFromFileData(data) {
     note = info[3 + clues.length],
     extras = {};
 
-  console.log("label", label);
-
   // process extras as binary data
   var index = 0x34 + size * 2 + (info.join("").length + info.length); // length of strings plus their null terminators
   var code, len, content;
@@ -147,19 +145,19 @@ export function puzzleFromFileData(data) {
   // <seconds elapsed>,<timer running ? 1 : 0>
   // "42,1" means 42 seconds have elapsed, and timer is running
 
-  console.log("solution", solution);
   puzzle = {
-    width: width,
-    height: height,
-    solution: solution,
-    guesses: guesses,
-    clues: clues,
-    numbers: numbers,
-    author: author,
-    title: title,
-    copyright: copyright,
-    note: note,
-    extras: extras
+    label,
+    width,
+    height,
+    solution,
+    guesses,
+    clues,
+    numbers,
+    author,
+    title,
+    copyright,
+    note,
+    extras
   };
 
   // TODO: do this right. It's just to remove : from guesses in diagramless
@@ -175,8 +173,8 @@ function numberGrid(grid, width, clueList) {
   var numbers = [];
   var clues = clueList ? [] : null;
 
-  for (var k = 0; k < grid.length; k++) {
-    [ACROSS, DOWN].forEach(function(dir) {
+  _.range(0, grid.length).forEach(k => {
+    [ACROSS, DOWN].forEach(dir => {
       if (isStartCell(grid, width, k, dir)) {
         if (clues)
           clues.push({
@@ -188,17 +186,17 @@ function numberGrid(grid, width, clueList) {
       }
     });
     if (numbers[k]) number++;
-  }
+  });
   return clues ? { numbers: numbers, clues: clues } : numbers;
 }
 
 function numClues(grid, width) {
   var count = 0;
-  for (var k = 0; k < grid.length; k++) {
+  _.range(0, grid.length).forEach(k => {
     [ACROSS, DOWN].forEach(function(dir) {
       if (isStartCell(grid, width, k, dir)) count++;
     });
-  }
+  });
   return count;
 }
 
@@ -219,6 +217,7 @@ function isBlack(grid, k) {
   return grid[k] === ":" || grid[k] === ".";
 }
 
+/*
 function whichClue(grid, width, numbers, k, direction) {
   if (isBlack(grid, k)) return null;
   if (isStartCell(grid, width, k, direction)) return numbers[k];
@@ -241,3 +240,4 @@ function isSolved(puzzle, checkBlacks) {
   }
   return true;
 }
+*/

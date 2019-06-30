@@ -30,7 +30,6 @@ class ClueList extends Component {
   // scrolls to the lit clue after an update
   componentDidUpdate() {
     if (this.scrollerRef.current && this.highlightRef.current) {
-      console.log("top", this.highlightRef.current.offsetTop);
       this.scrollerRef.current.scrollTop =
         this.highlightRef.current.offsetTop - 60; // TODO: why this 60?
     }
