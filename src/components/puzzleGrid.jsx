@@ -3,6 +3,7 @@ import { observer } from "mobx-react";
 import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
 import { LEFT, RIGHT, UP, DOWN } from "../services/xwdService";
+import { isOptionalMemberExpression } from "@babel/types";
 
 const SET_CURSOR = "setCursor",
   SET_DIRECTION = "setDirection",
@@ -36,6 +37,10 @@ class PuzzleGrid extends Component {
 
     if (event.metaKey || event.ctrlKey || event.altKey) return;
 
+    const shiftKeys = {
+      9: () => this.handleTab({ backward: true })
+    };
+
     const keys = {
       37: () => this.handleArrow(LEFT), // arrow left
       38: () => this.handleArrow(UP), // arrow up
@@ -48,7 +53,7 @@ class PuzzleGrid extends Component {
     };
     let shouldPreventDefault = true;
 
-    const keyAction = keys[event.keyCode];
+    const keyAction = (event.shiftKey ? shiftKeys : keys)[event.keyCode];
     if (keyAction) {
       keyAction();
     } else if (_.inRange(keyCode, 48, 57 + 1)) {
@@ -78,8 +83,8 @@ class PuzzleGrid extends Component {
     return (across && i) || (down && j); // && !(i && j)
   }
 
-  handleTab() {
-    this.props.grid.goToNextWord();
+  handleTab(options = {}) {
+    this.props.grid.goToNextWord(options);
   }
 
   handleArrow(direction) {
