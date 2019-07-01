@@ -1,12 +1,21 @@
 import XwdGrid from "./xwdGrid";
 import _ from "lodash";
 import { decorate, observable, action, computed } from "mobx";
-import { getWord } from "../services/xwdService";
+import {
+  getWord,
+  LEFT,
+  RIGHT,
+  UP,
+  ACROSS,
+  NEXT_LINE,
+  isWordStart,
+  moveOnGrid
+} from "../services/xwdService";
 import { mod, includesEqual } from "../services/common/utils";
 
 class CursoredXwdGrid extends XwdGrid {
   cursor = [0, 0];
-  direction = [0, 1]; // across
+  direction = RIGHT; // across
 
   get currentCell() {
     return this.cell(...this.cursor);
@@ -45,6 +54,35 @@ class CursoredXwdGrid extends XwdGrid {
   clueNumber(direction) {
     const word = this.directionIs(direction) ? this.word : this.crossingWord;
     return word && word.length ? this.cell(...word[0]).number : "";
+  }
+
+  setCursor(row, col) {
+    this.cursor = [row, col];
+  }
+
+  goToNextWord() {
+    // go to end of current word
+    const word = this.word;
+    if (!word) return;
+    const wordEdge = _.isEqual(this.direction, ACROSS)
+      ? word[word.length - 1]
+      : word[0];
+    const gridSize = [this.height, this.width];
+    let direction = this.direction;
+    const newPos = moveOnGrid(wordEdge, RIGHT, gridSize, {
+      atLineEnd: NEXT_LINE,
+      onPuzzleWrap: () => {
+        direction = direction.slice().reverse();
+      },
+      until: pos => isWordStart(pos, direction, this.grid)
+    });
+    console.log({
+      wordEdge: wordEdge.slice(),
+      newPos,
+      direction: direction.slice()
+    });
+    this.setCursor(...newPos);
+    this.direction = direction;
   }
 }
 

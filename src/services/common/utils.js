@@ -19,3 +19,27 @@ export function mod(m, n) {
 export function keysWithTrueValues(object) {
   return _.keys(_.pickBy(object));
 }
+
+export function vectorAdd(v1, v2) {
+  return v1.map((element, i) => element + v2[i]);
+}
+
+export function vectorSubtract(v1, v2) {
+  return v1.map((element, i) => element - v2[i]);
+}
+
+export function vectorMod(vector, mods) {
+  return vector.map((element, i) => mod(element, mods[i]));
+}
+
+export function vectorFits(vector, limits) {
+  const fn = (result, element, i) => result && _.inRange(element, 0, limits[i]);
+  return vector.reduce(fn, true);
+}
+
+export function getElement(array, indices) {
+  return indices.reduce(
+    (subarray, index) => (subarray ? subarray[index] : undefined),
+    array
+  );
+}

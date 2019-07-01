@@ -32,6 +32,7 @@ class XwdGrid {
   }
 
   setData(data) {
+    console.log("setting data");
     const { height, width, grid } = this;
     const { contents, numbers } = data;
     _.range(0, height).forEach(row => {

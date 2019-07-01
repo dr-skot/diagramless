@@ -32,7 +32,7 @@ class PuzzleGrid extends Component {
 
   handleKeyDown = event => {
     const keyCode = event.keyCode;
-    //console.log("keyCode", keyCode);
+    console.log("keyCode", keyCode);
 
     if (event.metaKey || event.ctrlKey || event.altKey) return;
 
@@ -43,7 +43,8 @@ class PuzzleGrid extends Component {
       40: () => this.handleArrow(DOWN), // arrow down
       190: () => this.toggleBlack(), // . (period)
       32: () => this.handleAlpha(""), // space
-      8: () => this.handleBackspace() //
+      8: () => this.handleBackspace(), //
+      9: () => this.handleTab()
     };
     let shouldPreventDefault = true;
 
@@ -52,7 +53,7 @@ class PuzzleGrid extends Component {
       keyAction();
     } else if (_.inRange(keyCode, 48, 57 + 1)) {
       // digits
-      this.handleDigit(keyCode - 48);
+      this.handleDigit(String.fromCharCode(keyCode));
     } else if (_.inRange(keyCode, 58, 90 + 1)) {
       // alpha
       this.handleAlpha(String.fromCharCode(keyCode));
@@ -71,20 +72,32 @@ class PuzzleGrid extends Component {
     this.setCursor(...this.props.grid.addToCursor(i, j));
   }
 
-  handleArrow(direction) {
+  isPerpendicular(direction) {
     const [i, j] = direction;
     const [down, across] = this.props.grid.direction;
-    if ((across && i) || (down && j)) {
+    return (across && i) || (down && j); // && !(i && j)
+  }
+
+  handleTab() {
+    this.props.grid.goToNextWord();
+  }
+
+  handleArrow(direction) {
+    const [i, j] = direction;
+    if (this.isPerpendicular(direction)) {
       this.toggleDirection();
     } else {
       this.moveCursor(i, j); // to record action
     }
   }
 
-  handleDigit(d) {
+  isEditingNumber() {
+    return this.lastAction.name === SET_NUMBER;
+  }
+
+  handleDigit(digit) {
     const cell = this.props.grid.currentCell;
-    cell.number =
-      "" + (this.lastAction.name === SET_NUMBER ? cell.number : "") + d;
+    cell.number = (this.isEditingNumber() ? cell.number : "") + digit;
     if (cell.number === "0") cell.number = ""; // delete if 0
     this.recordAction(SET_NUMBER, cell.number);
     this.setState({});

@@ -1,4 +1,11 @@
 import _ from "lodash";
+import {
+  vectorAdd,
+  vectorSubtract,
+  vectorMod,
+  vectorFits,
+  getElement
+} from "./common/utils";
 
 var puzzle;
 
@@ -7,6 +14,10 @@ export const LEFT = [0, -1],
   UP = [-1, 0],
   DOWN = [1, 0],
   ACROSS = RIGHT;
+
+export const STOP = "STOP",
+  WRAP_AROUND = "WRAP_AROUND",
+  NEXT_LINE = "NEXT_LINE";
 
 export function getWord(grid, cursor, direction) {
   const [row, col] = cursor;
@@ -215,6 +226,88 @@ function isStartCell(grid, width, k, direction) {
 
 function isBlack(grid, k) {
   return grid[k] === ":" || grid[k] === ".";
+}
+
+// returns new cursor position after moving one cell in direction
+// on a grid of a certain size
+//    start: starting position, [row, col]
+//    direction: LEFT | RIGHT | UP | DOWN
+//    dimensions: grid size, [height, width];
+//    options:
+//       atLineEnd: STOP | WRAP_AROUND | NEXT_LINE (default WRAP_AROUND)
+//       onPuzzleWrap: a callback triggered when wrapping past the end of the puzzle
+export function moveOnGrid(start, direction, gridSize, options) {
+  const { atLineEnd, onPuzzleWrap, until } = options || {};
+
+  if (until) {
+    return moveOnGridUntil(options.until, start, direction, gridSize, {
+      atLineEnd,
+      onPuzzleWrap
+    });
+  }
+
+  const vector = direction; // TODO make direction a string & look up vector
+  const onGrid = position => vectorFits(position, gridSize);
+  const wrap = position => vectorMod(position, gridSize);
+
+  const unwrapped = vectorAdd(start, vector);
+  if (onGrid(unwrapped)) return unwrapped;
+  if (atLineEnd === STOP) return start;
+
+  const wrapped = wrap(unwrapped);
+  if (atLineEnd !== NEXT_LINE) return wrapped;
+
+  const crossVector = vector.slice().reverse();
+  const lineAdvanced = vectorAdd(wrapped, crossVector);
+  if (onGrid(lineAdvanced)) return lineAdvanced;
+
+  const puzzleWrapped = wrap(lineAdvanced);
+  if (onPuzzleWrap) onPuzzleWrap();
+  return puzzleWrapped;
+}
+
+export function moveOnGridUntil(found, start, direction, gridSize, options) {
+  let position = start,
+    lastPosition;
+  do {
+    lastPosition = position;
+    position = moveOnGrid(position, direction, gridSize, options);
+  } while (
+    !found(position) && // haven't fulfilled condition
+    !_.isEqual(position, lastPosition) && // still moving
+    !_.isEqual(position, start) // not back where we started
+  );
+  return position;
+}
+
+// returns true if cell at cursor starts a word in direction
+//    grid: a two d array of cells, where black cells have a true property isBlack
+export function isWordStart(cursor, direction, grid) {
+  const vector = direction; // TODO make direction a string & look up vector
+  const cell = getElement(grid, cursor),
+    oneBack = getElement(grid, vectorSubtract(cursor, vector));
+  return cell && !cell.isBlack && (!oneBack || !!oneBack.isBlack);
+}
+
+export function moveToNextWord(start, direction, grid) {
+  /*
+  const word = this.word;
+  if (!word) return;
+  const wordEdge = _.isEqual(this.direction, ACROSS)
+    ? word[word.length - 1]
+    : word[0];
+  const gridSize = [this.height, this.width];
+  let direction = this.direction;
+  newPos = moveOnGrid(wordEdge, LEFT, gridSize, {
+    atLineEnd: NEXT_LINE,
+    onPuzzleWrap: () => {
+      direction = direction.slice().reverse();
+    },
+    until: pos => isWordStart(pos, direction, grid)
+  });
+  this.setCursor(...newPos);
+  this.direction = direction;
+*/
 }
 
 /*
