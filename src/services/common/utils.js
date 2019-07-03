@@ -43,3 +43,19 @@ export function getElement(array, indices) {
     array
   );
 }
+
+export function nextOrLast(array, index) {
+  return Math.min(index + 1, array.length - 1);
+}
+
+export function wrapFindIndex(array, index, test) {
+  const backHalf = array.slice(index).findIndex(test);
+  return backHalf > -1
+    ? backHalf + index
+    : array.slice(0, index).findIndex(test);
+}
+
+export function wrapFind(array, index, test) {
+  const i = wrapFindIndex(array, index, test);
+  return i < 0 ? undefined : array[i];
+}

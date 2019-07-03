@@ -5,7 +5,8 @@ import {
   vectorAdd,
   vectorMod,
   vectorFits,
-  getElement
+  getElement,
+  wrapFindIndex
 } from "./utils";
 
 describe("includesEqual", () => {
@@ -79,5 +80,28 @@ describe("multiIndex", () => {
     expect(getElement(array, [1, 3])).toBeUndefined();
     expect(getElement(array, [-1, 2])).toBeUndefined();
     expect(getElement(array, [0, -1])).toBeUndefined();
+  });
+});
+
+describe("wrapFindIndex", () => {
+  it("returns -1 if no matches", () => {
+    const result = wrapFindIndex([1, 2, 3, 4, 5], 2, () => false);
+    expect(result).toBe(-1);
+  });
+  it("finds match in back half", () => {
+    const result = wrapFindIndex([1, 2, 3, 4, 5], 2, e => e === 5);
+    expect(result).toBe(4);
+  });
+  it("finds match in first half", () => {
+    const result = wrapFindIndex([1, 2, 3, 4, 5], 2, e => e === 2);
+    expect(result).toBe(1);
+  });
+  it("finds match at index", () => {
+    const result = wrapFindIndex([1, 2, 3, 4, 5], 2, () => true);
+    expect(result).toBe(2);
+  });
+  it("finds match just before index", () => {
+    const result = wrapFindIndex([1, 2, 3, 4, 5], 2, e => e === 2);
+    expect(result).toBe(1);
   });
 });

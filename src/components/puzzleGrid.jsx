@@ -3,7 +3,11 @@ import { observer } from "mobx-react";
 import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
 import { LEFT, RIGHT, UP, DOWN } from "../services/xwdService";
-import { isOptionalMemberExpression } from "@babel/types";
+import {
+  getElement,
+  nextOrLast,
+  wrapFindIndex
+} from "../services/common/utils";
 
 const SET_CURSOR = "setCursor",
   SET_DIRECTION = "setDirection",
@@ -85,6 +89,7 @@ class PuzzleGrid extends Component {
 
   handleTab(options = {}) {
     this.props.grid.goToNextWord(options);
+    this.recordAction(SET_CURSOR, this.cursor);
   }
 
   handleArrow(direction) {
@@ -109,9 +114,39 @@ class PuzzleGrid extends Component {
   }
 
   handleAlpha(a) {
-    this.props.grid.currentCell.content = a;
+    const grid = this.props.grid;
+    const cellIsEmpty = pos => !grid.cell(...pos).content;
+
+    const cellWasEmpty = cellIsEmpty(grid.cursor);
+    grid.currentCell.content = a;
     this.recordAction(SET_CONTENT, a);
-    this.advanceCursor();
+
+    // move to next cell in word
+    const word = grid.word;
+    const currentIndex = word.findIndex(pos => _.isEqual(pos, grid.cursor));
+    let nextCellIdx = nextOrLast(word, currentIndex);
+
+    // if we just filled an empty cell, skip to the next empty cell, with wrap around
+    if (cellWasEmpty) {
+      const nextEmptyCellIdx = wrapFindIndex(word, nextCellIdx, cellIsEmpty);
+      if (nextEmptyCellIdx > -1) nextCellIdx = nextEmptyCellIdx;
+    }
+
+    const newCursor = word[nextCellIdx];
+    this.setCursor(...newCursor);
+    this.recordAction(SET_CURSOR, newCursor);
+  }
+
+  advanceInWord() {
+    const word = this.props.grid.word;
+    if (!word) {
+      this.advanceCursor();
+    } else {
+      // if square was empty,
+      //    moveCursor atWordEnd: WRAP_AROUND until: pos => emptyCell(pos)
+      // if square wasn't empty or last move came all the way around (no empties in word)
+      //    moveCursor atWordEnd: STOP
+    }
   }
 
   handleBackspace() {

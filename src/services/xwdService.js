@@ -236,8 +236,8 @@ function isBlack(grid, k) {
 //    options:
 //       atLineEnd: STOP | WRAP_AROUND | NEXT_LINE (default WRAP_AROUND)
 //       onPuzzleWrap: a callback triggered when wrapping past the end of the puzzle
-export function moveOnGrid(start, direction, gridSize, options) {
-  const { atLineEnd, onPuzzleWrap, until } = options || {};
+export function moveOnGrid(start, direction, gridSize, options = {}) {
+  const { atLineEnd, onPuzzleWrap, until } = options;
 
   if (until) {
     return moveOnGridUntil(options.until, start, direction, gridSize, {
@@ -280,13 +280,19 @@ export function moveOnGridUntil(found, start, direction, gridSize, options) {
   return position;
 }
 
+function isWhiteCell(grid, position) {
+  const cell = getElement(grid, position);
+  return cell && !cell.isBlack;
+}
+
 // returns true if cell at cursor starts a word in direction
 //    grid: a two d array of cells, where black cells have a true property isBlack
 export function isWordStart(cursor, direction, grid) {
   const vector = direction; // TODO make direction a string & look up vector
-  const cell = getElement(grid, cursor),
-    oneBack = getElement(grid, vectorSubtract(cursor, vector));
-  return cell && !cell.isBlack && (!oneBack || !!oneBack.isBlack);
+  const oneBack = vectorSubtract(cursor, vector),
+    oneForward = vectorAdd(cursor, vector),
+    white = pos => isWhiteCell(grid, pos);
+  return white(cursor) && !white(oneBack) && white(oneForward);
 }
 
 export function moveToNextWord(start, direction, grid) {

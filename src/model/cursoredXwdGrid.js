@@ -63,7 +63,7 @@ class CursoredXwdGrid extends XwdGrid {
   goToNextWord(options = {}) {
     const word = this.word;
     if (!word) return;
-    const backward = options.backward;
+    const backward = !!options.backward;
     const gridSize = [this.height, this.width];
     let direction = this.direction;
     const newPos = moveOnGrid(word[0], backward ? LEFT : RIGHT, gridSize, {
