@@ -3,11 +3,7 @@ import { observer } from "mobx-react";
 import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
 import { LEFT, RIGHT, UP, DOWN } from "../services/xwdService";
-import {
-  getElement,
-  nextOrLast,
-  wrapFindIndex
-} from "../services/common/utils";
+import { nextOrLast, wrapFindIndex } from "../services/common/utils";
 
 const SET_CURSOR = "setCursor",
   SET_DIRECTION = "setDirection",
@@ -37,7 +33,7 @@ class PuzzleGrid extends Component {
 
   handleKeyDown = event => {
     const keyCode = event.keyCode;
-    console.log("keyCode", keyCode);
+    //console.log("keyCode", keyCode);
 
     if (event.metaKey || event.ctrlKey || event.altKey) return;
 
@@ -117,12 +113,15 @@ class PuzzleGrid extends Component {
     const grid = this.props.grid;
     const cellIsEmpty = pos => !grid.cell(...pos).content;
 
+    if (grid.currentCell.isBlack) this.toggleBlack();
+
     const cellWasEmpty = cellIsEmpty(grid.cursor);
     grid.currentCell.content = a;
     this.recordAction(SET_CONTENT, a);
 
     // move to next cell in word
     const word = grid.word;
+    if (!word) return; // TODO is this a copout?
     const currentIndex = word.findIndex(pos => _.isEqual(pos, grid.cursor));
     let nextCellIdx = nextOrLast(word, currentIndex);
 

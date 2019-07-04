@@ -116,7 +116,6 @@ describe("goToNextWord", () => {
     expect(grid.cell(0, 3).isBlack).toBe(true);
     grid.setCursor(0, 1);
     grid.goToNextWord();
-    console.log("uh huh cursor is at", grid.cursor);
     expect(grid.cursor).toEqual([0, 4]);
   });
 });

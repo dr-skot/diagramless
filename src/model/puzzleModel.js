@@ -5,7 +5,7 @@ import { ACROSS, puzzleFromFileData } from "../services/xwdService";
 class PuzzleModel {
   constructor(data) {
     this.data = data;
-    this.grid = new CursoredXwdGrid(data.width, data.height);
+    this.grid = new CursoredXwdGrid(data.height, data.width);
     this.grid.allCells((cell, { pos }) => {
       cell.solution = data.solution[pos];
     });
@@ -33,11 +33,11 @@ class PuzzleModel {
   }
 
   calculateCurrentClue() {
-    console.log("calculate current clue");
     const grid = this.grid,
       puz = this.data;
     this.currentClue = {};
-    if (grid.word) {
+    // TODO grid should guarantee no 0 length words
+    if (grid.word && grid.word.length) {
       const number = grid.cell(...grid.word[0]).number,
         dir = this.directionIs(ACROSS) ? "A" : "D";
       const clue = _.find(
@@ -61,7 +61,7 @@ class PuzzleModel {
 
   static fromFileData(arrayBuffer) {
     const data = puzzleFromFileData(arrayBuffer);
-    return data ? new PuzzleModel(data.height, data.width, data) : null;
+    return data ? new PuzzleModel(data) : null;
   }
 }
 

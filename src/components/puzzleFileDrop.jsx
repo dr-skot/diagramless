@@ -3,7 +3,6 @@ import FileDrop from "react-file-drop";
 
 class PuzzleFileDrop extends Component {
   handleDrop = (files, event) => {
-    console.log("drop!", files, event);
     const reader = new FileReader();
 
     reader.onabort = () => console.log("File reading was aborted");

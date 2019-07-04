@@ -47,7 +47,6 @@ class Puzzle extends Component {
           </div>
           <ClueLists puzzle={puzzle} />
         </div>
-        <PuzzleFileDrop onFileLoad={this.handleFileDrop} />
       </div>
     ) : (
       ""

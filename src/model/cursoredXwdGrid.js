@@ -5,8 +5,6 @@ import {
   getWord,
   LEFT,
   RIGHT,
-  UP,
-  ACROSS,
   NEXT_LINE,
   isWordStart,
   moveOnGrid
