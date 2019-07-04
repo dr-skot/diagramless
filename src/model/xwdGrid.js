@@ -1,5 +1,6 @@
 import XwdCell from "./xwdCell";
 import _ from "lodash";
+import { ACROSS, DOWN, isWordStart } from "../services/xwdService";
 
 class XwdGrid {
   grid = [];
@@ -21,7 +22,14 @@ class XwdGrid {
     return this.grid[row][col];
   }
 
-  allCells(callback) {
+  wordStartsAt(row, col, direction) {
+    return direction
+      ? isWordStart([row, col], direction, this.grid)
+      : this.wordStartsAt(row, col, ACROSS) ||
+          this.wordStartsAt(row, col, DOWN);
+  }
+
+  forEachCell(callback) {
     const { width, height } = this;
     _.range(0, height).forEach(row => {
       _.range(0, width).forEach(col => {
@@ -32,75 +40,42 @@ class XwdGrid {
   }
 
   setData(data) {
-    const { height, width, grid } = this;
-    const { contents, numbers } = data;
-    _.range(0, height).forEach(row => {
-      _.range(0, width).forEach(col => {
-        const pos = row * width + col;
-        const cell = grid[row][col];
-        if (contents) {
-          if (contents[pos] === "." || contents[pos] === ":") {
-            cell.isBlack = true;
-          } else {
-            cell.content = contents[pos] || "";
-          }
-        }
-        if (numbers) grid[row][col].number = numbers[pos] || "";
-      });
-    });
+    const { contents, numbers, blacks } = data;
+    if (contents) this.setContents(contents);
+    if (numbers) this.setNumbers(numbers);
+    if (blacks) this.setBlacks(blacks);
   }
 
   // takes an array of strings
   setContents(data) {
-    const { height, width, grid } = this;
-    _.range(0, height).forEach(row => {
-      _.range(0, width).forEach(col => {
-        const pos = row * width + col;
-        if (data[pos] === "." || data[pos] === ":") {
-          grid[row][col].isBlack = true;
-        } else {
-          grid[row][col].content = data[pos] || "";
-        }
-      });
+    this.forEachCell((cell, { pos }) => {
+      if (data[pos] === "." || data[pos] === ":") {
+        cell.isBlack = true;
+      } else {
+        cell.content = data[pos] || "";
+      }
     });
   }
 
   setNumbers(data) {
-    const { height, width, grid } = this;
-    _.range(0, height).forEach(row => {
-      _.range(0, width).forEach(col => {
-        const pos = row * width + col;
-        grid[row][col].number = data[pos] || "";
-      });
+    this.forEachCell((cell, { pos }) => {
+      cell.number = data[pos] || "";
     });
   }
 
   setBlacks(data) {
-    const { height, width, grid } = this;
-    _.range(0, height).forEach(row => {
-      _.range(0, width).forEach(col => {
-        const pos = row * width + col;
-        grid[row][col].isBlack = data[pos] || false;
-      });
+    this.forEachCell((cell, { pos }) => {
+      cell.isBlack = data[pos] || false;
     });
   }
 
   serialize() {
-    const { height, width, grid } = this;
-    const data = {
-      numbers: [],
-      contents: [],
-      blacks: []
+    const cells = this.grid.flat();
+    return {
+      numbers: cells.map(cell => cell.number),
+      contents: cells.map(cell => cell.content),
+      blacks: cells.map(cell => cell.isBlack)
     };
-    _.range(0, height).forEach(row => {
-      _.range(0, width).forEach(col => {
-        const pos = row * width + col;
-        data.numbers[pos] = grid[row][col].number;
-        data.contents[pos] = grid[row][col].content;
-        data.blacks[pos] = grid[row][col].isBlack;
-      });
-    });
-    return data;
   }
 
   toString() {

@@ -2,7 +2,14 @@ import React, { Component } from "react";
 import { observer } from "mobx-react";
 import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
-import { LEFT, RIGHT, UP, DOWN } from "../services/xwdService";
+import {
+  LEFT,
+  RIGHT,
+  UP,
+  DOWN,
+  ACROSS,
+  isWordStart
+} from "../services/xwdService";
 import { nextOrLast, wrapFindIndex } from "../services/common/utils";
 
 const SET_CURSOR = "setCursor",
@@ -10,6 +17,19 @@ const SET_CURSOR = "setCursor",
   SET_BLACK = "setBlack",
   SET_CONTENT = "setContent",
   SET_NUMBER = "setNumber";
+
+/*
+const cursorPolicy = {
+  ARROW: { atLineEnd: WRAP_AROUND },
+  LETTER_IN_EMPTY_CELL: [
+    { find: cell => !cell.content, atWordEnd: WRAP_AROUND },
+    { atWordEnd: STOP }
+  ],
+  LETTER_IN_FULL_CELL: { atWordEnd: STOP },
+  MAKE_CELL_BLACK: {},
+  MAKE_CELL_WHITE: {}
+};
+*/
 
 class PuzzleGrid extends Component {
   actionStack = [];
@@ -119,6 +139,8 @@ class PuzzleGrid extends Component {
     grid.currentCell.content = a;
     this.recordAction(SET_CONTENT, a);
 
+    // advanceCursor(cursorPolicy[cellWasEmpty ? TYPE_IN_EMPTY_CELL : TYPE_IN_FULL_CELL]);
+
     // move to next cell in word
     const word = grid.word;
     if (!word) return; // TODO is this a copout?
@@ -171,7 +193,7 @@ class PuzzleGrid extends Component {
     const cell = this.props.grid.currentCell;
     cell.toggleBlack();
     this.recordAction(SET_BLACK, cell.isBlack);
-    //this.advanceCursor();
+    this.advanceCursor();
   }
 
   toggleDirection() {
@@ -212,6 +234,14 @@ class PuzzleGrid extends Component {
     };
   }
 
+  cell(row, col) {
+    const grid = this.props.grid,
+      cell = grid.cell(row, col);
+    return !cell.number || grid.wordStartsAt(row, col)
+      ? cell
+      : { ...cell, number: "" };
+  }
+
   render() {
     const grid = this.props.grid;
     if (grid.length === 0) return null;
@@ -225,7 +255,7 @@ class PuzzleGrid extends Component {
                   {_.range(0, grid.width).map(col => (
                     <PuzzleCell
                       key={this.cellKey(row, col)}
-                      cell={grid.cell(row, col)}
+                      cell={this.cell(row, col)}
                       cursor={this.cursorSettings(row, col)}
                       onClick={event => this.handleCellClick(row, col, event)}
                     />

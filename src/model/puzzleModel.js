@@ -6,19 +6,17 @@ class PuzzleModel {
   constructor(data) {
     this.data = data;
     this.grid = new CursoredXwdGrid(data.height, data.width);
-    this.grid.allCells((cell, { pos }) => {
+    this.grid.forEachCell((cell, { pos }) => {
       cell.solution = data.solution[pos];
     });
     if (data.user) {
-      this.grid.setContents(data.user.contents);
-      this.grid.setNumbers(data.user.numbers);
-      if (data.user.blacks) this.grid.setBlacks(data.user.blacks);
+      this.grid.setData(data.user);
     }
   }
 
   isSolved() {
     let solved = true;
-    this.grid.allCells(cell => {
+    this.grid.forEachCell(cell => {
       if (cell.solution === ":" || cell.solution === ".") {
         if (!cell.isBlack) solved = false;
       } else {
@@ -26,6 +24,14 @@ class PuzzleModel {
       }
     });
     return solved;
+  }
+
+  isFilled() {
+    let filled = true;
+    this.grid.forEachCell(cell => {
+      if (!cell.content && !cell.isBlack) filled = false;
+    });
+    return filled;
   }
 
   directionIs(direction) {

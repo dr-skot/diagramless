@@ -38,6 +38,7 @@ class Puzzle extends Component {
 
     const puzzleHtml = puzzle ? (
       <div>
+        <p>Filled? {puzzle.isFilled() ? "yes" : "no"}</p>
         <p>Solved? {puzzle.isSolved() ? "yes" : "no"}</p>
         <PuzzleHeader puzzle={puz} />
         <div className="layout-puzzle">
