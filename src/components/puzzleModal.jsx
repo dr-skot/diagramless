@@ -1,18 +1,18 @@
 import React from "react";
 import UIfx from "uifx";
 
-import failAudio from "../sounds/doh.mp3";
-import successAudio from "../sounds/tada.mp3";
+import booAudio from "../sounds/doh.mp3";
+import yayAudio from "../sounds/tada.mp3";
 
-const fail = new UIfx({ asset: failAudio });
-const success = new UIfx({ asset: successAudio });
+const boo = new UIfx({ asset: booAudio, volume: 0.5 });
+const yay = new UIfx({ asset: yayAudio, volume: 0.5 });
 
 // playback
 const PuzzleModal = ({ show, solved, onClose }) => {
   const showHideClassName = show ? "modal display-block" : "modal display-none";
 
   if (show) {
-    (solved ? success : fail).play();
+    (solved ? yay : boo).play();
   }
   return (
     <div className={showHideClassName}>
