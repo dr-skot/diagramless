@@ -33,8 +33,22 @@ it("reads puzzle contents in the constructor", () => {
 
 it("can step through all cells", () => {
   const xwd = new XwdGrid(2, 7);
-  xwd.allCells((cell, { pos }) => {
+  xwd.forEachCell((cell, { pos }) => {
     cell.pos = pos;
   });
   expect(xwd.cell(1, 0).pos).toBe(7);
+});
+
+it("knows when it's filled", () => {
+  const data = "abc:defghi:jkl".split("");
+  const xwd = new XwdGrid(2, 7);
+  xwd.setContents(data);
+  expect(xwd.isFilled).toBe(true);
+});
+
+it("knows when it's not filled", () => {
+  const data = "abc:defghi: kl".split("");
+  const xwd = new XwdGrid(2, 7);
+  xwd.setContents(data);
+  expect(xwd.isFilled).toBe(false);
 });

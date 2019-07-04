@@ -5,6 +5,7 @@ import PuzzleGrid from "./puzzleGrid";
 import ClueBar from "./clueBar";
 import ClueLists from "./clueLists";
 import PuzzleFileDrop from "./puzzleFileDrop";
+import PuzzleModal from "./puzzleModal";
 import { observer } from "mobx-react";
 
 class Puzzle extends Component {
@@ -15,6 +16,18 @@ class Puzzle extends Component {
   handleFileDrop = fileContents => {
     this.puzzle = PuzzleModel.fromFileData(fileContents);
     this.setState({ puz: this.puzzle.data });
+  };
+
+  handleContentChange = () => {
+    const { isFilled: wasFilled, isSolved: wasSolved } = this.state;
+    const { isFilled, isSolved } = this.puzzle;
+    const showModal = (!wasFilled && isFilled) || (!wasSolved && isSolved);
+    this.setState({ showModal, isFilled, isSolved });
+  };
+
+  handleModalClose = () => {
+    console.log("handleModalClose");
+    this.setState({ showModal: false });
   };
 
   componentDidUpdate() {
@@ -37,18 +50,27 @@ class Puzzle extends Component {
     if (puzzle) puzzle.calculateCurrentClue();
 
     const puzzleHtml = puzzle ? (
-      <div>
-        <p>Filled? {puzzle.isFilled() ? "yes" : "no"}</p>
-        <p>Solved? {puzzle.isSolved() ? "yes" : "no"}</p>
-        <PuzzleHeader puzzle={puz} />
-        <div className="layout-puzzle">
-          <div className="layout-cluebar-and-board">
-            <ClueBar clue={puzzle.currentClue} />
-            <PuzzleGrid grid={grid} />
+      <React.Fragment>
+        <div>
+          <PuzzleHeader puzzle={puz} />
+          <div className="layout-puzzle">
+            <div className="layout-cluebar-and-board">
+              <ClueBar clue={puzzle.currentClue} />
+              <PuzzleGrid
+                grid={grid}
+                solved={this.state.isSolved}
+                onContentChange={this.handleContentChange}
+              />
+            </div>
+            <ClueLists puzzle={puzzle} />
           </div>
-          <ClueLists puzzle={puzzle} />
         </div>
-      </div>
+        <PuzzleModal
+          solved={this.state.isSolved}
+          show={this.state.showModal}
+          onClose={this.handleModalClose}
+        />
+      </React.Fragment>
     ) : (
       ""
     );

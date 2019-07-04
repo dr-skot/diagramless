@@ -2,14 +2,7 @@ import React, { Component } from "react";
 import { observer } from "mobx-react";
 import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
-import {
-  LEFT,
-  RIGHT,
-  UP,
-  DOWN,
-  ACROSS,
-  isWordStart
-} from "../services/xwdService";
+import { LEFT, RIGHT, UP, DOWN } from "../services/xwdService";
 import { nextOrLast, wrapFindIndex } from "../services/common/utils";
 
 const SET_CURSOR = "setCursor",
@@ -30,6 +23,13 @@ const cursorPolicy = {
   MAKE_CELL_WHITE: {}
 };
 */
+
+// TODO: allow only 4 state-changing methods
+// changeCellContent(newValue)
+// changeCellNumber(newValue)
+// changeCellIsBlack(newValue)
+// changeCursor(newValue)
+// and record on action stack undoable groups of these, with before and after values
 
 class PuzzleGrid extends Component {
   actionStack = [];
@@ -71,15 +71,17 @@ class PuzzleGrid extends Component {
       8: () => this.handleBackspace(), //
       9: () => this.handleTab()
     };
+
+    const solved = this.props.solved;
     let shouldPreventDefault = true;
 
     const keyAction = (event.shiftKey ? shiftKeys : keys)[event.keyCode];
     if (keyAction) {
       keyAction();
-    } else if (_.inRange(keyCode, 48, 57 + 1)) {
+    } else if (!solved && _.inRange(keyCode, 48, 57 + 1)) {
       // digits
       this.handleDigit(String.fromCharCode(keyCode));
-    } else if (_.inRange(keyCode, 58, 90 + 1)) {
+    } else if (!solved && _.inRange(keyCode, 58, 90 + 1)) {
       // alpha
       this.handleAlpha(String.fromCharCode(keyCode));
     } else {
@@ -156,18 +158,8 @@ class PuzzleGrid extends Component {
     const newCursor = word[nextCellIdx];
     this.setCursor(...newCursor);
     this.recordAction(SET_CURSOR, newCursor);
-  }
 
-  advanceInWord() {
-    const word = this.props.grid.word;
-    if (!word) {
-      this.advanceCursor();
-    } else {
-      // if square was empty,
-      //    moveCursor atWordEnd: WRAP_AROUND until: pos => emptyCell(pos)
-      // if square wasn't empty or last move came all the way around (no empties in word)
-      //    moveCursor atWordEnd: STOP
-    }
+    if (this.props.onContentChange) this.props.onContentChange();
   }
 
   handleBackspace() {
@@ -234,6 +226,7 @@ class PuzzleGrid extends Component {
     };
   }
 
+  // only show number at start of word
   cell(row, col) {
     const grid = this.props.grid,
       cell = grid.cell(row, col);

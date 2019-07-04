@@ -14,24 +14,18 @@ class PuzzleModel {
     }
   }
 
-  isSolved() {
-    let solved = true;
-    this.grid.forEachCell(cell => {
-      if (cell.solution === ":" || cell.solution === ".") {
-        if (!cell.isBlack) solved = false;
-      } else {
-        if (cell.content !== cell.solution) solved = false;
-      }
-    });
-    return solved;
+  get isSolved() {
+    return !this.grid.grid
+      .flat()
+      .find(cell =>
+        cell.solution === ":" || cell.solution === "."
+          ? !cell.isBlack
+          : cell.content !== cell.solution
+      );
   }
 
-  isFilled() {
-    let filled = true;
-    this.grid.forEachCell(cell => {
-      if (!cell.content && !cell.isBlack) filled = false;
-    });
-    return filled;
+  get isFilled() {
+    return this.grid.isFilled;
   }
 
   directionIs(direction) {

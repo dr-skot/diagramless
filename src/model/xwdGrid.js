@@ -18,6 +18,10 @@ class XwdGrid {
     return this.height ? this.grid[0].length : 0;
   }
 
+  get isFilled() {
+    return !this.grid.flat().find(cell => !cell.isBlack && !cell.content);
+  }
+
   cell(row, col) {
     return this.grid[row][col];
   }
@@ -52,7 +56,7 @@ class XwdGrid {
       if (data[pos] === "." || data[pos] === ":") {
         cell.isBlack = true;
       } else {
-        cell.content = data[pos] || "";
+        cell.content = data[pos].trim() || "";
       }
     });
   }
