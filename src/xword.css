@@ -136,12 +136,12 @@ table {
 .grid td.wrong {
   background: linear-gradient(
     to right top,
-    #ffffff 0%,
-    #ffffff 48%,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 48%,
     #ff0000 50%,
     #ff0000 51%,
-    #ffffff 53%,
-    #ffffff 100%
+    rgba(0, 0, 0, 0) 53%,
+    rgba(0, 0, 0, 0) 100%
   );
 }
 
@@ -169,7 +169,7 @@ td.fixed > .content {
   color: rgb(37, 96, 213);
 }
 
-.focus {
+.grid td.focus {
   background-color: #98cffc;
 }
 .selected {
@@ -184,7 +184,7 @@ td.fixed > .content {
 .bad {
   background-color: red;
 }
-.cursor {
+.grid td.cursor {
   background-color: #fbd428;
 }
 
