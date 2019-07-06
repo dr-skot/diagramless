@@ -135,10 +135,14 @@ class PuzzleGrid extends Component {
     const grid = this.props.grid;
     const cellIsEmpty = pos => !grid.cell(...pos).content;
 
+    const cell = grid.currentCell;
+    if (cell.isVerified || cell.wasRevealed) return; // TODO advance cursor?
+
     if (grid.currentCell.isBlack) this.toggleBlack();
 
     const cellWasEmpty = cellIsEmpty(grid.cursor);
-    grid.currentCell.content = a;
+    cell.content = a;
+    cell.isMarkedWrong = false;
     this.recordAction(SET_CONTENT, a);
 
     // advanceCursor(cursorPolicy[cellWasEmpty ? TYPE_IN_EMPTY_CELL : TYPE_IN_FULL_CELL]);
@@ -183,7 +187,7 @@ class PuzzleGrid extends Component {
 
   toggleBlack() {
     const cell = this.props.grid.currentCell;
-    cell.toggleBlack();
+    cell.isBlack = !cell.isBlack;
     this.recordAction(SET_BLACK, cell.isBlack);
     this.advanceCursor();
   }

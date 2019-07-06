@@ -65,7 +65,7 @@ class XwdGrid {
       if (data[pos] === "." || data[pos] === ":") {
         cell.isBlack = true;
       } else {
-        cell.content = data[pos].trim() || "";
+        cell.content = data[pos] || "";
       }
     });
   }

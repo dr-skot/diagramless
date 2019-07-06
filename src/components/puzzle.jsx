@@ -29,15 +29,73 @@ class Puzzle extends Component {
     this.setState({ showModal: false });
   };
 
-  revealSquare = () => {
-    const cell = this.puzzle.grid.currentCell;
-    const [row, col] = this.puzzle.grid.cursor;
+  revealSquareAt = location => {
+    const [row, col] = location || this.grid.cursor;
+    const cell = this.puzzle.grid.cell(row, col);
     const pos = row * this.puzzle.grid.width + col;
     const data = this.puzzle.data;
     const answer = data.solution[pos];
-    cell.content = answer;
-    cell.wasRevealed = true;
+    if (answer === ":" || answer === ".") {
+      if (cell.isBlack) {
+        cell.isVerified = true;
+      } else {
+        cell.isBlack = true;
+        cell.wasRevealed = true;
+      }
+    } else {
+      if (cell.isBlack) {
+        cell.isBlack = false;
+        cell.wasRevealed = true;
+      }
+      if (cell.content !== answer) {
+        // TODO different behavior if cell is black
+        cell.content = answer;
+        cell.wasRevealed = true;
+      } else {
+        cell.isVerified = true;
+      }
+    }
     this.setState({});
+  };
+
+  checkSquareAt = location => {
+    const [row, col] = location || this.grid.cursor;
+    const cell = this.puzzle.grid.cell(row, col);
+    const pos = row * this.puzzle.grid.width + col;
+    const data = this.puzzle.data;
+    const answer = data.solution[pos];
+    if (answer === ":" || answer === ".") {
+      if (cell.isBlack) {
+        cell.isVerified = true;
+      } else {
+        cell.isMarkedWrong = true;
+      }
+    } else if (!cell.isBlack && cell.content === answer) {
+      cell.isVerified = true;
+    } else {
+      cell.isMarkedWrong = true;
+    }
+    this.setState({});
+  };
+
+  checkSquare = () => {
+    this.checkSquareAt(this.puzzle.grid.cursor);
+  };
+
+  revealSquare = () => {
+    this.revealSquareAt(this.puzzle.grid.cursor);
+  };
+
+  checkPuzzle = () => {
+    this.puzzle.grid.forEachCell((cell, { row, col }) => {
+      this.checkSquareAt([row, col]);
+    });
+  };
+
+  revealPuzzle = () => {
+    this.puzzle.grid.forEachCell((cell, { row, col }) => {
+      this.revealSquareAt([row, col]);
+    });
   };
 
   componentDidUpdate() {
@@ -64,6 +122,9 @@ class Puzzle extends Component {
         <div>
           <PuzzleHeader puzzle={puz} />
           <button onClick={this.revealSquare}>reveal square</button>
+          <button onClick={this.checkSquare}>check square</button>
+          <button onClick={this.revealPuzzle}>reveal puzzle</button>
+          <button onClick={this.checkPuzzle}>check puzzle</button>
           <div className="layout-puzzle">
             <div className="layout-cluebar-and-board">
               <ClueBar clue={puzzle.currentClue} />
