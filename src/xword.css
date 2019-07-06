@@ -113,6 +113,38 @@ table {
   text-align: center;
   border: 1px solid #666;
 }
+
+.grid td.revealed {
+  position: relative;
+}
+
+.grid td.revealed:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  display: block;
+  border-left: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+
+  border-top: 10px solid #f00;
+}
+
+/* https://stackoverflow.com/questions/8127035/how-to-create-a-diagonal-line-within-a-table-cell/34173631 */
+.grid td.wrong {
+  background: linear-gradient(
+    to right top,
+    #ffffff 0%,
+    #ffffff 48%,
+    #ff0000 50%,
+    #ff0000 51%,
+    #ffffff 53%,
+    #ffffff 100%
+  );
+}
+
 .grid td.black {
   background-color: black;
 }
@@ -125,6 +157,7 @@ table {
   left: 2px;
   font-size: 10px;
 }
+
 .content {
   position: absolute;
   top: 6px;
@@ -132,6 +165,10 @@ table {
   text-align: center;
   font-size: 26px;
 }
+td.fixed > .content {
+  color: rgb(37, 96, 213);
+}
+
 .focus {
   background-color: #98cffc;
 }

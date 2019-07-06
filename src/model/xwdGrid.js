@@ -1,12 +1,11 @@
-import XwdCell from "./xwdCell";
 import _ from "lodash";
-import { ACROSS, DOWN, isWordStart } from "../services/xwdService";
+import { ACROSS, DOWN, isWordStart, getWord } from "../services/xwdService";
 
 class XwdGrid {
   grid = [];
 
   constructor(height, width, data) {
-    this.grid = _.times(height, () => _.times(width, () => new XwdCell()));
+    this.grid = _.times(height, () => _.times(width, () => ({})));
     if (data) this.setData(data);
   }
 
@@ -18,6 +17,15 @@ class XwdGrid {
     return this.height ? this.grid[0].length : 0;
   }
 
+  word(row, col, direction) {
+    return getWord(this.grid, [row, col], direction);
+  }
+
+  clueNumber(row, col, direction) {
+    const word = this.word(row, col, direction);
+    return word && this.cell(...word[0]).number;
+  }
+
   get isFilled() {
     return !this.grid.flat().find(cell => !cell.isBlack && !cell.content);
   }
@@ -27,10 +35,11 @@ class XwdGrid {
   }
 
   wordStartsAt(row, col, direction) {
-    return direction
-      ? isWordStart([row, col], direction, this.grid)
-      : this.wordStartsAt(row, col, ACROSS) ||
-          this.wordStartsAt(row, col, DOWN);
+    if (!direction)
+      return (
+        this.wordStartsAt(row, col, ACROSS) || this.wordStartsAt(row, col, DOWN)
+      );
+    return isWordStart([row, col], direction, this.grid);
   }
 
   forEachCell(callback) {

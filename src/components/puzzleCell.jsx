@@ -8,6 +8,9 @@ class PuzzleCell extends Component {
     const { cell, cursor } = this.props;
     const classes = {
       black: cell.isBlack,
+      wrong: cell.isMarkedWrong,
+      revealed: cell.wasRevealed,
+      fixed: cell.wasRevealed || cell.isVerified,
       cursor: cursor.cell,
       focus: cursor.word
     };

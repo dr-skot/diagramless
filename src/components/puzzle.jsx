@@ -26,8 +26,18 @@ class Puzzle extends Component {
   };
 
   handleModalClose = () => {
-    console.log("handleModalClose");
     this.setState({ showModal: false });
+  };
+
+  revealSquare = () => {
+    const cell = this.puzzle.grid.currentCell;
+    const [row, col] = this.puzzle.grid.cursor;
+    const pos = row * this.puzzle.grid.width + col;
+    const data = this.puzzle.data;
+    const answer = data.solution[pos];
+    cell.content = answer;
+    cell.wasRevealed = true;
+    this.setState({});
   };
 
   componentDidUpdate() {
@@ -53,6 +63,7 @@ class Puzzle extends Component {
       <React.Fragment>
         <div>
           <PuzzleHeader puzzle={puz} />
+          <button onClick={this.revealSquare}>reveal square</button>
           <div className="layout-puzzle">
             <div className="layout-cluebar-and-board">
               <ClueBar clue={puzzle.currentClue} />

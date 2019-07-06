@@ -7,7 +7,6 @@ import yayAudio from "../sounds/tada.mp3";
 const boo = new UIfx({ asset: booAudio, volume: 0.5 });
 const yay = new UIfx({ asset: yayAudio, volume: 0.5 });
 
-// playback
 const PuzzleModal = ({ show, solved, onClose }) => {
   const showHideClassName = show ? "modal display-block" : "modal display-none";
 
