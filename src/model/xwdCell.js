@@ -4,6 +4,9 @@ class XwdCell {
   isBlack = false;
   content = "";
   number = null;
+  isVerified = false;
+  isMarkedWrong = false;
+  wasRevealed = false;
 
   toggleBlack() {
     this.isBlack = !this.isBlack;
@@ -13,7 +16,10 @@ class XwdCell {
 decorate(XwdCell, {
   isBlack: observable,
   content: observable,
-  number: observable
+  number: observable,
+  isVerified: observable,
+  isMarkedWrong: observable,
+  wasRevealed: observable
 });
 
 export default XwdCell;

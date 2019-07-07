@@ -187,6 +187,7 @@ class PuzzleGrid extends Component {
 
   toggleBlack() {
     const cell = this.props.grid.currentCell;
+    if (cell.isVerified) return;
     cell.isBlack = !cell.isBlack;
     cell.isMarkedWrong = false; // TODO handle this elsewhere
     this.recordAction(SET_BLACK, cell.isBlack);

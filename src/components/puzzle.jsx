@@ -48,13 +48,13 @@ class Puzzle extends Component {
         cell.wasRevealed = true;
       }
       if (cell.content !== answer) {
-        // TODO different behavior if cell is black
         cell.content = answer;
         cell.wasRevealed = true;
       } else {
         cell.isVerified = true;
       }
     }
+    cell.isMarkedWrong = false;
     this.setState({});
   };
 

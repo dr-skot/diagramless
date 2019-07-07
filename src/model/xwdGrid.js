@@ -1,11 +1,12 @@
 import _ from "lodash";
 import { ACROSS, DOWN, isWordStart, getWord } from "../services/xwdService";
+import XwdCell from "./xwdCell";
 
 class XwdGrid {
   grid = [];
 
   constructor(height, width, data) {
-    this.grid = _.times(height, () => _.times(width, () => ({})));
+    this.grid = _.times(height, () => _.times(width, () => new XwdCell()));
     if (data) this.setData(data);
   }
 
@@ -28,6 +29,18 @@ class XwdGrid {
 
   get isFilled() {
     return !this.grid.flat().find(cell => !cell.isBlack && !cell.content);
+  }
+
+  // safely sets new state values for cell
+  // minimally clones grid state so as not to make in-place changes
+  set(row, col, newValues) {
+    const grid = this.grid.slice();
+    const rowCells = grid[row].slice();
+    const cell = { ...rowCells[col] };
+    cell.state = { ...cell.state, ...newValues };
+    rowCells[row][col] = cell;
+    grid[row] = rowCells;
+    this.grid = grid;
   }
 
   cell(row, col) {
