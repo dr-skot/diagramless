@@ -31,6 +31,10 @@ class XwdGrid {
     return !this.grid.flat().find(cell => !cell.isBlack && !cell.content);
   }
 
+  get isSolved() {
+    return !this.grid.flat().find(cell => !cell.isCorrect());
+  }
+
   // safely sets new state values for cell
   // minimally clones grid state so as not to make in-place changes
   set(row, col, newValues) {

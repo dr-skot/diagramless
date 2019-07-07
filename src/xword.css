@@ -148,6 +148,10 @@ table {
 .grid td.black {
   background-color: black;
 }
+.grid td.black.fixed {
+  background-color: rgb(23, 58, 128);
+}
+
 .grid td.black.cursor {
   background-color: #b29221;
 }

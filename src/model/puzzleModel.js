@@ -7,7 +7,12 @@ class PuzzleModel {
     this.data = data;
     this.grid = new CursoredXwdGrid(data.height, data.width);
     this.grid.forEachCell((cell, { pos }) => {
-      cell.solution = data.solution[pos];
+      const answer = data.solution[pos];
+      cell.solution = {
+        content: answer,
+        isBlack: answer === ":" || answer === ".",
+        number: data.numbers[pos]
+      };
     });
     if (data.user) {
       this.grid.setData(data.user);
@@ -15,13 +20,7 @@ class PuzzleModel {
   }
 
   get isSolved() {
-    return !this.grid.grid
-      .flat()
-      .find(cell =>
-        cell.solution === ":" || cell.solution === "."
-          ? !cell.isBlack
-          : cell.content !== cell.solution
-      );
+    return this.grid.isSolved;
   }
 
   get isFilled() {
@@ -36,15 +35,14 @@ class PuzzleModel {
     const grid = this.grid,
       puz = this.data;
     this.currentClue = {};
-    // TODO grid should guarantee no 0 length words
-    if (grid.word && grid.word.length) {
+    if (grid.word) {
       const number = grid.cell(...grid.word[0]).number,
-        dir = this.directionIs(ACROSS) ? "A" : "D";
-      const clue = _.find(
-        puz.clues,
-        clue =>
-          clue.number + "" === number + "" && this.directionIs(clue.direction)
-      );
+        dir = this.directionIs(ACROSS) ? "A" : "D",
+        clue = _.find(
+          puz.clues,
+          clue =>
+            clue.number + "" === number + "" && this.directionIs(clue.direction)
+        );
       this.currentClue = clue ? { number: number + dir, text: clue.clue } : {};
     }
   }

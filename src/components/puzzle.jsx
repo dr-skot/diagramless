@@ -29,72 +29,23 @@ class Puzzle extends Component {
     this.setState({ showModal: false });
   };
 
-  revealSquareAt = location => {
-    const [row, col] = location || this.grid.cursor;
-    const cell = this.puzzle.grid.cell(row, col);
-    const pos = row * this.puzzle.grid.width + col;
-    const data = this.puzzle.data;
-    const answer = data.solution[pos];
-    if (answer === ":" || answer === ".") {
-      if (cell.isBlack) {
-        cell.isVerified = true;
-      } else {
-        cell.isBlack = true;
-        cell.wasRevealed = true;
-      }
-    } else {
-      if (cell.isBlack) {
-        cell.isBlack = false;
-        cell.wasRevealed = true;
-      }
-      if (cell.content !== answer) {
-        cell.content = answer;
-        cell.wasRevealed = true;
-      } else {
-        cell.isVerified = true;
-      }
-    }
-    cell.isMarkedWrong = false;
-    this.setState({});
-  };
-
-  checkSquareAt = location => {
-    const [row, col] = location || this.grid.cursor;
-    const cell = this.puzzle.grid.cell(row, col);
-    const pos = row * this.puzzle.grid.width + col;
-    const data = this.puzzle.data;
-    const answer = data.solution[pos];
-    if (answer === ":" || answer === ".") {
-      if (cell.isBlack) {
-        cell.isVerified = true;
-      } else {
-        cell.isMarkedWrong = true;
-      }
-    } else if (!cell.isBlack && cell.content === answer) {
-      cell.isVerified = true;
-    } else {
-      cell.isMarkedWrong = true;
-    }
-    this.setState({});
-  };
-
   checkSquare = () => {
-    this.checkSquareAt(this.puzzle.grid.cursor);
+    this.puzzle.grid.currentCell.check();
   };
 
   revealSquare = () => {
-    this.revealSquareAt(this.puzzle.grid.cursor);
+    this.puzzle.grid.currentCell.reveal();
   };
 
   checkPuzzle = () => {
-    this.puzzle.grid.forEachCell((cell, { row, col }) => {
-      this.checkSquareAt([row, col]);
+    this.puzzle.grid.forEachCell(cell => {
+      cell.check();
     });
   };
 
   revealPuzzle = () => {
-    this.puzzle.grid.forEachCell((cell, { row, col }) => {
-      this.revealSquareAt([row, col]);
+    this.puzzle.grid.forEachCell(cell => {
+      cell.reveal();
     });
   };
 

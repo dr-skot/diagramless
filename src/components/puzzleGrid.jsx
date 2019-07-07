@@ -141,8 +141,7 @@ class PuzzleGrid extends Component {
     if (grid.currentCell.isBlack) this.toggleBlack();
 
     const cellWasEmpty = cellIsEmpty(grid.cursor);
-    cell.content = a;
-    cell.isMarkedWrong = false; // TODO handle this elsewhere
+    cell.setContent(a);
     this.recordAction(SET_CONTENT, a);
 
     // advanceCursor(cursorPolicy[cellWasEmpty ? TYPE_IN_EMPTY_CELL : TYPE_IN_FULL_CELL]);
@@ -179,7 +178,7 @@ class PuzzleGrid extends Component {
         const [i, j] = grid.direction;
         this.moveCursor(-i, -j);
       }
-      grid.currentCell.content = "";
+      grid.currentCell.setContent("");
       this.recordAction(SET_CONTENT, "");
     }
     this.setState({});
