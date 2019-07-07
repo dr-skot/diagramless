@@ -59,17 +59,19 @@ class CursoredXwdGrid extends XwdGrid {
   }
 
   goToNextWord(options = {}) {
-    const word = this.word;
-    if (!word) return;
-    const backward = !!options.backward;
-    const gridSize = [this.height, this.width];
+    const backward = !!options.backward,
+      eitherDirection = !!options.eitherDirection,
+      word = this.word,
+      start = eitherDirection || !word ? this.cursor : word[0],
+      gridSize = [this.height, this.width];
     let direction = this.direction;
-    const newPos = moveOnGrid(word[0], backward ? LEFT : RIGHT, gridSize, {
+    const newPos = moveOnGrid(start, backward ? LEFT : RIGHT, gridSize, {
       atLineEnd: NEXT_LINE,
       onPuzzleWrap: () => {
-        direction = direction.slice().reverse();
+        direction = direction.slice().reverse(); // TODO preserve direction constants
       },
-      until: pos => isWordStart(pos, direction, this.grid)
+      until: pos =>
+        this.wordStartsAt(...pos, eitherDirection ? null : direction)
     });
     this.setCursor(...newPos);
     this.direction = direction;

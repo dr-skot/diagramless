@@ -3,6 +3,7 @@ import CursoredXwdGrid from "./cursoredXwdGrid";
 import { ACROSS, puzzleFromFileData } from "../services/xwdService";
 
 class PuzzleModel {
+  // TODO read clues from data so they can be more easily accessed by number/direction
   constructor(data) {
     this.data = data;
     this.grid = new CursoredXwdGrid(data.height, data.width);

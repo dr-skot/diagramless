@@ -55,6 +55,13 @@ class PuzzleGrid extends Component {
     const keyCode = event.keyCode;
     //console.log("keyCode", keyCode);
 
+    // TODO normalize handling of helper keys
+    if (event.altKey && keyCode === 9) {
+      this.handleTab({ eitherDirection: true, backward: event.shiftKey });
+      event.preventDefault();
+      return;
+    }
+
     if (event.metaKey || event.ctrlKey || event.altKey) return;
 
     const shiftKeys = {
