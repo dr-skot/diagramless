@@ -49,6 +49,10 @@ class XwdCell {
     this.isVerified = correct;
     this.wasRevealed = !correct;
   }
+
+  exposeNumber() {
+    this.number = this.solution.number;
+  }
 }
 
 decorate(XwdCell, {

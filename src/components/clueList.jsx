@@ -31,7 +31,7 @@ class ClueList extends Component {
   componentDidUpdate() {
     if (this.scrollerRef.current && this.highlightRef.current) {
       this.scrollerRef.current.scrollTop =
-        this.highlightRef.current.offsetTop - 90; // TODO: why this adjustment?
+        this.highlightRef.current.offsetTop - 120; // TODO: why this adjustment?
     }
   }
 

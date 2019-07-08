@@ -23,11 +23,27 @@ class Puzzle extends Component {
     const { isFilled: wasFilled, isSolved: wasSolved } = this.state;
     const { isFilled, isSolved } = this.puzzle;
     const showModal = (!wasFilled && isFilled) || (!wasSolved && isSolved);
+    if (isSolved)
+      // TODO move to puzzleModel
+      this.puzzle.grid.forEachCell(cell => {
+        cell.exposeNumber();
+      });
     this.setState({ showModal, isFilled, isSolved });
   };
 
   handleModalClose = () => {
     this.setState({ showModal: false });
+  };
+
+  handleMenuSelect = (title, item) => {
+    if (title === "check") {
+      if (item === "square") this.checkSquare();
+      if (item === "puzzle") this.checkPuzzle();
+    }
+    if (title === "reveal") {
+      if (item === "square") this.revealSquare();
+      if (item === "puzzle") this.revealPuzzle();
+    }
   };
 
   checkSquare = () => {
@@ -73,11 +89,7 @@ class Puzzle extends Component {
       <React.Fragment>
         <div>
           <PuzzleHeader puzzle={puz} />
-          <button onClick={this.revealSquare}>reveal square</button>
-          <button onClick={this.checkSquare}>check square</button>
-          <button onClick={this.revealPuzzle}>reveal puzzle</button>
-          <button onClick={this.checkPuzzle}>check puzzle</button>
-          <PuzzleToolbar />
+          <PuzzleToolbar onMenuSelect={this.handleMenuSelect} />
           <div className="layout-puzzle">
             <div className="layout-cluebar-and-board">
               <ClueBar clue={puzzle.currentClue} />

@@ -12,6 +12,7 @@ class PuzzleToolbar extends Component {
 
   handleDropMenuSelect = (title, item) => {
     console.log("menu item selected:", title, item);
+    this.props.onMenuSelect(title, item);
   };
 
   render() {
