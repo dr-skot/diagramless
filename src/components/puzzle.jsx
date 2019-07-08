@@ -6,6 +6,7 @@ import ClueBar from "./clueBar";
 import ClueLists from "./clueLists";
 import PuzzleFileDrop from "./puzzleFileDrop";
 import PuzzleModal from "./puzzleModal";
+import PuzzleToolbar from "./puzzleToolbar";
 import { observer } from "mobx-react";
 
 class Puzzle extends Component {
@@ -76,6 +77,7 @@ class Puzzle extends Component {
           <button onClick={this.checkSquare}>check square</button>
           <button onClick={this.revealPuzzle}>reveal puzzle</button>
           <button onClick={this.checkPuzzle}>check puzzle</button>
+          <PuzzleToolbar />
           <div className="layout-puzzle">
             <div className="layout-cluebar-and-board">
               <ClueBar clue={puzzle.currentClue} />

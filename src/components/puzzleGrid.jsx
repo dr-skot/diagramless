@@ -82,6 +82,13 @@ class PuzzleGrid extends Component {
     const solved = this.props.solved;
     let shouldPreventDefault = true;
 
+    // TODO: organize this better
+    if (solved) {
+      keys[32] = null;
+      keys[8] = null;
+      keys[190] = null;
+    }
+
     const keyAction = (event.shiftKey ? shiftKeys : keys)[event.keyCode];
     if (keyAction) {
       keyAction();
