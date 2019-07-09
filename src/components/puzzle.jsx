@@ -88,7 +88,7 @@ class Puzzle extends Component {
     const puzzleHtml = puzzle ? (
       <React.Fragment>
         <div>
-          <PuzzleHeader puzzle={puz} />
+          <PuzzleHeader title={puz.title} author={puz.author} />
           <PuzzleToolbar onMenuSelect={this.handleMenuSelect} />
           <div className="layout-puzzle">
             <div className="layout-cluebar-and-board">
