@@ -5,7 +5,7 @@ import ClueList from "./clueList";
 const ClueLists = props => {
   const puzzle = props.puzzle;
   return (
-    <div className="layout-clue-lists">
+    <section className="Layout-clueLists--10_Xl">
       <ClueList
         label="across"
         clues={puzzle.data.clues.filter(clue => clue.direction[1])}
@@ -18,7 +18,7 @@ const ClueLists = props => {
         current={puzzle.grid.clueNumber(DOWN)}
         active={puzzle.directionIs(DOWN)}
       />
-    </div>
+    </section>
   );
 };
 

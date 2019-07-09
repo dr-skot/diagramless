@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 
 class ClueList extends Component {
   scrollerRef = React.createRef();
+  firstClueRef = React.createRef();
   highlightRef = React.createRef();
 
   // true if this clue is highlighted
@@ -13,42 +14,54 @@ class ClueList extends Component {
   // specifies the appropriate highlighting if any
   getClasses(clue) {
     return (
-      "clue-list-item" +
+      "Clue-li--1JoPu" +
       (this.clueIsLit(clue)
         ? this.props.active
-          ? " clue-selected"
-          : " clue-highlighted"
+          ? " Clue-selected--1ta_-"
+          : " Clue-highlighted--3H3do"
         : "")
     );
   }
 
   // marks the lit clue so we can scroll to it
-  getRef(clue) {
-    return this.clueIsLit(clue) ? this.highlightRef : "";
+  getRef(clue, index) {
+    console.log("getRef", clue, index);
+    return this.clueIsLit(clue)
+      ? this.highlightRef
+      : index === 0
+      ? this.firstClueRef
+      : "";
   }
 
   // scrolls to the lit clue after an update
   componentDidUpdate() {
-    if (this.scrollerRef.current && this.highlightRef.current) {
-      this.scrollerRef.current.scrollTop =
-        this.highlightRef.current.offsetTop - 120; // TODO: why this adjustment?
+    const scroller = this.scrollerRef.current,
+      highlight = this.highlightRef.current,
+      // no first clue ref means first clue is the highlighted clue
+      firstClue = this.firstClueRef.current || this.highlightRef.current;
+    console.log({ scroller, highlight, firstClue });
+    if (scroller && highlight) {
+      scroller.scroll({
+        top: highlight.offsetTop - firstClue.offsetTop,
+        behavior: "smooth"
+      });
     }
   }
 
   render() {
     const { label, clues } = this.props;
     return (
-      <div className="clue-list-wrapper">
-        <h3 className="clue-list-title">{label}</h3>
-        <ol className="clue-list-list" ref={this.scrollerRef}>
-          {clues.map(clue => (
+      <div className="ClueList-wrapper--3m-kd">
+        <h3 className="ClueList-title--1-3oW">{label}</h3>
+        <ol className="ClueList-list--2dD5-" ref={this.scrollerRef}>
+          {clues.map((clue, index) => (
             <li
               key={clue.number + label}
-              ref={this.getRef(clue)}
+              ref={this.getRef(clue, index)}
               className={this.getClasses(clue)}
             >
-              <span className="clue-number">{clue.number}</span>
-              <span className="clue-text">{clue.clue}</span>
+              <span className="Clue-label--2IdMY">{clue.number}</span>
+              <span className="Clue-text--3lZl7">{clue.clue}</span>
             </li>
           ))}
         </ol>

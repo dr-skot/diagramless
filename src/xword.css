@@ -107,9 +107,9 @@ table {
 }
 .grid td {
   position: relative;
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
+  width: 33px;
+  height: 33px;
+  min-width: 33px;
   text-align: center;
   border: 1px solid #666;
 }
@@ -159,7 +159,7 @@ table {
   position: absolute;
   top: -1px;
   left: 2px;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .content {
@@ -167,7 +167,7 @@ table {
   top: 6px;
   width: 90%;
   text-align: center;
-  font-size: 17px;
+  font-size: 20px;
 }
 td.fixed > .content {
   color: rgb(37, 96, 213);
