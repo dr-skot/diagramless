@@ -8,6 +8,7 @@ import PuzzleFileDrop from "./puzzleFileDrop";
 import PuzzleModal from "./puzzleModal";
 import PuzzleToolbar from "./puzzleToolbar";
 import { observer } from "mobx-react";
+import { ACROSS, DOWN } from "../services/xwdService";
 
 class Puzzle extends Component {
   state = {
@@ -44,6 +45,13 @@ class Puzzle extends Component {
       if (item === "square") this.revealSquare();
       if (item === "puzzle") this.revealPuzzle();
     }
+  };
+
+  handleClueSelect = (number, directionString) => {
+    // TODO get rid of magic string
+    const direction =
+      directionString.toLowerCase() === "across" ? ACROSS : DOWN;
+    this.puzzle.grid.goToWord(number, direction);
   };
 
   checkSquare = () => {
@@ -99,7 +107,7 @@ class Puzzle extends Component {
                 onContentChange={this.handleContentChange}
               />
             </div>
-            <ClueLists puzzle={puzzle} />
+            <ClueLists puzzle={puzzle} onClueSelect={this.handleClueSelect} />
           </div>
         </div>
         <PuzzleModal

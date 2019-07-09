@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { observer } from "mobx-react-lite";
+import { HighlightSpanKind } from "typescript";
 
 class ClueList extends Component {
   scrollerRef = React.createRef();
@@ -25,7 +26,6 @@ class ClueList extends Component {
 
   // marks the lit clue so we can scroll to it
   getRef(clue, index) {
-    console.log("getRef", clue, index);
     return this.clueIsLit(clue)
       ? this.highlightRef
       : index === 0
@@ -39,7 +39,6 @@ class ClueList extends Component {
       highlight = this.highlightRef.current,
       // no first clue ref means first clue is the highlighted clue
       firstClue = this.firstClueRef.current || this.highlightRef.current;
-    console.log({ scroller, highlight, firstClue });
     if (scroller && highlight) {
       scroller.scroll({
         top: highlight.offsetTop - firstClue.offsetTop,
@@ -59,6 +58,7 @@ class ClueList extends Component {
               key={clue.number + label}
               ref={this.getRef(clue, index)}
               className={this.getClasses(clue)}
+              onClick={() => this.props.onSelect(clue.number, label)}
             >
               <span className="Clue-label--2IdMY">{clue.number}</span>
               <span className="Clue-text--3lZl7">{clue.clue}</span>
