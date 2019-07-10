@@ -6,8 +6,8 @@ class PuzzleToolbar extends Component {
   state = {};
 
   menu = {
-    clear: ["incomplete", "word", "puzzle", "puzzle & timer"],
-    reveal: ["square", "word", "puzzle"],
+    clear: ["incomplete", "word", "white squares", "puzzle", "puzzle & timer"],
+    reveal: ["square", "word", "puzzle", "diagram"],
     check: ["autocheck", "square", "word", "puzzle"]
   };
 

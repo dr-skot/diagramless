@@ -6,9 +6,7 @@ import {
   LEFT,
   RIGHT,
   NEXT_LINE,
-  moveOnGrid,
-  ACROSS,
-  DOWN
+  moveOnGrid
 } from "../services/xwdService";
 import { mod, includesEqual } from "../services/common/utils";
 
@@ -87,15 +85,6 @@ class CursoredXwdGrid extends XwdGrid {
     });
     this.setCursor(...newPos);
     this.direction = direction;
-  }
-
-  // TODO I mean come on. Fix it
-  // with how often this is going to be checked maybe cells should just know which words they're in
-  cellIsInWord(row, col, wordLabel) {
-    const [number, directionLabel] = wordLabel.split("-");
-    const direction = directionLabel === "across" ? ACROSS : DOWN;
-    const word = getWord(this.grid, [row, col], direction);
-    return word && this.cell(...word[0]).number + "" === number + "";
   }
 }
 

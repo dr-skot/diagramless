@@ -9,7 +9,7 @@ class ClueList extends Component {
 
   // true if this clue is highlighted
   clueIsLit(clue) {
-    return clue.number + "" === this.props.current + "";
+    return clue.number + "" === this.props.current;
   }
 
   // specifies the appropriate highlighting if any

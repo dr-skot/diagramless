@@ -42,13 +42,41 @@ class Puzzle extends Component {
   };
 
   handleMenuSelect = (title, item) => {
+    const grid = this.puzzle.grid,
+      cellFinder = {
+        square: () => [grid.currentCell],
+        word: () => grid.word.map(location => grid.cell(...location)),
+        puzzle: () => grid.grid.flat(),
+        "puzzle & timer": () => grid.grid.flat(),
+        "white squares": () => grid.grid.flat().filter(cell => !cell.isBlack)
+        // TODO support incomplete
+      }[item],
+      cells = cellFinder ? cellFinder() : [];
     if (title === "check") {
-      if (item === "square") this.checkSquare();
-      if (item === "puzzle") this.checkPuzzle();
+      cells.forEach(cell => cell.check());
     }
     if (title === "reveal") {
-      if (item === "square") this.revealSquare();
-      if (item === "puzzle") this.revealPuzzle();
+      if (item === "diagram") {
+        grid.grid.flat().forEach(cell => {
+          cell.isBlack = cell.solution.isBlack;
+          cell.number = cell.solution.number;
+        });
+      } else {
+        cells.forEach(cell => cell.reveal());
+      }
+    }
+    if (title === "clear") {
+      cells.forEach(cell => {
+        cell.setContent("");
+        cell.number = "";
+        cell.isBlack = false;
+      });
+      if (item === "puzzle & timer") {
+        console.log("time goes from", this.clock);
+        this.clock.start = Date.now();
+        this.clock.time = 0;
+        console.log("to", this.clock);
+      }
     }
   };
 
@@ -59,12 +87,23 @@ class Puzzle extends Component {
     this.puzzle.grid.goToWord(number, direction);
   };
 
+  // TODO DRY all this up
   checkSquare = () => {
     this.puzzle.grid.currentCell.check();
   };
 
   revealSquare = () => {
     this.puzzle.grid.currentCell.reveal();
+  };
+
+  checkWord = () => {
+    const grid = this.puzzle.grid;
+    grid.word.forEach(location => grid.cell(...location).check());
+  };
+
+  revealWord = () => {
+    const grid = this.puzzle.grid;
+    grid.word.forEach(location => grid.cell(...location).reveal());
   };
 
   checkPuzzle = () => {

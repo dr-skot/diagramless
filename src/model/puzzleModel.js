@@ -12,7 +12,7 @@ class PuzzleModel {
       cell.solution = {
         content: answer,
         isBlack: answer === ":" || answer === ".",
-        number: data.numbers[pos]
+        number: data.numbers[pos] + ""
       };
     });
     if (data.user) {
@@ -42,10 +42,10 @@ class PuzzleModel {
         clue = _.find(
           puz.clues,
           clue =>
-            clue.number + "" === number + "" && this.directionIs(clue.direction)
+            clue.number + "" === number && this.directionIs(clue.direction)
         );
       this.currentClue = clue ? { number: number + dir, text: clue.clue } : {};
-      this.calculateRelatedClues();
+      if (this.currentClue.text) this.calculateRelatedClues();
     }
   }
 
@@ -54,6 +54,7 @@ class PuzzleModel {
     this.relatedClues = (this.currentClue.text.match(regex) || []).map(name =>
       name.toLowerCase()
     );
+    console.log("relatedClues", this.relatedClues);
     this.relatedCells = this.relatedClues
       .map(wordName => this.grid.getCellsInNamedWord(wordName))
       .flat();

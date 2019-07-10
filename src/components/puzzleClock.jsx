@@ -9,31 +9,27 @@ class PuzzleClock extends Component {
 
   componentDidMount() {
     const { clock } = this.props;
-    this.setState(clock);
-    if (clock.isRunning) this.startTimer();
-  }
-
-  // keeps clock object passed by parent in sync with internal timer
-  componentDidUpdate() {
-    const { clock } = this.props;
-    clock.time = this.state.time;
-    clock.isRunning = this.state.isRunning;
+    if (clock.isRunning) {
+      this.startTimer();
+    } else {
+      this.setState(clock);
+    }
   }
 
   startTimer = () => {
-    this.setState({
-      start: Date.now() - this.state.time,
-      isRunning: true
-    });
+    const clock = this.props.clock;
+    clock.start = Date.now() - clock.time;
+    clock.isRunning = true;
+    this.setState(clock);
     this.timer = setInterval(this.tick, 1000);
   };
 
   stopTimer = () => {
     clearInterval(this.timer);
-    this.setState({
-      time: Date.now() - this.state.start,
-      isRunning: false
-    });
+    const clock = this.props.clock;
+    clock.time = Date.now() - clock.start;
+    clock.isRunning = false;
+    this.setState(clock);
   };
 
   toggleTimer = () => {
@@ -41,9 +37,9 @@ class PuzzleClock extends Component {
   };
 
   tick = () => {
-    this.setState({
-      time: Date.now() - this.state.start
-    });
+    const clock = this.props.clock;
+    clock.time = Date.now() - clock.start;
+    this.setState(clock);
   };
 
   clockString = ms => {
@@ -59,6 +55,7 @@ class PuzzleClock extends Component {
       <li className="Timer-button--Jg5pv Tool-tool--Fiz94">
         <button onClick={this.toggleTimer}>
           <div className="timer-count">{this.clockString(this.state.time)}</div>
+          <i className="Icon-pause--1dqCf Icon-icon--1RAWC" />
         </button>
       </li>
     );

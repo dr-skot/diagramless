@@ -51,10 +51,7 @@ class XwdGrid {
     const wordStarts = [];
     this.forEachCell((cell, { row, col }) => {
       // TODO ensure numbers are always strings
-      if (
-        cell.number + "" === number + "" &&
-        this.wordStartsAt(row, col, direction)
-      ) {
+      if (cell.number === number && this.wordStartsAt(row, col, direction)) {
         wordStarts.push([row, col]);
       }
     });
