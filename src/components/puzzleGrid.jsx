@@ -241,15 +241,13 @@ class PuzzleGrid extends Component {
     const grid = this.props.grid;
     return {
       cell: grid.cursorIsAt(row, col),
-      word: grid.wordContains(row, col),
-      related: this.cellIsInRelatedWord(row, col)
+      word: this.cellFoundInList(row, col, grid.word),
+      related: this.cellFoundInList(row, col, this.props.relatedCells)
     };
   }
 
-  cellIsInRelatedWord(row, col) {
-    return _.find(this.props.relatedWords, wordLabel =>
-      this.props.grid.cellIsInWord(row, col, wordLabel)
-    );
+  cellFoundInList(row, col, list) {
+    return _.find(list, location => _.isEqual(location, [row, col]));
   }
 
   // only show number at start of word

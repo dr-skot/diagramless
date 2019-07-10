@@ -35,18 +35,6 @@ class XwdGrid {
     return !this.grid.flat().find(cell => !cell.isCorrect());
   }
 
-  // safely sets new state values for cell
-  // minimally clones grid state so as not to make in-place changes
-  set(row, col, newValues) {
-    const grid = this.grid.slice();
-    const rowCells = grid[row].slice();
-    const cell = { ...rowCells[col] };
-    cell.state = { ...cell.state, ...newValues };
-    rowCells[row][col] = cell;
-    grid[row] = rowCells;
-    this.grid = grid;
-  }
-
   cell(row, col) {
     return this.grid[row][col];
   }
@@ -57,6 +45,28 @@ class XwdGrid {
         this.wordStartsAt(row, col, ACROSS) || this.wordStartsAt(row, col, DOWN)
       );
     return isWordStart([row, col], direction, this.grid);
+  }
+
+  getWordStarts(number, direction) {
+    const wordStarts = [];
+    this.forEachCell((cell, { row, col }) => {
+      // TODO ensure numbers are always strings
+      if (
+        cell.number + "" === number + "" &&
+        this.wordStartsAt(row, col, direction)
+      ) {
+        wordStarts.push([row, col]);
+      }
+    });
+    return wordStarts;
+  }
+
+  getCellsInNamedWord(wordLabel) {
+    const [number, directionLabel] = wordLabel.split("-");
+    const direction = directionLabel === "across" ? ACROSS : DOWN;
+    return this.getWordStarts(number, direction)
+      .map(location => getWord(this.grid, location, direction))
+      .flat();
   }
 
   forEachCell(callback) {

@@ -113,7 +113,7 @@ class Puzzle extends Component {
                 grid={grid}
                 solved={this.state.isSolved}
                 onContentChange={this.handleContentChange}
-                relatedWords={puzzle.relatedClues}
+                relatedCells={puzzle.relatedCells}
               />
             </div>
             <ClueLists puzzle={puzzle} onClueSelect={this.handleClueSelect} />

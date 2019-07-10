@@ -54,6 +54,9 @@ class PuzzleModel {
     this.relatedClues = (this.currentClue.text.match(regex) || []).map(name =>
       name.toLowerCase()
     );
+    this.relatedCells = this.relatedClues
+      .map(wordName => this.grid.getCellsInNamedWord(wordName))
+      .flat();
   }
 
   serialize() {
