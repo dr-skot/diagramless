@@ -45,7 +45,15 @@ class PuzzleModel {
             clue.number + "" === number + "" && this.directionIs(clue.direction)
         );
       this.currentClue = clue ? { number: number + dir, text: clue.clue } : {};
+      this.calculateRelatedClues();
     }
+  }
+
+  calculateRelatedClues() {
+    const regex = /\d+-(Across|Down)/gi;
+    this.relatedClues = (this.currentClue.text.match(regex) || []).map(name =>
+      name.toLowerCase()
+    );
   }
 
   serialize() {

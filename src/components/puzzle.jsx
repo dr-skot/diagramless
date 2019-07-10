@@ -15,6 +15,11 @@ class Puzzle extends Component {
     puz: null
   };
 
+  clock = {
+    time: 0,
+    isRunning: true
+  };
+
   handleFileDrop = fileContents => {
     this.puzzle = PuzzleModel.fromFileData(fileContents);
     this.setState({ puz: this.puzzle.data });
@@ -97,7 +102,10 @@ class Puzzle extends Component {
       <React.Fragment>
         <div>
           <PuzzleHeader title={puz.title} author={puz.author} />
-          <PuzzleToolbar onMenuSelect={this.handleMenuSelect} />
+          <PuzzleToolbar
+            clock={this.clock}
+            onMenuSelect={this.handleMenuSelect}
+          />
           <div className="layout-puzzle">
             <div className="layout-cluebar-and-board">
               <ClueBar clue={puzzle.currentClue} />
@@ -105,6 +113,7 @@ class Puzzle extends Component {
                 grid={grid}
                 solved={this.state.isSolved}
                 onContentChange={this.handleContentChange}
+                relatedWords={puzzle.relatedClues}
               />
             </div>
             <ClueLists puzzle={puzzle} onClueSelect={this.handleClueSelect} />

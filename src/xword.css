@@ -176,6 +176,10 @@ td.fixed > .content {
 .grid td.focus {
   background-color: #98cffc;
 }
+.related {
+  background-color: #ffeca0;
+}
+
 .selected {
   background-color: lightgreen;
 }

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import DropMenu from "./dropMenu";
+import PuzzleClock from "./puzzleClock";
 
 class PuzzleToolbar extends Component {
   state = {};
@@ -24,11 +25,7 @@ class PuzzleToolbar extends Component {
               <i className="Icon-settings-gear--18j4O Icon-icon--1RAWC" />
             </button>
           </li>
-          <li className="Timer-button--Jg5pv Tool-tool--Fiz94">
-            <button>
-              <div className="timer-count">0:00</div>
-            </button>
-          </li>
+          <PuzzleClock clock={this.props.clock} />
           <li className="Tool-button--39W4J Tool-tool--Fiz94 Tool-texty--2w4Br">
             <button>rebus</button>
           </li>

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { observer } from "mobx-react-lite";
-import { HighlightSpanKind } from "typescript";
+import _ from "lodash";
 
 class ClueList extends Component {
   scrollerRef = React.createRef();
@@ -20,8 +20,18 @@ class ClueList extends Component {
         ? this.props.active
           ? " Clue-selected--1ta_-"
           : " Clue-highlighted--3H3do"
-        : "")
+        : "") +
+      (this.clueIsRelated(clue) ? " Clue-related--3Qr8i" : "")
     );
+  }
+
+  clueIsRelated(clue) {
+    const result = _.find(
+      this.props.relatedClues,
+      clueName =>
+        clueName === clue.number + "-" + this.props.label.toLowerCase()
+    );
+    return result;
   }
 
   // marks the lit clue so we can scroll to it
