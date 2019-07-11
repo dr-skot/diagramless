@@ -12,7 +12,7 @@ class PuzzleModel {
       cell.solution = {
         content: answer,
         isBlack: answer === ":" || answer === ".",
-        number: data.numbers[pos] + ""
+        number: (data.numbers[pos] || "") + ""
       };
     });
     if (data.user) {

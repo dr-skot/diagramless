@@ -68,14 +68,12 @@ class Puzzle extends Component {
     if (title === "clear") {
       cells.forEach(cell => {
         cell.setContent("");
-        cell.number = "";
         cell.isBlack = false;
+        if (item.match(/^puzzle/)) cell.number = "";
       });
       if (item === "puzzle & timer") {
-        console.log("time goes from", this.clock);
         this.clock.start = Date.now();
         this.clock.time = 0;
-        console.log("to", this.clock);
       }
     }
   };
@@ -85,37 +83,6 @@ class Puzzle extends Component {
     const direction =
       directionString.toLowerCase() === "across" ? ACROSS : DOWN;
     this.puzzle.grid.goToWord(number, direction);
-  };
-
-  // TODO DRY all this up
-  checkSquare = () => {
-    this.puzzle.grid.currentCell.check();
-  };
-
-  revealSquare = () => {
-    this.puzzle.grid.currentCell.reveal();
-  };
-
-  checkWord = () => {
-    const grid = this.puzzle.grid;
-    grid.word.forEach(location => grid.cell(...location).check());
-  };
-
-  revealWord = () => {
-    const grid = this.puzzle.grid;
-    grid.word.forEach(location => grid.cell(...location).reveal());
-  };
-
-  checkPuzzle = () => {
-    this.puzzle.grid.forEachCell(cell => {
-      cell.check();
-    });
-  };
-
-  revealPuzzle = () => {
-    this.puzzle.grid.forEachCell(cell => {
-      cell.reveal();
-    });
   };
 
   componentDidUpdate() {

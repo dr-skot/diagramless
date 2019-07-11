@@ -18,10 +18,24 @@ class PuzzleCell extends Component {
     return keysWithTrueValues(classes).join(" ");
   }
 
+  getStyle() {
+    const { width } = this.props;
+    return {
+      width: width,
+      height: width,
+      minWidth: width,
+      fontSize: (width * 26) / 36
+    };
+  }
+
   render() {
     const { content, number, isBlack } = this.props.cell;
     return (
-      <td className={this.getClasses()} onClick={this.props.onClick}>
+      <td
+        className={this.getClasses()}
+        onClick={this.props.onClick}
+        style={this.getStyle()}
+      >
         <div className="content">{isBlack ? "" : content}</div>
         <div className="label">{isBlack ? "" : number}</div>
       </td>
