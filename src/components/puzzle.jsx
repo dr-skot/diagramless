@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import PuzzleModel from "../model/puzzleModel";
 import PuzzleHeader from "./puzzleHeader";
-import PuzzleGrid from "./puzzleGrid";
-import ClueBar from "./clueBar";
+import ClueBarAndBoard from "./clueBarAndBoard";
 import ClueLists from "./clueLists";
 import PuzzleFileDrop from "./puzzleFileDrop";
 import PuzzleModal from "./puzzleModal";
@@ -113,15 +112,13 @@ class Puzzle extends Component {
             onMenuSelect={this.handleMenuSelect}
           />
           <div className="layout-puzzle">
-            <div className="layout-cluebar-and-board">
-              <ClueBar clue={puzzle.currentClue} />
-              <PuzzleGrid
-                grid={grid}
-                solved={this.state.isSolved}
-                onContentChange={this.handleContentChange}
-                relatedCells={puzzle.relatedCells}
-              />
-            </div>
+            <ClueBarAndBoard
+              clue={puzzle.currentClue}
+              grid={grid}
+              solved={this.state.isSolved}
+              onContentChange={this.handleContentChange}
+              relatedCells={puzzle.relatedCells}
+            />
             <ClueLists puzzle={puzzle} onClueSelect={this.handleClueSelect} />
           </div>
         </div>

@@ -32,29 +32,15 @@ const cursorPolicy = {
 // and record on action stack undoable groups of these, with before and after values
 
 class PuzzleGrid extends Component {
-  state = { dimensions: null };
-
   actionStack = [];
 
   componentDidMount() {
-    this.readDimensions();
-    window.addEventListener("resize", this.readDimensions);
     window.addEventListener("keydown", this.handleKeyDown);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.readDimensions);
     window.removeEventListener("keydown", this.handleKeyDown);
   }
-
-  readDimensions = () => {
-    this.setState({
-      dimensions: {
-        width: this.container.offsetWidth,
-        height: this.container.offsetHeight
-      }
-    });
-  };
 
   recordAction(name, ...args) {
     this.actionStack.unshift({ name, args });
@@ -274,40 +260,30 @@ class PuzzleGrid extends Component {
       : { ...cell, number: "" };
   }
 
-  getWidth() {
-    const boardWidth = this.state.dimensions.width,
-      cellWidth = boardWidth / this.props.grid.width - 1;
-    return cellWidth;
-  }
-
   render() {
     const grid = this.props.grid;
     if (grid.length === 0) return null;
     return (
-      <div className="puzzle-board" ref={el => (this.container = el)}>
-        {this.state.dimensions ? (
-          <div className="grid puzzle-board-content">
-            <table id="board" tabIndex="0">
-              <tbody>
-                {_.range(0, grid.height).map(row => (
-                  <tr key={this.rowKey(row)}>
-                    {_.range(0, grid.width).map(col => (
-                      <PuzzleCell
-                        key={this.cellKey(row, col)}
-                        cell={this.cell(row, col)}
-                        cursor={this.cursorSettings(row, col)}
-                        onClick={event => this.handleCellClick(row, col, event)}
-                        width={this.getWidth()}
-                      />
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          ""
-        )}
+      <div className="puzzle-board">
+        <div className="grid puzzle-board-content">
+          <table id="board" tabIndex="0">
+            <tbody>
+              {_.range(0, grid.height).map(row => (
+                <tr key={this.rowKey(row)}>
+                  {_.range(0, grid.width).map(col => (
+                    <PuzzleCell
+                      key={this.cellKey(row, col)}
+                      cell={this.cell(row, col)}
+                      cursor={this.cursorSettings(row, col)}
+                      onClick={event => this.handleCellClick(row, col, event)}
+                      width={this.props.cellWidth}
+                    />
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }

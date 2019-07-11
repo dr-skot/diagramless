@@ -165,7 +165,7 @@ table {
 
 .content {
   position: absolute;
-  top: 28%;
+  top: 33%;
   width: 100%;
   text-align: center;
 }
@@ -412,5 +412,5 @@ div.circle {
 }
 
 .display-none {
-  display: none;
+  visibility: hidden;
 }

@@ -5,10 +5,12 @@ import PuzzleClock from "./puzzleClock";
 class PuzzleToolbar extends Component {
   state = {};
 
+  // TODO support clear incomplete
+  // TODO support autocheck
   menu = {
-    clear: ["incomplete", "word", "white squares", "puzzle", "puzzle & timer"],
+    clear: ["word", "white squares", "puzzle", "puzzle & timer"],
     reveal: ["square", "word", "puzzle", "diagram"],
-    check: ["autocheck", "square", "word", "puzzle"]
+    check: ["square", "word", "puzzle"]
   };
 
   handleDropMenuSelect = (title, item) => {
