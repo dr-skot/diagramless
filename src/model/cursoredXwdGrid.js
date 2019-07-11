@@ -64,8 +64,10 @@ class CursoredXwdGrid extends XwdGrid {
 
   goToWord(number, direction) {
     const pos = this.grid.flat().findIndex(cell => cell.number === number);
-    this.setPosition(pos);
-    this.direction = direction;
+    if (pos >= 0) {
+      this.setPosition(pos);
+      this.direction = direction;
+    }
   }
 
   goToNextWord(options = {}) {
