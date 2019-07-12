@@ -4,20 +4,33 @@ import UIfx from "uifx";
 import booAudio from "../sounds/doh.mp3";
 import yayAudio from "../sounds/tada.mp3";
 
-const boo = new UIfx({ asset: booAudio, volume: 0.5 });
-const yay = new UIfx({ asset: yayAudio, volume: 0.5 });
+export const SOLVED = "SOLVED",
+  FILLED = "FILLED",
+  PAUSED = "PAUSED";
 
-const PuzzleModal = ({ show, solved, onClose }) => {
+const message = {
+  SOLVED: "You're amazing!",
+  FILLED:
+    "Hm. You filled all the squares, but something's not right somewhere.",
+  PAUSED: "Paused..."
+};
+
+const sounds = {
+  SOLVED: new UIfx({ asset: yayAudio, volume: 0.5 }),
+  FILLED: new UIfx({ asset: booAudio, volume: 0.5 })
+};
+
+const PuzzleModal = ({ show, onClose }) => {
   const showHideClassName = show ? "modal display-block" : "modal display-none";
 
-  if (show) {
-    (solved ? yay : boo).play();
+  if (sounds[show]) {
+    sounds[show].play();
   }
   return (
     <div className={showHideClassName}>
       <section className="modal-main">
-        <p>{solved ? "You did it!" : "Something's wrong!"}</p>
-        <button onClick={onClose}>close</button>
+        <p>{message[show]}</p>
+        <button onClick={() => onClose(show)}>close</button>
       </section>
     </div>
   );

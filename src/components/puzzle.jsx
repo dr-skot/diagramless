@@ -4,7 +4,7 @@ import PuzzleHeader from "./puzzleHeader";
 import ClueBarAndBoard from "./clueBarAndBoard";
 import ClueLists from "./clueLists";
 import PuzzleFileDrop from "./puzzleFileDrop";
-import PuzzleModal from "./puzzleModal";
+import PuzzleModal, { SOLVED, FILLED, PAUSED } from "./puzzleModal";
 import PuzzleToolbar from "./puzzleToolbar";
 import { observer } from "mobx-react";
 import { ACROSS, DOWN } from "../services/xwdService";
@@ -27,7 +27,8 @@ class Puzzle extends Component {
   handleContentChange = () => {
     const { isFilled: wasFilled, isSolved: wasSolved } = this.state;
     const { isFilled, isSolved } = this.puzzle;
-    const showModal = (!wasFilled && isFilled) || (!wasSolved && isSolved);
+    const showModal =
+      (!wasSolved && isSolved && SOLVED) || (!wasFilled && isFilled && FILLED);
     if (isSolved)
       // TODO move to puzzleModel
       this.puzzle.grid.forEachCell(cell => {
@@ -36,8 +37,13 @@ class Puzzle extends Component {
     this.setState({ showModal, isFilled, isSolved });
   };
 
-  handleModalClose = () => {
+  handleModalClose = reason => {
     this.setState({ showModal: false });
+    if (reason === PAUSED) this.clock.start();
+  };
+
+  handleClockPause = () => {
+    this.setState({ showModal: PAUSED });
   };
 
   handleMenuSelect = (title, item) => {
@@ -71,8 +77,7 @@ class Puzzle extends Component {
         if (item.match(/^puzzle/)) cell.number = "";
       });
       if (item === "puzzle & timer") {
-        this.clock.start = Date.now();
-        this.clock.time = 0;
+        this.clock.reset();
       }
     }
   };
@@ -93,7 +98,13 @@ class Puzzle extends Component {
   componentDidMount() {
     const puzzleData = JSON.parse(localStorage.getItem("xword"));
     this.puzzle = PuzzleModel.deserialize(puzzleData);
-    this.setState({ puz: this.puzzle.data, puzzle: this.puzzle });
+    const { isFilled, isSolved } = this.puzzle;
+    this.setState({
+      puz: this.puzzle.data,
+      puzzle: this.puzzle,
+      isFilled,
+      isSolved
+    });
   }
 
   render() {
@@ -109,6 +120,7 @@ class Puzzle extends Component {
           <PuzzleHeader title={puz.title} author={puz.author} />
           <PuzzleToolbar
             clock={this.clock}
+            onClockPause={this.handleClockPause}
             onMenuSelect={this.handleMenuSelect}
           />
           <div className="layout-puzzle">
@@ -123,7 +135,6 @@ class Puzzle extends Component {
           </div>
         </div>
         <PuzzleModal
-          solved={this.state.isSolved}
           show={this.state.showModal}
           onClose={this.handleModalClose}
         />

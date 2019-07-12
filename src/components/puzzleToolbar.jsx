@@ -27,7 +27,10 @@ class PuzzleToolbar extends Component {
               <i className="Icon-settings-gear--18j4O Icon-icon--1RAWC" />
             </button>
           </li>
-          <PuzzleClock clock={this.props.clock} />
+          <PuzzleClock
+            clock={this.props.clock}
+            onClockPause={this.props.onClockPause}
+          />
           <li className="Tool-button--39W4J Tool-tool--Fiz94 Tool-texty--2w4Br">
             <button>rebus</button>
           </li>

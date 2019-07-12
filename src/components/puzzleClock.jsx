@@ -3,12 +3,17 @@ import React, { Component } from "react";
 class PuzzleClock extends Component {
   state = {
     time: 0,
-    start: 0,
+    startTime: 0,
     isRunning: false
   };
 
   componentDidMount() {
     const { clock } = this.props;
+    Object.assign(clock, {
+      start: this.startTimer,
+      stop: this.stopTimer,
+      reset: this.resetTimer
+    });
     if (clock.isRunning) {
       this.startTimer();
     } else {
@@ -18,7 +23,7 @@ class PuzzleClock extends Component {
 
   startTimer = () => {
     const clock = this.props.clock;
-    clock.start = Date.now() - clock.time;
+    clock.startTime = Date.now() - clock.time;
     clock.isRunning = true;
     this.setState(clock);
     this.timer = setInterval(this.tick, 1000);
@@ -27,9 +32,18 @@ class PuzzleClock extends Component {
   stopTimer = () => {
     clearInterval(this.timer);
     const clock = this.props.clock;
-    clock.time = Date.now() - clock.start;
+    clock.time = Date.now() - clock.startTime;
     clock.isRunning = false;
     this.setState(clock);
+    this.props.onClockPause(clock);
+  };
+
+  resetTimer = () => {
+    Object.assign(this.props.clock, {
+      startTime: Date.now(),
+      time: 0
+    });
+    this.setState(this.props.clock);
   };
 
   toggleTimer = () => {
@@ -38,16 +52,17 @@ class PuzzleClock extends Component {
 
   tick = () => {
     const clock = this.props.clock;
-    clock.time = Date.now() - clock.start;
+    clock.time = Date.now() - clock.startTime;
     this.setState(clock);
   };
 
   clockString = ms => {
-    const seconds = Math.floor(ms / 1000),
-      secs = seconds % 60,
-      ss = (secs < 10 ? "0" : "") + secs,
-      m = "" + Math.floor(secs / 60);
-    return m + ":" + ss;
+    const totalSeconds = Math.floor(ms / 1000),
+      secs = totalSeconds % 60,
+      mins = Math.floor(totalSeconds / 60) % 60,
+      hrs = Math.floor(totalSeconds / 3600),
+      nn = n => (n < 10 ? "0" : "") + n;
+    return [hrs, ...[mins, secs].map(nn)].join(":");
   };
 
   render() {
