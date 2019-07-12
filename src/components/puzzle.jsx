@@ -105,6 +105,10 @@ class Puzzle extends Component {
       isFilled,
       isSolved
     });
+    window.addEventListener("blur", () => {
+      console.log("visibility change! ");
+      this.clock.stop();
+    });
   }
 
   render() {
