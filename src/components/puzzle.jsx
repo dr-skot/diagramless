@@ -21,6 +21,8 @@ class Puzzle extends Component {
 
   handleFileDrop = fileContents => {
     this.puzzle = PuzzleModel.fromFileData(fileContents);
+    console.log("resetting clock");
+    this.clock.reset();
     this.setState({ puz: this.puzzle.data });
   };
 
@@ -105,10 +107,7 @@ class Puzzle extends Component {
       isFilled,
       isSolved
     });
-    window.addEventListener("blur", () => {
-      console.log("visibility change! ");
-      this.clock.stop();
-    });
+    window.addEventListener("blur", () => this.clock.stop());
   }
 
   render() {
@@ -120,7 +119,11 @@ class Puzzle extends Component {
 
     const puzzleHtml = puzzle ? (
       <React.Fragment>
-        <div>
+        <div
+          className={
+            this.state.showModal === PAUSED ? "app-obscured--26XpG " : ""
+          }
+        >
           <PuzzleHeader title={puz.title} author={puz.author} />
           <PuzzleToolbar
             clock={this.clock}
@@ -139,7 +142,7 @@ class Puzzle extends Component {
           </div>
         </div>
         <PuzzleModal
-          show={this.state.showModal}
+          reason={this.state.showModal}
           onClose={this.handleModalClose}
         />
       </React.Fragment>

@@ -59,3 +59,11 @@ export function wrapFind(array, index, test) {
   const i = wrapFindIndex(array, index, test);
   return i < 0 ? undefined : array[i];
 }
+
+// capitalizes first letter of each word
+export function capitalize(string) {
+  return string
+    .split(" ")
+    .map(s => (s.length > 0 ? s[0].toUpperCase() + s.slice(1) : s))
+    .join(" ");
+}

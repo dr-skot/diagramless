@@ -54,7 +54,6 @@ class PuzzleModel {
     this.relatedClues = (this.currentClue.text.match(regex) || []).map(name =>
       name.toLowerCase()
     );
-    console.log("relatedClues", this.relatedClues);
     this.relatedCells = this.relatedClues
       .map(wordName => this.grid.getCellsInNamedWord(wordName))
       .flat();

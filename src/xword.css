@@ -378,7 +378,7 @@ div.circle {
   padding: 20px;
 }
 
-.modal {
+.modal-dimmer {
   position: fixed;
   top: 0;
   left: 0;

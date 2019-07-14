@@ -26,7 +26,7 @@ class ClueBarAndBoard extends Component {
   };
 
   render() {
-    const { clue, grid, solved, onContentChange, relatedCells } = this.props;
+    const { grid } = this.props;
     return (
       <div
         className="layout-cluebar-and-board"

@@ -10,9 +10,14 @@ export const SOLVED = "SOLVED",
 
 const message = {
   SOLVED: "You're amazing!",
-  FILLED:
-    "Hm. You filled all the squares, but something's not right somewhere.",
+  FILLED: "Hm. Something’s not right somewhere.",
   PAUSED: "Paused..."
+};
+
+const buttonText = {
+  SOLVED: "I know, thanks",
+  FILLED: "Dagnabbit",
+  PAUSED: "Resume"
 };
 
 const sounds = {
@@ -20,18 +25,46 @@ const sounds = {
   FILLED: new UIfx({ asset: booAudio, volume: 0.5 })
 };
 
-const PuzzleModal = ({ show, onClose }) => {
-  const showHideClassName = show ? "modal display-block" : "modal display-none";
+const PuzzleModal = ({ reason, onClose }) => {
+  const showHideClassName = !reason
+    ? "display-none"
+    : reason === PAUSED
+    ? "display-block"
+    : "modal-dimmer display-block";
 
-  if (sounds[show]) {
-    sounds[show].play();
+  if (sounds[reason]) {
+    sounds[reason].play();
   }
   return (
-    <div className={showHideClassName}>
-      <section className="modal-main">
-        <p>{message[show]}</p>
-        <button onClick={() => onClose(show)}>close</button>
-      </section>
+    <div
+      className={
+        showHideClassName +
+        " ModalWrapper-wrapper--1GgyB ModalWrapper-stretch--19Bif"
+      }
+    >
+      <div
+        id="modalWrapper-overlay"
+        className={
+          reason === PAUSED
+            ? ""
+            : " ModalWrapper-overlay--3D0UT ModalWrapper-stretch--19Bif"
+        }
+      />
+      <div className="ModalBody-body--3PkKz" tabIndex="-1">
+        <article className="ModalBody-content--QYNuF">
+          <div id="content-pauseModalBody">{message[reason]}</div>
+          <div className="buttons-modalButtonContainer--35RTh">
+            <button
+              className="buttons-modalButton--1REsR"
+              onClick={() => onClose(reason)}
+            >
+              <div>
+                <span>{buttonText[reason]}</span>
+              </div>
+            </button>
+          </div>
+        </article>
+      </div>
     </div>
   );
 };
