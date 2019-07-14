@@ -7,6 +7,7 @@ class PuzzleToolbar extends Component {
 
   // TODO support clear incomplete
   // TODO support autocheck
+  // TODO move this menu outside component and pass as prop
   menu = {
     symmetry: ["diagonal", "left/right"],
     clear: ["word", "white squares", "puzzle", "puzzle & timer"],
@@ -21,7 +22,7 @@ class PuzzleToolbar extends Component {
 
   render() {
     return (
-      <div className="Toolbar-wrapper--1S7nZ">
+      <div className="Toolbar-wrapper--1S7nZ toolbar-wrapper">
         <ul className="Toolbar-tools--2qUqg">
           <li className="Tool-button--39W4J Tool-tool--Fiz94">
             <button>

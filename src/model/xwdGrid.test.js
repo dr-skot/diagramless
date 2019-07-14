@@ -88,6 +88,17 @@ describe("enforceSymmetry()", () => {
     const grid = new XwdGrid(5, 5);
     grid.cell(1, 1).isBlack = true;
     grid.enforceSymmetry(DIAGONAL);
-    expect(grid.cell(3, 3).isBlack).toBe(true);
+    expect(grid.cell(3, 3).isBlack).toBeTruthy();
+  });
+
+  it("can be easily undone", () => {
+    const grid = new XwdGrid(5, 5);
+    grid.cell(1, 1).isBlack = true;
+    grid.enforceSymmetry(DIAGONAL);
+    expect(grid.cell(3, 3).isBlack).toBe(DIAGONAL);
+    expect(grid.cell(1, 1).isBlack).toBe(true);
+    grid.undoSymmetry(DIAGONAL);
+    expect(grid.cell(3, 3).isBlack).toBe(false);
+    expect(grid.cell(1, 1).isBlack).toBe(true);
   });
 });

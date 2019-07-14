@@ -70,16 +70,23 @@ class XwdGrid {
       .flat();
   }
 
-  enforceSymmetry(type) {
+  enforceSymmetry(symmetryType) {
     const { height, width } = this;
     this.forEachCell((cell, { row, col }) => {
-      if (cell.isBlack) {
-        const sisterCell =
-          type === "DIAGONAL"
-            ? [height - row - 1, width - col - 1]
-            : [row, width - col - 1];
-        this.cell(...sisterCell).isBlack = true;
+      // ignore cells set black by enforce symmetry by requiring true not truthy
+      if (cell.isBlack === true) {
+        const sisterCell = {
+          DIAGONAL: [height - row - 1, width - col - 1],
+          LEFT_RIGHT: [row, width - col - 1]
+        }[symmetryType];
+        if (sisterCell) this.cell(...sisterCell).isBlack = symmetryType;
       }
+    });
+  }
+
+  undoSymmetry(symmetryType) {
+    this.forEachCell(cell => {
+      if (cell.isBlack === symmetryType) cell.isBlack = false;
     });
   }
 

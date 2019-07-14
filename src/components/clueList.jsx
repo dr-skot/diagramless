@@ -60,7 +60,7 @@ class ClueList extends Component {
   render() {
     const { label, clues } = this.props;
     return (
-      <div className="ClueList-wrapper--3m-kd">
+      <div className="ClueList-wrapper--3m-kd cluelist-wrapper">
         <h3 className="ClueList-title--1-3oW">{label}</h3>
         <ol className="ClueList-list--2dD5-" ref={this.scrollerRef}>
           {clues.map((clue, index) => (

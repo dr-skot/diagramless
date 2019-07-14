@@ -204,6 +204,10 @@ td.fixed > .content {
   margin: 0;
 }
 
+.toolbar-wrapper {
+  font: 14px franklin;
+}
+
 .layout-puzzle {
   -webkit-box-align: start;
   -webkit-align-items: flex-start;
@@ -286,6 +290,10 @@ td.fixed > .content {
   -ms-flex-pack: distribute;
   justify-content: space-around;
   max-height: 625px;
+}
+
+.cluelist-wrapper {
+  font: 14px franklin;
 }
 
 .clue-list-wrapper {

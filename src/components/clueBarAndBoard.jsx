@@ -44,6 +44,7 @@ class ClueBarAndBoard extends Component {
               onContentChange={this.props.onContentChange}
               relatedCells={this.props.relatedCells}
               cellWidth={this.state.sizes.cellWidth}
+              symmetry={this.props.symmetry}
             />
           </React.Fragment>
         ) : (

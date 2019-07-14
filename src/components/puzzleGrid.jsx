@@ -3,7 +3,11 @@ import { observer } from "mobx-react";
 import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
 import { LEFT, RIGHT, UP, DOWN } from "../services/xwdService";
-import { nextOrLast, wrapFindIndex } from "../services/common/utils";
+import {
+  nextOrLast,
+  wrapFindIndex,
+  keysWithTrueValues
+} from "../services/common/utils";
 
 const SET_CURSOR = "setCursor",
   SET_DIRECTION = "setDirection",
@@ -33,6 +37,12 @@ const cursorPolicy = {
 
 class PuzzleGrid extends Component {
   actionStack = [];
+
+  enforceSymmetries = () => {
+    keysWithTrueValues(this.props.symmetry).map(symmetryType =>
+      this.props.grid.enforceSymmetry(symmetryType)
+    );
+  };
 
   componentDidMount() {
     window.addEventListener("keydown", this.handleKeyDown);
@@ -105,7 +115,10 @@ class PuzzleGrid extends Component {
       shouldPreventDefault = false;
     }
 
-    if (shouldPreventDefault) event.preventDefault();
+    if (shouldPreventDefault) {
+      event.preventDefault();
+      this.enforceSymmetries();
+    }
   };
 
   advanceCursor() {

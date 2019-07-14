@@ -3,6 +3,7 @@ import { capitalize } from "../services/common/utils";
 
 const PuzzleHeader = props => {
   // TODO handle other title formats than NY Times
+  // do this munging on model so not rerendering every time
   const { title, author } = props,
     [maker, editor] = author.split(" / ").map(name => name.toUpperCase()),
     titlePieces = title.match(/NY Times, (\w+, \w+ \d+, \d+)(.*)/),
@@ -16,7 +17,6 @@ const PuzzleHeader = props => {
     actualTitle = titlePieces[2]
       ? '"' + capitalize(titlePieces[2].trim().toLowerCase()) + '"'
       : "The Daily Crossword";
-  console.log(title);
 
   return (
     <header className="PuzzleHeader-wrapper--3FN32">

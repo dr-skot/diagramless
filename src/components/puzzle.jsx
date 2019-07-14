@@ -9,6 +9,7 @@ import PuzzleToolbar from "./puzzleToolbar";
 import { observer } from "mobx-react";
 import { ACROSS, DOWN } from "../services/xwdService";
 import { DIAGONAL, LEFT_RIGHT } from "../model/xwdGrid";
+import { keysWithTrueValues } from "../services/common/utils";
 
 class Puzzle extends Component {
   state = {
@@ -18,6 +19,17 @@ class Puzzle extends Component {
   clock = {
     time: 0,
     isRunning: true
+  };
+
+  symmetry = {
+    DIAGONAL: false,
+    LEFT_RIGHT: false
+  };
+
+  enforceSymmetries = () => {
+    keysWithTrueValues(this.symmetry).map(symmetryType =>
+      this.puzzle.grid.enforceSymmetry(symmetryType)
+    );
   };
 
   handleFileDrop = fileContents => {
@@ -84,8 +96,21 @@ class Puzzle extends Component {
       }
     }
     if (title === "symmetry") {
-      grid.enforceSymmetry(item === "diagonal" ? DIAGONAL : LEFT_RIGHT);
+      const symmetryType = {
+        diagonal: DIAGONAL,
+        "left/right": LEFT_RIGHT
+      }[item];
+      if (symmetryType) {
+        if (this.symmetry[symmetryType]) {
+          grid.undoSymmetry(symmetryType);
+          this.symmetry[symmetryType] = false;
+        } else {
+          grid.enforceSymmetry(symmetryType);
+          this.symmetry[symmetryType] = true;
+        }
+      }
     }
+    this.enforceSymmetries();
   };
 
   handleClueSelect = (number, directionString) => {
@@ -138,6 +163,7 @@ class Puzzle extends Component {
             <ClueBarAndBoard
               clue={puzzle.currentClue}
               grid={grid}
+              symmetry={this.symmetry}
               solved={this.state.isSolved}
               onContentChange={this.handleContentChange}
               relatedCells={puzzle.relatedCells}
