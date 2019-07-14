@@ -9,6 +9,7 @@ class PuzzleToolbar extends Component {
   // TODO support autocheck
   // TODO move this menu outside component and pass as prop
   menu = {
+    number: ["now", "continuously"],
     symmetry: ["diagonal", "left/right"],
     clear: ["word", "white squares", "puzzle", "puzzle & timer"],
     reveal: ["square", "word", "puzzle", "diagram"],

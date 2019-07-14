@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { ACROSS, DOWN, isWordStart, getWord } from "../services/xwdService";
 import XwdCell from "./xwdCell";
+import { observe, decorate, observable } from "mobx";
 
 // Symmetry constants
 export const DIAGONAL = "DIAGONAL",
@@ -8,10 +9,47 @@ export const DIAGONAL = "DIAGONAL",
 
 class XwdGrid {
   grid = [];
+  symmetry = null;
 
   constructor(height, width, data) {
     this.grid = _.times(height, () => _.times(width, () => new XwdCell()));
     if (data) this.setData(data);
+
+    this.disposers = [];
+    this.forEachCell((cell, { row, col }) => {
+      this.disposers.push(
+        observe(cell, "isBlack", change =>
+          this.onBlackChange(cell, row, col, change)
+        )
+      );
+    });
+  }
+
+  onBlackChange = (cell, row, col, change) => {
+    console.log("black change!", { row, col, change });
+    if (this.symmetry) {
+      const sister = this.getSisterCell(row, col, this.symmetry);
+      if (sister.isBlack !== cell.isBlack) sister.isBlack = cell.isBlack;
+    }
+  };
+
+  getSisterCell(row, col, symmetry) {
+    const { height, width } = this;
+    const sisterLocation = {
+      DIAGONAL: [height - row - 1, width - col - 1],
+      LEFT_RIGHT: [row, width - col - 1]
+    }[symmetry];
+    return sisterLocation ? this.cell(...sisterLocation) : null;
+  }
+
+  setSymmetry(symmetry) {
+    const oldSymmetry = this.symmetry;
+    this.symmetry = null;
+    if (oldSymmetry) this.undoSymmetry(oldSymmetry);
+    if (symmetry !== oldSymmetry) {
+      this.enforceSymmetry(symmetry);
+      this.symmetry = symmetry;
+    }
   }
 
   get height() {
@@ -54,7 +92,6 @@ class XwdGrid {
   getWordStarts(number, direction) {
     const wordStarts = [];
     this.forEachCell((cell, { row, col }) => {
-      // TODO ensure numbers are always strings
       if (cell.number === number && this.wordStartsAt(row, col, direction)) {
         wordStarts.push([row, col]);
       }
@@ -68,6 +105,16 @@ class XwdGrid {
     return this.getWordStarts(number, direction)
       .map(location => getWord(this.grid, location, direction))
       .flat();
+  }
+
+  numberWordStarts() {
+    let counter = 0;
+    this.forEachCell((cell, { row, col }) => {
+      if (this.wordStartsAt(row, col)) {
+        counter += 1;
+        cell.number = counter + "";
+      }
+    });
   }
 
   enforceSymmetry(symmetryType) {
@@ -145,5 +192,9 @@ class XwdGrid {
       .join("\n");
   }
 }
+
+decorate(XwdGrid, {
+  grid: observable
+});
 
 export default XwdGrid;

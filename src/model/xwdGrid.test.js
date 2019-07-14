@@ -1,4 +1,4 @@
-import XwdGrid, { DIAGONAL } from "./xwdGrid";
+import XwdGrid, { DIAGONAL, LEFT_RIGHT } from "./xwdGrid";
 import { ACROSS, DOWN } from "../services/xwdService";
 
 it("creates a grid of the right size", () => {
@@ -100,5 +100,24 @@ describe("enforceSymmetry()", () => {
     grid.undoSymmetry(DIAGONAL);
     expect(grid.cell(3, 3).isBlack).toBe(false);
     expect(grid.cell(1, 1).isBlack).toBe(true);
+  });
+});
+
+describe("setSymmetry", () => {
+  it("continuously enforces symmetry: DIAGONAL", () => {
+    const grid = new XwdGrid(5, 5);
+    grid.setSymmetry(DIAGONAL);
+    grid.cell(1, 1).isBlack = true;
+    expect(grid.cell(3, 3).isBlack).toBe(true);
+    grid.cell(3, 3).isBlack = false;
+    expect(grid.cell(1, 1).isBlack).toBe(false);
+  });
+  it("continuously enforces symmetry: LEFT_RIGHT", () => {
+    const grid = new XwdGrid(5, 5);
+    grid.setSymmetry(LEFT_RIGHT);
+    grid.cell(1, 1).isBlack = true;
+    expect(grid.cell(1, 3).isBlack).toBe(true);
+    grid.cell(1, 3).isBlack = false;
+    expect(grid.cell(1, 1).isBlack).toBe(false);
   });
 });

@@ -9,7 +9,6 @@ import PuzzleToolbar from "./puzzleToolbar";
 import { observer } from "mobx-react";
 import { ACROSS, DOWN } from "../services/xwdService";
 import { DIAGONAL, LEFT_RIGHT } from "../model/xwdGrid";
-import { keysWithTrueValues } from "../services/common/utils";
 
 class Puzzle extends Component {
   state = {
@@ -19,17 +18,6 @@ class Puzzle extends Component {
   clock = {
     time: 0,
     isRunning: true
-  };
-
-  symmetry = {
-    DIAGONAL: false,
-    LEFT_RIGHT: false
-  };
-
-  enforceSymmetries = () => {
-    keysWithTrueValues(this.symmetry).map(symmetryType =>
-      this.puzzle.grid.enforceSymmetry(symmetryType)
-    );
   };
 
   handleFileDrop = fileContents => {
@@ -101,16 +89,10 @@ class Puzzle extends Component {
         "left/right": LEFT_RIGHT
       }[item];
       if (symmetryType) {
-        if (this.symmetry[symmetryType]) {
-          grid.undoSymmetry(symmetryType);
-          this.symmetry[symmetryType] = false;
-        } else {
-          grid.enforceSymmetry(symmetryType);
-          this.symmetry[symmetryType] = true;
-        }
+        grid.setSymmetry(symmetryType);
       }
     }
-    this.enforceSymmetries();
+    if (title === "number") this.puzzle.grid.numberWordStarts();
   };
 
   handleClueSelect = (number, directionString) => {
