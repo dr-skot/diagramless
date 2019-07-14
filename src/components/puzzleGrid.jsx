@@ -73,7 +73,10 @@ class PuzzleGrid extends Component {
       38: () => this.handleArrow(UP), // arrow up
       39: () => this.handleArrow(RIGHT), // arrow right
       40: () => this.handleArrow(DOWN), // arrow down
-      190: () => this.toggleBlack(), // . (period)
+      190: () => {
+        this.toggleBlack();
+        this.advanceCursor();
+      }, // . (period)
       32: () => this.handleAlpha(""), // space
       8: () => this.handleBackspace(), //
       9: () => this.handleTab()
@@ -205,7 +208,6 @@ class PuzzleGrid extends Component {
     cell.isBlack = !cell.isBlack;
     cell.isMarkedWrong = false; // TODO handle this elsewhere
     this.recordAction(SET_BLACK, cell.isBlack);
-    this.advanceCursor();
   }
 
   toggleDirection() {
