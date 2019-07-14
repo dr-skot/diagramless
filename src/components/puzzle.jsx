@@ -8,6 +8,7 @@ import PuzzleModal, { SOLVED, FILLED, PAUSED } from "./puzzleModal";
 import PuzzleToolbar from "./puzzleToolbar";
 import { observer } from "mobx-react";
 import { ACROSS, DOWN } from "../services/xwdService";
+import { DIAGONAL, LEFT_RIGHT } from "../model/xwdGrid";
 
 class Puzzle extends Component {
   state = {
@@ -64,7 +65,7 @@ class Puzzle extends Component {
     }
     if (title === "reveal") {
       if (item === "diagram") {
-        grid.grid.flat().forEach(cell => {
+        grid.forEachCell(cell => {
           cell.isBlack = cell.solution.isBlack;
           cell.number = cell.solution.number;
         });
@@ -81,6 +82,9 @@ class Puzzle extends Component {
       if (item === "puzzle & timer") {
         this.clock.reset();
       }
+    }
+    if (title === "symmetry") {
+      grid.enforceSymmetry(item === "diagonal" ? DIAGONAL : LEFT_RIGHT);
     }
   };
 

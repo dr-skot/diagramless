@@ -35,6 +35,7 @@ it("can find clue numbers", () => {
   expect(grid.clueNumber(DOWN)).toBe(3);
 });
 
+/* moveCursor got moved to moveOnGrid
 describe("moveCursor", () => {
   it("simply moves if not at edge", () => {
     const grid = new CursoredXwdGrid(2, 7);
@@ -108,6 +109,7 @@ describe("moveCursor", () => {
     expect(grid.direction).toEqual(DOWN);
   });
 });
+*/
 
 describe("goToNextWord", () => {
   it("advances to next word (same row)", () => {

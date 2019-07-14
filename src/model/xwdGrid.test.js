@@ -1,4 +1,4 @@
-import XwdGrid from "./xwdGrid";
+import XwdGrid, { DIAGONAL } from "./xwdGrid";
 import { ACROSS, DOWN } from "../services/xwdService";
 
 it("creates a grid of the right size", () => {
@@ -13,9 +13,9 @@ it("doesn't choke on zero", () => {
   expect(xwd.width).toBe(0);
 });
 
-it("s cells are plain objects", () => {
+it("s cells are XwdCells", () => {
   const xwd = new XwdGrid(5, 5);
-  expect(xwd.cell(2, 3).constructor.name).toBe("Object");
+  expect(xwd.cell(2, 3).constructor.name).toBe("XwdCell");
 });
 
 it("can read puzzle contents", () => {
@@ -48,7 +48,7 @@ it("knows when it's filled", () => {
 });
 
 it("knows when it's not filled", () => {
-  const data = "abc:defghi: kl".split("");
+  const data = "abc:defghi: kl".split("").map(s => s.trim());
   const xwd = new XwdGrid(2, 7);
   xwd.setContents(data);
   expect(xwd.isFilled).toBe(false);
@@ -81,4 +81,13 @@ it("can find clue numbers", () => {
   grid.setNumbers(numbers);
   expect(grid.clueNumber(1, 2, ACROSS)).toBe(7);
   expect(grid.clueNumber(1, 2, DOWN)).toBe(3);
+});
+
+describe("enforceSymmetry()", () => {
+  it("matches diagonally", () => {
+    const grid = new XwdGrid(5, 5);
+    grid.cell(1, 1).isBlack = true;
+    grid.enforceSymmetry(DIAGONAL);
+    expect(grid.cell(3, 3).isBlack).toBe(true);
+  });
 });

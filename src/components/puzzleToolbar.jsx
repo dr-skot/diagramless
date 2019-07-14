@@ -8,6 +8,7 @@ class PuzzleToolbar extends Component {
   // TODO support clear incomplete
   // TODO support autocheck
   menu = {
+    symmetry: ["diagonal", "left/right"],
     clear: ["word", "white squares", "puzzle", "puzzle & timer"],
     reveal: ["square", "word", "puzzle", "diagram"],
     check: ["square", "word", "puzzle"]

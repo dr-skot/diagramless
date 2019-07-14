@@ -2,6 +2,10 @@ import _ from "lodash";
 import { ACROSS, DOWN, isWordStart, getWord } from "../services/xwdService";
 import XwdCell from "./xwdCell";
 
+// Symmetry constants
+export const DIAGONAL = "DIAGONAL",
+  LEFT_RIGHT = "LEFT_RIGHT";
+
 class XwdGrid {
   grid = [];
 
@@ -64,6 +68,19 @@ class XwdGrid {
     return this.getWordStarts(number, direction)
       .map(location => getWord(this.grid, location, direction))
       .flat();
+  }
+
+  enforceSymmetry(type) {
+    const { height, width } = this;
+    this.forEachCell((cell, { row, col }) => {
+      if (cell.isBlack) {
+        const sisterCell =
+          type === "DIAGONAL"
+            ? [height - row - 1, width - col - 1]
+            : [row, width - col - 1];
+        this.cell(...sisterCell).isBlack = true;
+      }
+    });
   }
 
   forEachCell(callback) {
