@@ -26,7 +26,6 @@ class XwdGrid {
   }
 
   onBlackChange = (cell, row, col, change) => {
-    console.log("black change!", { row, col, change });
     if (this.symmetry) {
       const sister = this.getSisterCell(row, col, this.symmetry);
       if (sister.isBlack !== cell.isBlack) sister.isBlack = cell.isBlack;

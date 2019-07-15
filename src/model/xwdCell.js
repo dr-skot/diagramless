@@ -26,7 +26,8 @@ class XwdCell {
   }
 
   blackIsCorrect() {
-    return this.isBlack === this.solution.isBlack;
+    // test equal truthiness rather than equality
+    return !!this.isBlack === !!this.solution.isBlack;
   }
 
   contentIsCorrect() {
