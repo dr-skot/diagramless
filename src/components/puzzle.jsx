@@ -92,7 +92,10 @@ class Puzzle extends Component {
         grid.setSymmetry(symmetryType);
       }
     }
-    if (title === "number") this.puzzle.grid.numberWordStarts();
+    if (title === "number") {
+      this.puzzle.grid.numberWordStarts();
+      if (item === "continuously") this.puzzle.grid.toggleAutonumbering();
+    }
   };
 
   handleClueSelect = (number, directionString) => {

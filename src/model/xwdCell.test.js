@@ -40,19 +40,19 @@ describe("isCorrect", () => {
   });
   it("ignores content for black cells", () => {
     const cell = new XwdCell();
-    Object.assign(cell, { isBlack = true, content: "A" });
+    Object.assign(cell, { isBlack: true, content: "A" });
     cell.solution = { isBlack: true, content: "B" };
     expect(cell.isCorrect()).toBe(true);
   });
   it("rejects mismatched content for non-black cells", () => {
     const cell = new XwdCell();
-    Object.assign(cell, { isBlack = false, content: "A" });
+    Object.assign(cell, { isBlack: false, content: "A" });
     cell.solution = { isBlack: false, content: "B" };
     expect(cell.isCorrect()).toBe(false);
   });
   it("likes matching content in non-black cells", () => {
     const cell = new XwdCell();
-    Object.assign(cell, { isBlack = false, content: "B" });
+    Object.assign(cell, { isBlack: false, content: "B" });
     cell.solution = { isBlack: false, content: "B" };
     expect(cell.isCorrect()).toBe(true);
   });

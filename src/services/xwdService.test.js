@@ -2,7 +2,8 @@ import {
   getWord,
   moveOnGrid,
   moveOnGridUntil,
-  isWordStart
+  isWordStart,
+  parseRelatedClues
 } from "./xwdService";
 import { UP, DOWN, LEFT, RIGHT, ACROSS } from "./xwdService";
 import { STOP, NEXT_LINE } from "./xwdService";
@@ -154,5 +155,21 @@ describe("moveOnGridUntil", () => {
   it("can be invoked as an option using moveOnGrid", () => {
     const options = { until: position => position[1] === 2 };
     expect(moveOnGrid([1, 1], RIGHT, [4, 4], options)).toEqual([1, 2]);
+  });
+});
+
+describe("parseRelatedClues", () => {
+  it("finds simple cases", () => {
+    expect(parseRelatedClues("blah blah 18-Down blah 25-Across blarf")).toEqual(
+      ["18-Down", "25-Across"]
+    );
+  });
+  it("finds complicated cases", () => {
+    expect(
+      parseRelatedClues("blah blah 18-, 20-, and 25-Across blarf")
+    ).toEqual(["18-Across", "20-Across", "25-Across"]);
+  });
+  it("doesn't choke on nothing", () => {
+    expect(parseRelatedClues("blah blah blah")).toEqual([]);
   });
 });

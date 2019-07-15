@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { observer } from "mobx-react-lite";
 import _ from "lodash";
+import { ACROSS, DOWN } from "../services/xwdService";
 
 class ClueList extends Component {
   scrollerRef = React.createRef();
@@ -26,11 +27,13 @@ class ClueList extends Component {
   }
 
   clueIsRelated(clue) {
-    const result = _.find(
+    const result = !!_.find(
       this.props.relatedClues,
-      clueName =>
-        clueName === clue.number + "-" + this.props.label.toLowerCase()
+      relatedClue =>
+        relatedClue.number === clue.number + "" &&
+        _.isEqual(relatedClue.direction, this.direction)
     );
+
     return result;
   }
 
@@ -55,6 +58,10 @@ class ClueList extends Component {
         behavior: "smooth"
       });
     }
+  }
+
+  componentDidMount() {
+    this.direction = this.props.label.match(/across/i) ? ACROSS : DOWN;
   }
 
   render() {

@@ -22,7 +22,9 @@ class XwdCell {
 
   isCorrect() {
     // ignore content is ignored if cell is black
-    return this.blackIsCorrect() && (this.isBlack || this.contentIsCorrect());
+    return this.solution.isBlack
+      ? this.isBlack
+      : !this.isBlack && this.contentIsCorrect();
   }
 
   blackIsCorrect() {

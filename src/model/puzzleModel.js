@@ -1,6 +1,10 @@
 import _ from "lodash";
 import CursoredXwdGrid from "./cursoredXwdGrid";
-import { ACROSS, puzzleFromFileData } from "../services/xwdService";
+import {
+  ACROSS,
+  puzzleFromFileData,
+  parseRelatedClues
+} from "../services/xwdService";
 
 class PuzzleModel {
   // TODO read clues from data so they can be more easily accessed by number/direction
@@ -45,17 +49,15 @@ class PuzzleModel {
             clue.number + "" === number && this.directionIs(clue.direction)
         );
       this.currentClue = clue ? { number: number + dir, text: clue.clue } : {};
-      if (this.currentClue.text) this.calculateRelatedClues();
     }
+    this.calculateRelatedClues();
   }
 
+  // TODO lose this named word thing and store clues as {number, direction}
   calculateRelatedClues() {
-    const regex = /\d+-(Across|Down)/gi;
-    this.relatedClues = (this.currentClue.text.match(regex) || []).map(name =>
-      name.toLowerCase()
-    );
+    this.relatedClues = parseRelatedClues(this.currentClue.text || "");
     this.relatedCells = this.relatedClues
-      .map(wordName => this.grid.getCellsInNamedWord(wordName))
+      .map(wordLocator => this.grid.getCellsInWord(wordLocator))
       .flat();
   }
 

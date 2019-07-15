@@ -295,6 +295,20 @@ export function isWordStart(cursor, direction, grid) {
   return white(cursor) && !white(oneBack) && white(oneForward);
 }
 
+export function parseRelatedClues(clue) {
+  const regex = /(\d+-(,|,? and|,? or) )*\d+-(Across|Down)/gi;
+  const matches = clue.match(regex) || [];
+  return matches
+    .map(match => {
+      const numbers = match.match(/\d+/g);
+      const direction = match.match(/across/i) ? ACROSS : DOWN;
+      return numbers.map(number => {
+        return { number, direction };
+      });
+    })
+    .flat();
+}
+
 export function moveToNextWord(start, direction, grid) {
   /*
   const word = this.word;

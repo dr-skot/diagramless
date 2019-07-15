@@ -30,6 +30,7 @@ class XwdGrid {
       const sister = this.getSisterCell(row, col, this.symmetry);
       if (sister.isBlack !== cell.isBlack) sister.isBlack = cell.isBlack;
     }
+    if (this.autonumbering) this.numberWordStarts();
   };
 
   getSisterCell(row, col, symmetry) {
@@ -49,6 +50,10 @@ class XwdGrid {
       this.enforceSymmetry(symmetry);
       this.symmetry = symmetry;
     }
+  }
+
+  toggleAutonumbering() {
+    this.autonumbering = !this.autonumbering;
   }
 
   get height() {
@@ -98,9 +103,8 @@ class XwdGrid {
     return wordStarts;
   }
 
-  getCellsInNamedWord(wordLabel) {
-    const [number, directionLabel] = wordLabel.split("-");
-    const direction = directionLabel === "across" ? ACROSS : DOWN;
+  getCellsInWord(wordLocator) {
+    const { number, direction } = wordLocator;
     return this.getWordStarts(number, direction)
       .map(location => getWord(this.grid, location, direction))
       .flat();
