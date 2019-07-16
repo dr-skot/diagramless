@@ -179,7 +179,9 @@ td.fixed > .content {
 .related {
   background-color: #ffeca0;
 }
-
+.shadow {
+  background-color: #dcebf8;
+}
 .selected {
   background-color: lightgreen;
 }

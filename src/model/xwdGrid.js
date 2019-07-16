@@ -54,6 +54,7 @@ class XwdGrid {
 
   toggleAutonumbering() {
     this.autonumbering = !this.autonumbering;
+    if (this.autonumbering) this.numberWordStarts();
   }
 
   get height() {

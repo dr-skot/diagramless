@@ -6,7 +6,8 @@ import {
   LEFT,
   RIGHT,
   NEXT_LINE,
-  moveOnGrid
+  moveOnGrid,
+  ACROSS
 } from "../services/xwdService";
 import { mod, includesEqual } from "../services/common/utils";
 
@@ -87,6 +88,12 @@ class CursoredXwdGrid extends XwdGrid {
     });
     this.setCursor(...newPos);
     this.direction = direction;
+  }
+
+  cursorShadowFallsOn(row, col) {
+    return _.isEqual(this.direction, ACROSS)
+      ? row === this.cursor[0]
+      : col === this.cursor[1];
   }
 }
 

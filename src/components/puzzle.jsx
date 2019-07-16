@@ -12,7 +12,8 @@ import { DIAGONAL, LEFT_RIGHT } from "../model/xwdGrid";
 
 class Puzzle extends Component {
   state = {
-    puz: null
+    puz: null,
+    checkmarks: {}
   };
 
   clock = {
@@ -48,6 +49,20 @@ class Puzzle extends Component {
   handleClockPause = () => {
     this.setState({ showModal: PAUSED });
   };
+
+  /*
+  getCells = (which) => {
+    const grid = this.puzzle.grid,
+      cellFinder = {
+        SQUARE: () => [grid.currentCell],
+        WORD: () => grid.word.map(location => grid.cell(...location)),
+        PUZZLE: () => grid.grid.flat(),
+        WHITE_SQUARES: () => grid.grid.flat().filter(cell => !cell.isBlack)
+        // TODO support incomplete
+      }[which],
+    return cellFinder();
+   };
+   */
 
   handleMenuSelect = (title, item) => {
     const grid = this.puzzle.grid,
@@ -90,13 +105,28 @@ class Puzzle extends Component {
       }[item];
       if (symmetryType) {
         grid.setSymmetry(symmetryType);
+        this.setCheckmark(
+          "symmetry",
+          grid.symmetry === symmetryType ? item : null
+        );
       }
     }
     if (title === "number") {
-      this.puzzle.grid.numberWordStarts();
-      if (item === "continuously") this.puzzle.grid.toggleAutonumbering();
+      if (item === "continuously") {
+        grid.toggleAutonumbering();
+        this.setCheckmark("number", grid.autonumbering ? item : null);
+      } else {
+        grid.numberWordStarts();
+      }
     }
   };
+
+  setCheckmark(menuItem, flag) {
+    const checkmarks = { ...this.state.checkmarks };
+    checkmarks[menuItem] = flag;
+    console.log("setting checkmarks", checkmarks);
+    this.setState({ checkmarks });
+  }
 
   handleClueSelect = (number, directionString) => {
     // TODO get rid of magic string
@@ -143,6 +173,7 @@ class Puzzle extends Component {
             clock={this.clock}
             onClockPause={this.handleClockPause}
             onMenuSelect={this.handleMenuSelect}
+            checkmarks={this.state.checkmarks}
           />
           <div className="layout-puzzle">
             <ClueBarAndBoard

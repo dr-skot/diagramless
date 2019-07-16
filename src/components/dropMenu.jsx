@@ -17,6 +17,14 @@ class DropMenu extends Component {
     (this.state.showing ? this.hide : this.show)();
   };
 
+  getClasses = (title, label) => {
+    const checkmarks = this.props.checkmarks || {};
+    return (
+      "HelpMenu-item--1xl0_" +
+      (checkmarks[title] === label ? " HelpMenu-checked--38XRQ" : "")
+    );
+  };
+
   render() {
     const { title, items } = this.props;
     const { showing } = this.state;
@@ -30,7 +38,7 @@ class DropMenu extends Component {
           {items.map(label => (
             <li
               key={["drop-menu", title, label].join(" ")}
-              className="HelpMenu-item--1xl0_"
+              className={this.getClasses(title, label)}
               style={{ display: "list-item", textTransform: "capitalize" }} // TODO move this to css
             >
               <button

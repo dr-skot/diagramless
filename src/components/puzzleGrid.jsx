@@ -247,7 +247,8 @@ class PuzzleGrid extends Component {
     return {
       cell: grid.cursorIsAt(row, col),
       word: this.cellFoundInList(row, col, grid.word),
-      related: this.cellFoundInList(row, col, this.props.relatedCells)
+      related: this.cellFoundInList(row, col, this.props.relatedCells),
+      shadow: grid.currentCell.isBlack && grid.cursorShadowFallsOn(row, col)
     };
   }
 

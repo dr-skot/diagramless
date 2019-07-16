@@ -7736,7 +7736,7 @@ h2 {
     pointer-events: none
 }
 
-.HelpMenu-checked--38XRQ>a {
+.HelpMenu-checked--38XRQ>a, .HelpMenu-checked--38XRQ>button {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgNWwzLjIgNEwxMSAxIiBzdHJva2U9IiMzQjg0RjUiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L3N2Zz4K);
     background-position: 10px;
     background-repeat: no-repeat;
@@ -7755,7 +7755,7 @@ h2 {
         color: #fff
     }
 
-    .HelpMenu-checked--38XRQ>a {
+    .HelpMenu-checked--38XRQ>a, .HelpMenu-checked--38XRQ>button {
         background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgNWwzLjIgNEwxMSAxIiBzdHJva2U9IiNGRkRCMDAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L3N2Zz4K)
     }
 

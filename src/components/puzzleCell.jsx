@@ -13,7 +13,8 @@ class PuzzleCell extends Component {
       fixed: cell.wasRevealed || cell.isVerified,
       cursor: cursor.cell,
       focus: cursor.word,
-      related: cursor.related
+      related: cursor.related,
+      shadow: cursor.shadow
     };
     return keysWithTrueValues(classes).join(" ");
   }
