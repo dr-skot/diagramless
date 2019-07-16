@@ -17,11 +17,11 @@ class DropMenu extends Component {
     (this.state.showing ? this.hide : this.show)();
   };
 
-  getClasses = (title, label) => {
-    const checkmarks = this.props.checkmarks || {};
+  getClasses = label => {
+    const checkmarks = this.props.checkmarks || [];
     return (
       "HelpMenu-item--1xl0_" +
-      (checkmarks[title] === label ? " HelpMenu-checked--38XRQ" : "")
+      (checkmarks.indexOf(label) > -1 ? " HelpMenu-checked--38XRQ" : "")
     );
   };
 
@@ -38,7 +38,7 @@ class DropMenu extends Component {
           {items.map(label => (
             <li
               key={["drop-menu", title, label].join(" ")}
-              className={this.getClasses(title, label)}
+              className={this.getClasses(label)}
               style={{ display: "list-item", textTransform: "capitalize" }} // TODO move this to css
             >
               <button

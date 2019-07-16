@@ -33,7 +33,6 @@ class ClueList extends Component {
         relatedClue.number === clue.number + "" &&
         _.isEqual(relatedClue.direction, this.direction)
     );
-
     return result;
   }
 

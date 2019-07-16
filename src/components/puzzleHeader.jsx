@@ -14,7 +14,7 @@ const PuzzleHeader = props => {
       day: "numeric",
       year: "numeric"
     }),
-    actualTitle = titlePieces[2]
+    actualTitle = titlePieces[2].trim()
       ? '"' + capitalize(titlePieces[2].trim().toLowerCase()) + '"'
       : "The Daily Crossword";
 

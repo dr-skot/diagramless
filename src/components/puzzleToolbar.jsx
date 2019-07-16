@@ -44,7 +44,7 @@ class PuzzleToolbar extends Component {
                 title={title}
                 items={items}
                 onSelect={this.handleDropMenuSelect}
-                checkmarks={this.props.checkmarks}
+                checkmarks={[this.props.checkmarks[title]]}
               />
             ))}
           </div>

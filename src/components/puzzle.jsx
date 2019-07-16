@@ -121,10 +121,9 @@ class Puzzle extends Component {
     }
   };
 
-  setCheckmark(menuItem, flag) {
+  setCheckmark(menu, item) {
     const checkmarks = { ...this.state.checkmarks };
-    checkmarks[menuItem] = flag;
-    console.log("setting checkmarks", checkmarks);
+    checkmarks[menu] = item;
     this.setState({ checkmarks });
   }
 
