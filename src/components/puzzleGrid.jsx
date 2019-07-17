@@ -198,8 +198,10 @@ class PuzzleGrid extends Component {
         const [i, j] = grid.direction;
         this.moveCursor(-i, -j);
       }
-      grid.currentCell.setContent("");
-      this.recordAction(SET_CONTENT, "");
+      if (!grid.currentCell.isVerified && !grid.currentCell.wasRevealed) {
+        grid.currentCell.setContent("");
+        this.recordAction(SET_CONTENT, "");
+      }
     }
     this.setState({});
   }

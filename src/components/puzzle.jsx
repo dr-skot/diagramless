@@ -38,6 +38,7 @@ class Puzzle extends Component {
       this.puzzle.grid.forEachCell(cell => {
         cell.exposeNumber();
         cell.circle = cell.solution.circle;
+        this.clock.stop();
       });
     this.setState({ showModal, isFilled, isSolved });
   };
