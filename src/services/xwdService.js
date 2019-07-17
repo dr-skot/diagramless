@@ -189,7 +189,7 @@ function numberGrid(grid, width, clueList) {
       if (isStartCell(grid, width, k, dir)) {
         if (clues)
           clues.push({
-            number: number,
+            number: number + "",
             direction: dir,
             clue: clueList[clues.length]
           });

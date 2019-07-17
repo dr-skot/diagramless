@@ -45,8 +45,7 @@ class PuzzleModel {
         dir = this.directionIs(ACROSS) ? "A" : "D",
         clue = _.find(
           puz.clues,
-          clue =>
-            clue.number + "" === number && this.directionIs(clue.direction)
+          clue => clue.number === number && this.directionIs(clue.direction)
         );
       this.currentClue = clue ? { number: number + dir, text: clue.clue } : {};
     }

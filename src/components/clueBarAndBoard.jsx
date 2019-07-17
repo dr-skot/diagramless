@@ -4,8 +4,9 @@ import PuzzleGrid from "./puzzleGrid";
 
 class ClueBarAndBoard extends Component {
   state = {
-    sizes: null
+    sizes: {}
   };
+
   componentDidMount() {
     this.computeWidths();
     window.addEventListener("resize", this.computeWidths);
@@ -21,9 +22,19 @@ class ClueBarAndBoard extends Component {
       cellWidth = Math.floor((containerWidth - 2) / gridWidth),
       boardWidth = cellWidth * gridWidth + 2;
     this.setState({
-      sizes: { cellWidth, boardWidth }
+      sizes: { gridWidth, cellWidth, boardWidth }
     });
   };
+
+  componentWillUpdate() {
+    // TODO: can this be automated with mobx?
+    // resize if new puzzle width
+    if (
+      this.state.sizes &&
+      this.state.sizes.gridWidth !== this.props.grid.width
+    )
+      this.computeWidths();
+  }
 
   render() {
     const { grid } = this.props;
