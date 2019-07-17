@@ -16,7 +16,8 @@ class PuzzleModel {
       cell.solution = {
         content: answer,
         isBlack: answer === ":" || answer === ".",
-        number: (data.numbers[pos] || "") + ""
+        number: (data.numbers[pos] || "") + "",
+        circle: data.extras.GEXT && (data.extras.GEXT[pos] & 0x80) === 0x80
       };
     });
     if (data.user) {

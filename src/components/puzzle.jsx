@@ -23,7 +23,7 @@ class Puzzle extends Component {
 
   handleFileDrop = fileContents => {
     this.puzzle = PuzzleModel.fromFileData(fileContents);
-    console.log("resetting clock");
+    console.log("puzzle!", this.puzzle.data);
     this.clock.reset();
     this.setState({ puz: this.puzzle.data });
   };
@@ -37,6 +37,7 @@ class Puzzle extends Component {
       // TODO move to puzzleModel
       this.puzzle.grid.forEachCell(cell => {
         cell.exposeNumber();
+        cell.circle = cell.solution.circle;
       });
     this.setState({ showModal, isFilled, isSolved });
   };
@@ -49,20 +50,6 @@ class Puzzle extends Component {
   handleClockPause = () => {
     this.setState({ showModal: PAUSED });
   };
-
-  /*
-  getCells = (which) => {
-    const grid = this.puzzle.grid,
-      cellFinder = {
-        SQUARE: () => [grid.currentCell],
-        WORD: () => grid.word.map(location => grid.cell(...location)),
-        PUZZLE: () => grid.grid.flat(),
-        WHITE_SQUARES: () => grid.grid.flat().filter(cell => !cell.isBlack)
-        // TODO support incomplete
-      }[which],
-    return cellFinder();
-   };
-   */
 
   handleMenuSelect = (title, item) => {
     const grid = this.puzzle.grid,
@@ -81,8 +68,10 @@ class Puzzle extends Component {
     if (title === "reveal") {
       if (item === "diagram") {
         grid.forEachCell(cell => {
+          // basically, everything except content
           cell.isBlack = cell.solution.isBlack;
           cell.number = cell.solution.number;
+          cell.circle = cell.solution.circle;
         });
       } else {
         cells.forEach(cell => cell.reveal());
@@ -92,6 +81,9 @@ class Puzzle extends Component {
       cells.forEach(cell => {
         cell.setContent("");
         cell.isBlack = false;
+        cell.circle = false;
+        cell.wasRevealed = false;
+        cell.isVerified = false;
         if (item.match(/^puzzle/)) cell.number = "";
       });
       if (item === "puzzle & timer") {

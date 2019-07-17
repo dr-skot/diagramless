@@ -152,10 +152,7 @@ class XwdGrid {
   }
 
   setData(data) {
-    const { contents, numbers, blacks } = data;
-    if (contents) this.setContents(contents);
-    if (numbers) this.setNumbers(numbers);
-    if (blacks) this.setBlacks(blacks);
+    if (data.cells) this.setCells(data.cells);
   }
 
   // takes an array of strings
@@ -181,12 +178,15 @@ class XwdGrid {
     });
   }
 
+  setCells(data) {
+    this.forEachCell((cell, { pos }) => {
+      Object.assign(cell, data[pos]);
+    });
+  }
+
   serialize() {
-    const cells = this.grid.flat();
     return {
-      numbers: cells.map(cell => cell.number),
-      contents: cells.map(cell => cell.content),
-      blacks: cells.map(cell => cell.isBlack)
+      cells: this.grid.flat()
     };
   }
 

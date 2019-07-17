@@ -30,7 +30,7 @@ class PuzzleCell extends Component {
   }
 
   render() {
-    const { content, number, isBlack } = this.props.cell;
+    const { content, number, isBlack, circle } = this.props.cell;
     return (
       <td
         className={this.getClasses()}
@@ -39,6 +39,7 @@ class PuzzleCell extends Component {
       >
         <div className="content">{isBlack ? "" : content}</div>
         <div className="label">{isBlack ? "" : number}</div>
+        {circle ? <div className="circle" /> : ""}
       </td>
     );
   }
