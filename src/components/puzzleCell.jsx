@@ -22,12 +22,14 @@ class PuzzleCell extends Component {
 
   getStyle() {
     const { width } = this.props;
-    return {
-      width: width,
-      height: width,
-      minWidth: width,
-      fontSize: (width * 26) / 36
-    };
+    return width
+      ? {
+          width: width,
+          height: width,
+          minWidth: width,
+          fontSize: (width * 26) / 36
+        }
+      : {};
   }
 
   render() {

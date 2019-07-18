@@ -7,7 +7,7 @@ import {
 } from "../services/xwdService";
 import { decorate, action } from "mobx";
 
-class PuzzleModel {
+class XwdPuzzle {
   constructor(data) {
     this._initialize(data);
   }
@@ -73,17 +73,17 @@ class PuzzleModel {
 
   static deserialize(data) {
     // TODO check for integrity of puzzle data & fail gracefully
-    return data ? new PuzzleModel(data) : null;
+    return data ? new XwdPuzzle(data) : null;
   }
 
   static fromFileData(arrayBuffer) {
     const data = puzzleFromFileData(arrayBuffer);
-    return data ? new PuzzleModel(data) : null;
+    return data ? new XwdPuzzle(data) : null;
   }
 }
 
-decorate(PuzzleModel, {
+decorate(XwdPuzzle, {
   _initialize: action
 });
 
-export default PuzzleModel;
+export default XwdPuzzle;

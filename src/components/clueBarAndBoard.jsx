@@ -52,11 +52,9 @@ class ClueBarAndBoard extends Component {
             />
             <PuzzleGrid
               grid={grid}
-              solved={this.props.isSolved}
-              onContentChange={this.props.onContentChange}
               relatedCells={this.props.relatedCells}
               cellWidth={this.state.sizes.cellWidth}
-              symmetry={this.props.symmetry}
+              onCellClick={this.props.onCellClick}
             />
           </React.Fragment>
         ) : (

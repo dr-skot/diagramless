@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import PuzzleModel from "../model/puzzleModel";
+import XwdPuzzle from "../model/xwdPuzzle";
 import PuzzleHeader from "./puzzleHeader";
 import ClueBarAndBoard from "./clueBarAndBoard";
 import ClueLists from "./clueLists";
@@ -7,23 +7,276 @@ import PuzzleFileDrop from "./puzzleFileDrop";
 import PuzzleModal, { SOLVED, FILLED, PAUSED } from "./puzzleModal";
 import PuzzleToolbar from "./puzzleToolbar";
 import { observer } from "mobx-react";
-import { ACROSS, DOWN } from "../services/xwdService";
+import { ACROSS, DOWN, LEFT, RIGHT, UP } from "../services/xwdService";
 import { DIAGONAL, LEFT_RIGHT } from "../model/xwdGrid";
+import { nextOrLast, wrapFindIndex } from "../services/common/utils";
 import { decorate, action } from "mobx";
+import _ from "lodash";
 
+const SET_CURSOR = "setCursor",
+  SET_DIRECTION = "setDirection",
+  SET_BLACK = "setBlack",
+  SET_CONTENT = "setContent",
+  SET_NUMBER = "setNumber";
+
+// TODO: allow only 4 state-changing methods
+// changeCellContent(newValue)
+// changeCellNumber(newValue)
+// changeCellIsBlack(newValue)
+// changeCursor(newValue)
+// and record on action stack undoable groups of these, with before and after values
 class Puzzle extends Component {
   state = {
     puz: null,
     checkmarks: {}
   };
-
   clock = {
     time: 0,
     isRunning: true
   };
+  actionStack = [];
+
+  componentDidMount() {
+    const puzzleData = JSON.parse(localStorage.getItem("xword"));
+    this.puzzle = XwdPuzzle.deserialize(puzzleData);
+    this.clock = puzzleData.clock || this.clock;
+    const { isFilled, isSolved } = this.puzzle;
+    this.setState({
+      puz: this.puzzle.data,
+      puzzle: this.puzzle,
+      isFilled,
+      isSolved
+    });
+    this.clock.isRunning = !isSolved;
+    window.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("blur", this.handleBlur);
+    window.addEventListener("beforeunload", this.saveState);
+    document.addEventListener("mousedown", this.disableDoubleClick);
+  }
+
+  componentWillUnmount() {
+    this.saveState();
+    window.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener("blur", this.handleBlur);
+    window.removeEventListener("beforeunload", this.saveState);
+    document.removeEventListener("mousedown", this.disableDoubleClick);
+  }
+
+  disableDoubleClick = event => {
+    // TODO check that mouse is on the puzzle grid somewhere
+    if (event.detail > 1) event.preventDefault();
+  };
+
+  saveState = () => {
+    console.log("componentWillUnmount");
+    if (this.puzzle) {
+      const serialized = { ...this.puzzle.serialize(), clock: this.clock };
+      localStorage.setItem("xword", JSON.stringify(serialized));
+      console.log("serialized it");
+    }
+  };
+
+  recordAction(name, ...args) {
+    this.actionStack.unshift({ name, args });
+  }
+
+  get lastAction() {
+    if (this.actionStack.length === 0) return {};
+    return this.actionStack[0];
+  }
+
+  handleKeyDown = event => {
+    const keyCode = event.keyCode;
+    //console.log("keyCode", keyCode);
+
+    if (this.state.showModal) return;
+
+    // TODO normalize handling of helper keys
+    if (event.altKey && keyCode === 9) {
+      this.handleTab({ eitherDirection: true, backward: event.shiftKey });
+      event.preventDefault();
+      return;
+    }
+
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+    const shiftKeys = {
+      9: () => this.handleTab({ backward: true })
+    };
+
+    const keys = {
+      37: () => this.handleArrow(LEFT), // arrow left
+      38: () => this.handleArrow(UP), // arrow up
+      39: () => this.handleArrow(RIGHT), // arrow right
+      40: () => this.handleArrow(DOWN), // arrow down
+      190: () => {
+        this.toggleBlack();
+        this.advanceCursor();
+      }, // . (period)
+      32: () => this.handleAlpha(""), // space
+      8: () => this.handleBackspace(), //
+      9: () => this.handleTab()
+    };
+
+    const solved = this.state.isSolved;
+    let shouldPreventDefault = true;
+
+    // TODO: organize this better
+    if (solved) {
+      keys[32] = null;
+      keys[8] = null;
+      keys[190] = null;
+    }
+
+    const keyAction = (event.shiftKey ? shiftKeys : keys)[event.keyCode];
+    if (keyAction) {
+      keyAction();
+    } else if (!solved && _.inRange(keyCode, 48, 57 + 1)) {
+      // digits
+      this.handleDigit(String.fromCharCode(keyCode));
+    } else if (!solved && _.inRange(keyCode, 58, 90 + 1)) {
+      // alpha
+      this.handleAlpha(String.fromCharCode(keyCode));
+    } else {
+      shouldPreventDefault = false;
+    }
+
+    if (shouldPreventDefault) {
+      event.preventDefault();
+    }
+  };
+
+  advanceCursor() {
+    this.moveCursor(...this.puzzle.grid.direction);
+  }
+
+  moveCursor(i, j) {
+    this.setCursor(...this.puzzle.grid.addToCursor(i, j));
+  }
+
+  isPerpendicular(direction) {
+    const [i, j] = direction;
+    const [down, across] = this.puzzle.grid.direction;
+    return (across && i) || (down && j); // && !(i && j)
+  }
+
+  handleTab(options = {}) {
+    this.puzzle.grid.goToNextWord(options);
+    this.recordAction(SET_CURSOR, this.cursor);
+  }
+
+  handleArrow(direction) {
+    const [i, j] = direction;
+    if (this.isPerpendicular(direction)) {
+      this.toggleDirection();
+    } else {
+      this.moveCursor(i, j); // to record action
+    }
+  }
+
+  isEditingNumber() {
+    return this.lastAction.name === SET_NUMBER;
+  }
+
+  handleDigit(digit) {
+    const cell = this.puzzle.grid.currentCell;
+    cell.isBlack = false; // come out of black if edit number
+    cell.number = (this.isEditingNumber() ? cell.number : "") + digit;
+    if (cell.number === "0") cell.number = ""; // delete if 0
+    this.recordAction(SET_NUMBER, cell.number);
+    this.setState({});
+  }
+
+  handleAlpha(a) {
+    const grid = this.puzzle.grid;
+    const cellIsEmpty = pos => !grid.cell(...pos).content;
+
+    const cell = grid.currentCell;
+    if (cell.isVerified || cell.wasRevealed) return; // TODO advance cursor?
+
+    if (grid.currentCell.isBlack) this.toggleBlack();
+
+    const cellWasEmpty = cellIsEmpty(grid.cursor);
+    cell.setContent(a);
+    this.recordAction(SET_CONTENT, a);
+
+    // advanceCursor(cursorPolicy[cellWasEmpty ? TYPE_IN_EMPTY_CELL : TYPE_IN_FULL_CELL]);
+
+    // move to next cell in word
+    const word = grid.word;
+    if (!word) return; // TODO is this a copout?
+    const currentIndex = word.findIndex(pos => _.isEqual(pos, grid.cursor));
+    let nextCellIdx = nextOrLast(word, currentIndex);
+
+    // if we just filled an empty cell, skip to the next empty cell, with wrap around
+    if (cellWasEmpty) {
+      const nextEmptyCellIdx = wrapFindIndex(word, nextCellIdx, cellIsEmpty);
+      if (nextEmptyCellIdx > -1) nextCellIdx = nextEmptyCellIdx;
+    }
+
+    const newCursor = word[nextCellIdx];
+    this.setCursor(...newCursor);
+    this.recordAction(SET_CURSOR, newCursor);
+
+    if (this.props.onContentChange) this.props.onContentChange();
+  }
+
+  handleBackspace() {
+    const grid = this.puzzle.grid;
+    if (this.lastAction.name === SET_NUMBER) {
+      const cell = grid.currentCell;
+      if (cell.number && cell.number.length) {
+        cell.number = cell.number.slice(0, -1); // all but last letter
+        this.recordAction(SET_NUMBER, cell.number);
+      }
+    } else {
+      if (!grid.currentCell.content) {
+        const [i, j] = grid.direction;
+        this.moveCursor(-i, -j);
+      }
+      // TODO: disallow this on model
+      if (
+        !this.props.solved &&
+        !grid.currentCell.isVerified &&
+        !grid.currentCell.wasRevealed
+      ) {
+        grid.currentCell.setContent("");
+        this.recordAction(SET_CONTENT, "");
+      }
+    }
+    this.setState({});
+  }
+
+  toggleBlack() {
+    const cell = this.puzzle.grid.currentCell;
+    if (cell.isVerified) return;
+    cell.isBlack = !cell.isBlack;
+    cell.isMarkedWrong = false; // TODO handle this elsewhere
+    this.recordAction(SET_BLACK, cell.isBlack);
+  }
+
+  toggleDirection() {
+    this.puzzle.grid.toggleDirection();
+    this.recordAction(SET_DIRECTION, this.puzzle.grid.direction.slice());
+  }
+
+  setCursor(row, col) {
+    this.puzzle.grid.cursor = [row, col];
+    this.recordAction(SET_CURSOR, this.puzzle.grid.cursor.slice());
+  }
+
+  // TODO suppress word select on double click (prevent default isn't doing it)
+  handleCellClick = (row, col, event) => {
+    if (this.puzzle.grid.cursorIsAt(row, col)) {
+      this.toggleDirection();
+    } else {
+      this.setCursor(row, col);
+    }
+    event.preventDefault();
+  };
 
   handleFileDrop = fileContents => {
-    this.puzzle = PuzzleModel.fromFileData(fileContents);
+    this.puzzle = XwdPuzzle.fromFileData(fileContents);
     console.log("puzzle!", JSON.stringify(this.puzzle.data));
     this.clock.reset();
     this.setState({ puz: this.puzzle.data });
@@ -35,7 +288,6 @@ class Puzzle extends Component {
     const showModal =
       (!wasSolved && isSolved && SOLVED) || (!wasFilled && isFilled && FILLED);
     if (isSolved) {
-      // TODO move to puzzleModel
       this.puzzle.grid.forEachCell(cell => {
         cell.exposeNumber();
         cell.circle = cell.solution.circle;
@@ -129,34 +381,8 @@ class Puzzle extends Component {
     this.puzzle.grid.goToWord(number, direction);
   };
 
-  componentDidMount() {
-    const puzzleData = JSON.parse(localStorage.getItem("xword"));
-    this.puzzle = PuzzleModel.deserialize(puzzleData);
-    this.clock = puzzleData.clock || this.clock;
-    const { isFilled, isSolved } = this.puzzle;
-    this.setState({
-      puz: this.puzzle.data,
-      puzzle: this.puzzle,
-      isFilled,
-      isSolved
-    });
-    this.clock.isRunning = !isSolved;
-    window.addEventListener("blur", () => this.clock.stop());
-    window.addEventListener("beforeunload", this.saveState);
-  }
-
-  componentWillUnmount() {
-    this.saveState();
-    window.removeEventListener("beforeunload", this.saveState);
-  }
-
-  saveState = () => {
-    console.log("componentWillUnmount");
-    if (this.puzzle) {
-      const serialized = { ...this.puzzle.serialize(), clock: this.clock };
-      localStorage.setItem("xword", JSON.stringify(serialized));
-      console.log("serialized it");
-    }
+  handleBlur = () => {
+    this.clock.stop();
   };
 
   render() {
@@ -184,9 +410,8 @@ class Puzzle extends Component {
             <ClueBarAndBoard
               clue={puzzle.currentClue}
               grid={grid}
-              symmetry={this.symmetry}
-              solved={this.state.isSolved}
               onContentChange={this.handleContentChange}
+              onCellClick={this.handleCellClick}
               relatedCells={puzzle.relatedCells}
             />
             <ClueLists puzzle={puzzle} onClueSelect={this.handleClueSelect} />
@@ -213,7 +438,9 @@ class Puzzle extends Component {
 decorate(Puzzle, {
   handleClueSelect: action,
   handleMenuSelect: action,
-  handleContentChange: action
+  handleContentChange: action,
+  handleKeyDown: action,
+  handleCellClick: action
 });
 observer(Puzzle);
 
