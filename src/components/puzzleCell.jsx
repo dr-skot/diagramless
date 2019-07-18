@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { keysWithTrueValues } from "../services/common/utils";
+import { observer } from "mobx-react";
 
 class PuzzleCell extends Component {
   state = {};
@@ -44,5 +45,6 @@ class PuzzleCell extends Component {
     );
   }
 }
+observer(PuzzleCell);
 
 export default PuzzleCell;

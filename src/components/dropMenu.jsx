@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { observer } from "mobx-react";
 
 class DropMenu extends Component {
   state = { showing: false };
@@ -53,5 +54,7 @@ class DropMenu extends Component {
     );
   }
 }
+
+observer(DropMenu);
 
 export default DropMenu;

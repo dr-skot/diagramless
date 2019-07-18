@@ -1,5 +1,6 @@
 import React from "react";
 import { capitalize } from "../services/common/utils";
+import { observer } from "mobx-react";
 
 const PuzzleHeader = props => {
   // TODO handle other title formats than NY Times
@@ -37,5 +38,7 @@ const PuzzleHeader = props => {
     </header>
   );
 };
+
+observer(PuzzleHeader);
 
 export default PuzzleHeader;

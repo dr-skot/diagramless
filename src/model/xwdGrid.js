@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ACROSS, DOWN, isWordStart, getWord } from "../services/xwdService";
 import XwdCell from "./xwdCell";
-import { observe, decorate, observable } from "mobx";
+import { observe, decorate, observable, action } from "mobx";
 
 // Symmetry constants
 export const DIAGONAL = "DIAGONAL",
@@ -12,6 +12,10 @@ class XwdGrid {
   symmetry = null;
 
   constructor(height, width, data) {
+    this._initialize(height, width, data);
+  }
+
+  _initialize(height, width, data) {
     this.grid = _.times(height, () => _.times(width, () => new XwdCell()));
     if (data) this.setData(data);
 
@@ -23,6 +27,8 @@ class XwdGrid {
         )
       );
     });
+
+    return this;
   }
 
   onBlackChange = (cell, row, col, change) => {
@@ -198,6 +204,7 @@ class XwdGrid {
 }
 
 decorate(XwdGrid, {
+  _initialize: action,
   grid: observable
 });
 

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import FileDrop from "react-file-drop";
+import { observer } from "mobx-react";
 
 class PuzzleFileDrop extends Component {
   handleDrop = (files, event) => {
@@ -22,5 +23,6 @@ class PuzzleFileDrop extends Component {
     );
   }
 }
+observer(PuzzleFileDrop);
 
 export default PuzzleFileDrop;

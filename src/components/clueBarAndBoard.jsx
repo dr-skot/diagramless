@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import ClueBar from "./clueBar";
 import PuzzleGrid from "./puzzleGrid";
+import { observer } from "mobx-react";
 
 class ClueBarAndBoard extends Component {
   state = {
@@ -65,5 +66,7 @@ class ClueBarAndBoard extends Component {
     );
   }
 }
+
+observer(ClueBarAndBoard);
 
 export default ClueBarAndBoard;

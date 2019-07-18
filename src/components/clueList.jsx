@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { observer } from "mobx-react-lite";
+import { observer } from "mobx-react";
 import _ from "lodash";
 import { ACROSS, DOWN } from "../services/xwdService";
 

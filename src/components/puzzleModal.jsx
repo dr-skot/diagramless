@@ -3,6 +3,7 @@ import UIfx from "uifx";
 
 import booAudio from "../sounds/doh.mp3";
 import yayAudio from "../sounds/tada.mp3";
+import { observer } from "mobx-react";
 
 export const SOLVED = "SOLVED",
   FILLED = "FILLED",
@@ -69,5 +70,7 @@ const PuzzleModal = ({ reason, onClose }) => {
     </div>
   );
 };
+
+observer(PuzzleModal);
 
 export default PuzzleModal;

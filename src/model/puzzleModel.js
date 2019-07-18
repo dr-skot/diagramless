@@ -5,10 +5,15 @@ import {
   puzzleFromFileData,
   parseRelatedClues
 } from "../services/xwdService";
+import { decorate, action } from "mobx";
 
 class PuzzleModel {
-  // TODO read clues from data so they can be more easily accessed by number/direction
   constructor(data) {
+    this._initialize(data);
+  }
+
+  // TODO read clues from data so they can be more easily accessed by number/direction
+  _initialize(data) {
     this.data = data;
     this.grid = new CursoredXwdGrid(data.height, data.width);
     this.grid.forEachCell((cell, { pos }) => {
@@ -76,5 +81,9 @@ class PuzzleModel {
     return data ? new PuzzleModel(data) : null;
   }
 }
+
+decorate(PuzzleModel, {
+  _initialize: action
+});
 
 export default PuzzleModel;

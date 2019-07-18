@@ -1,4 +1,4 @@
-import { observable, decorate } from "mobx";
+import { observable, decorate, action } from "mobx";
 
 class XwdCell {
   isBlack = false;
@@ -64,7 +64,12 @@ decorate(XwdCell, {
   number: observable,
   isVerified: observable,
   isMarkedWrong: observable,
-  wasRevealed: observable
+  wasRevealed: observable,
+  setContent: action,
+  toggleBlack: action,
+  check: action,
+  reveal: action,
+  exposeNumber: action
 });
 
 export default XwdCell;

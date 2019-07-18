@@ -98,6 +98,7 @@ class CursoredXwdGrid extends XwdGrid {
 }
 
 decorate(CursoredXwdGrid, {
+  constructor: action,
   cursor: observable,
   direction: observable,
   currentCell: computed,

@@ -1,4 +1,5 @@
 import React from "react";
+import { observer } from "mobx-react";
 
 const ClueBar = props => {
   const { clue, width } = props;
@@ -9,5 +10,7 @@ const ClueBar = props => {
     </div>
   );
 };
+
+observer(ClueBar);
 
 export default ClueBar;

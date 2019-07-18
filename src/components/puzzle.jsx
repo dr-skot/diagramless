@@ -9,6 +9,7 @@ import PuzzleToolbar from "./puzzleToolbar";
 import { observer } from "mobx-react";
 import { ACROSS, DOWN } from "../services/xwdService";
 import { DIAGONAL, LEFT_RIGHT } from "../model/xwdGrid";
+import { decorate, action } from "mobx";
 
 class Puzzle extends Component {
   state = {
@@ -36,13 +37,12 @@ class Puzzle extends Component {
     if (isSolved) {
       // TODO move to puzzleModel
       this.puzzle.grid.forEachCell(cell => {
-        //cell.exposeNumber();
-        //cell.circle = cell.solution.circle;
+        cell.exposeNumber();
+        cell.circle = cell.solution.circle;
       });
       this.clock.stop();
     }
     this.setState({ showModal, isFilled, isSolved });
-    console.log({ isFilled, isSolved, showModal });
   };
 
   handleModalClose = reason => {
@@ -210,6 +210,11 @@ class Puzzle extends Component {
   }
 }
 
+decorate(Puzzle, {
+  handleClueSelect: action,
+  handleMenuSelect: action,
+  handleContentChange: action
+});
 observer(Puzzle);
 
 export default Puzzle;

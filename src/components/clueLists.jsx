@@ -1,6 +1,7 @@
 import React from "react";
 import { ACROSS, DOWN } from "../services/xwdService";
 import ClueList from "./clueList";
+import { observer } from "mobx-react";
 
 // TODO simplify: just pass the puzzle to these fools
 const ClueLists = props => {
@@ -26,5 +27,7 @@ const ClueLists = props => {
     </section>
   );
 };
+
+observer(ClueLists);
 
 export default ClueLists;

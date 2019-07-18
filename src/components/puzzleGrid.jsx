@@ -4,6 +4,7 @@ import _ from "lodash";
 import PuzzleCell from "./puzzleCell";
 import { LEFT, RIGHT, UP, DOWN } from "../services/xwdService";
 import { nextOrLast, wrapFindIndex } from "../services/common/utils";
+import { decorate, action } from "mobx";
 
 const SET_CURSOR = "setCursor",
   SET_DIRECTION = "setDirection",
@@ -300,6 +301,11 @@ class PuzzleGrid extends Component {
     );
   }
 }
+
+decorate(PuzzleGrid, {
+  handleKeyDown: action,
+  handleCellClick: action
+});
 
 observer(PuzzleGrid);
 
