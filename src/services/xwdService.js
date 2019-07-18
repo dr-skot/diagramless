@@ -7,6 +7,8 @@ import {
   getElement
 } from "./common/utils";
 
+//const { TextDecoder } = require("util");
+
 var puzzle;
 
 export const LEFT = [0, -1],

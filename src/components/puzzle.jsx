@@ -23,7 +23,7 @@ class Puzzle extends Component {
 
   handleFileDrop = fileContents => {
     this.puzzle = PuzzleModel.fromFileData(fileContents);
-    console.log("puzzle!", this.puzzle.data);
+    console.log("puzzle!", JSON.stringify(this.puzzle.data));
     this.clock.reset();
     this.setState({ puz: this.puzzle.data });
   };
@@ -33,14 +33,16 @@ class Puzzle extends Component {
     const { isFilled, isSolved } = this.puzzle;
     const showModal =
       (!wasSolved && isSolved && SOLVED) || (!wasFilled && isFilled && FILLED);
-    if (isSolved)
+    if (isSolved) {
       // TODO move to puzzleModel
       this.puzzle.grid.forEachCell(cell => {
-        cell.exposeNumber();
-        cell.circle = cell.solution.circle;
-        this.clock.stop();
+        //cell.exposeNumber();
+        //cell.circle = cell.solution.circle;
       });
+      this.clock.stop();
+    }
     this.setState({ showModal, isFilled, isSolved });
+    console.log({ isFilled, isSolved, showModal });
   };
 
   handleModalClose = reason => {
@@ -127,15 +129,10 @@ class Puzzle extends Component {
     this.puzzle.grid.goToWord(number, direction);
   };
 
-  componentDidUpdate() {
-    if (this.puzzle) {
-      localStorage.setItem("xword", JSON.stringify(this.puzzle.serialize()));
-    }
-  }
-
   componentDidMount() {
     const puzzleData = JSON.parse(localStorage.getItem("xword"));
     this.puzzle = PuzzleModel.deserialize(puzzleData);
+    this.clock = puzzleData.clock || this.clock;
     const { isFilled, isSolved } = this.puzzle;
     this.setState({
       puz: this.puzzle.data,
@@ -143,8 +140,24 @@ class Puzzle extends Component {
       isFilled,
       isSolved
     });
+    this.clock.isRunning = !isSolved;
     window.addEventListener("blur", () => this.clock.stop());
+    window.addEventListener("beforeunload", this.saveState);
   }
+
+  componentWillUnmount() {
+    this.saveState();
+    window.removeEventListener("beforeunload", this.saveState);
+  }
+
+  saveState = () => {
+    console.log("componentWillUnmount");
+    if (this.puzzle) {
+      const serialized = { ...this.puzzle.serialize(), clock: this.clock };
+      localStorage.setItem("xword", JSON.stringify(serialized));
+      console.log("serialized it");
+    }
+  };
 
   render() {
     const puzzle = this.puzzle,

@@ -26,6 +26,7 @@ const sounds = {
 };
 
 const PuzzleModal = ({ reason, onClose }) => {
+  console.log("modal render");
   const showHideClassName = !reason
     ? "display-none"
     : reason === PAUSED

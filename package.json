@@ -6,6 +6,7 @@
     "lodash": "^4.17.11",
     "mobx": "^5.10.1",
     "mobx-react": "^6.1.1",
+    "ramda": "^0.26.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-file-drop": "^0.2.8",
