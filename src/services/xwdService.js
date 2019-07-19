@@ -282,6 +282,45 @@ export function moveOnGridUntil(found, start, direction, gridSize, options) {
   return position;
 }
 
+/*
+export function mog2(grid, policy, cursor) {
+  const perpendicular = dir => (dir === ACROSS ? DOWN : ACROSS),
+    advance = vectorAdd(cursor.direction),
+    nextLine = vectorAdd(perpendicular(cursor.direction)),
+    wrap = vectorMod(gridSize);
+
+  const moves = {
+    STOP: R.identical,
+    WRAP_AROUND: advance,
+    NEXT_LINE: R.pipe(
+      advance,
+      nextLine
+    )
+  };
+
+  const whichMove =
+      policy.atLineEnd && isLineEnd(grid, cursor)
+        ? policy.atLineEnd
+        : WRAP_AROUND,
+    move = moves[whichMove],
+    puzzleWrap = whichMove === NEXT_LINE && isPuzzleEnd(grid, cursor),
+    dirChange =
+      policy.onPuzzleWrap === CHANGE_DIRECTION ? perpendicular : R.identical,
+    newCursor = R.evolve({
+      location: R.pipe(
+        move,
+        wrap
+      ),
+      direction: dirChange
+    })(cursor);
+
+  // TODO check for back where we started
+  return policy.until && !policy.until(newCursor)
+    ? mog2(grid, policy, newCursor)
+    : newCursor;
+}
+*/
+
 function isWhiteCell(grid, position) {
   const cell = getElement(grid, position);
   return cell && !cell.isBlack;

@@ -41,6 +41,7 @@ class Puzzle extends Component {
     this.puzzle = XwdPuzzle.deserialize(puzzleData);
     this.clock = puzzleData.clock || this.clock;
     const { isFilled, isSolved } = this.puzzle;
+    console.log({ isFilled, isSolved });
     this.setState({
       puz: this.puzzle.data,
       puzzle: this.puzzle,
@@ -218,7 +219,7 @@ class Puzzle extends Component {
     this.setCursor(...newCursor);
     this.recordAction(SET_CURSOR, newCursor);
 
-    if (this.props.onContentChange) this.props.onContentChange();
+    this.handleContentChange();
   }
 
   handleBackspace() {
@@ -236,7 +237,7 @@ class Puzzle extends Component {
       }
       // TODO: disallow this on model
       if (
-        !this.props.solved &&
+        !this.state.isSolved &&
         !grid.currentCell.isVerified &&
         !grid.currentCell.wasRevealed
       ) {
@@ -410,7 +411,6 @@ class Puzzle extends Component {
             <ClueBarAndBoard
               clue={puzzle.currentClue}
               grid={grid}
-              onContentChange={this.handleContentChange}
               onCellClick={this.handleCellClick}
               relatedCells={puzzle.relatedCells}
             />

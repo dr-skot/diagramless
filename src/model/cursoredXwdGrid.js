@@ -2,12 +2,13 @@ import XwdGrid from "./xwdGrid";
 import _ from "lodash";
 import { decorate, observable, action, computed } from "mobx";
 import {
-  getWord,
+  ACROSS,
+  DOWN,
   LEFT,
   RIGHT,
   NEXT_LINE,
   moveOnGrid,
-  ACROSS
+  getWord
 } from "../services/xwdService";
 import { mod, includesEqual } from "../services/common/utils";
 
@@ -78,14 +79,19 @@ class CursoredXwdGrid extends XwdGrid {
       start = eitherDirection || !word ? this.cursor : word[0],
       gridSize = [this.height, this.width];
     let direction = this.direction;
-    const newPos = moveOnGrid(start, backward ? LEFT : RIGHT, gridSize, {
+    const startOfWord = moveOnGrid(start, backward ? LEFT : RIGHT, gridSize, {
       atLineEnd: NEXT_LINE,
       onPuzzleWrap: () => {
-        direction = direction.slice().reverse(); // TODO preserve direction constants
+        direction = _.isEqual(direction, ACROSS) ? DOWN : ACROSS;
       },
       until: pos =>
         this.wordStartsAt(...pos, eitherDirection ? null : direction)
     });
+    // TODO DRY this out there's similar in puzzle.jsx
+    const newWord = getWord(this.grid, startOfWord, direction);
+    const emptyCell = _.find(newWord, pos => !this.cell(...pos).content);
+    const newPos = emptyCell || newWord[0];
+    console.log({ newWord, emptyCell, newPos });
     this.setCursor(...newPos);
     this.direction = direction;
   }
