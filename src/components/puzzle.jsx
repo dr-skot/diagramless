@@ -35,13 +35,13 @@ class Puzzle extends Component {
     isRunning: true
   };
   actionStack = [];
+  blurInterval = 6000;
 
   componentDidMount() {
     const puzzleData = JSON.parse(localStorage.getItem("xword"));
     this.puzzle = XwdPuzzle.deserialize(puzzleData);
     this.clock = puzzleData.clock || this.clock;
     const { isFilled, isSolved } = this.puzzle;
-    console.log({ isFilled, isSolved });
     this.setState({
       puz: this.puzzle.data,
       puzzle: this.puzzle,
@@ -51,6 +51,7 @@ class Puzzle extends Component {
     this.clock.isRunning = !isSolved;
     window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("blur", this.handleBlur);
+    window.addEventListener("focus", this.handleFocus);
     window.addEventListener("beforeunload", this.saveState);
     document.addEventListener("mousedown", this.disableDoubleClick);
   }
@@ -60,6 +61,7 @@ class Puzzle extends Component {
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("blur", this.handleBlur);
     window.removeEventListener("beforeunload", this.saveState);
+    window.removeEventListener("focus", this.handleFocus);
     document.removeEventListener("mousedown", this.disableDoubleClick);
   }
 
@@ -266,7 +268,6 @@ class Puzzle extends Component {
     this.recordAction(SET_CURSOR, this.puzzle.grid.cursor.slice());
   }
 
-  // TODO suppress word select on double click (prevent default isn't doing it)
   handleCellClick = (row, col, event) => {
     if (this.puzzle.grid.cursorIsAt(row, col)) {
       this.toggleDirection();
@@ -383,7 +384,11 @@ class Puzzle extends Component {
   };
 
   handleBlur = () => {
-    this.clock.stop();
+    this.blurTimeout = setTimeout(this.clock.stop, this.blurInterval);
+  };
+
+  handleFocus = () => {
+    if (this.blurTimeout) clearTimeout(this.blurTimeout);
   };
 
   render() {
