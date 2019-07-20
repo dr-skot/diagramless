@@ -71,11 +71,9 @@ class Puzzle extends Component {
   };
 
   saveState = () => {
-    console.log("componentWillUnmount");
     if (this.puzzle) {
       const serialized = { ...this.puzzle.serialize(), clock: this.clock };
       localStorage.setItem("xword", JSON.stringify(serialized));
-      console.log("serialized it");
     }
   };
 
@@ -279,9 +277,12 @@ class Puzzle extends Component {
 
   handleFileDrop = fileContents => {
     this.puzzle = XwdPuzzle.fromFileData(fileContents);
-    console.log("puzzle!", JSON.stringify(this.puzzle.data));
     this.clock.reset();
-    this.setState({ puz: this.puzzle.data });
+    this.setState({
+      puz: this.puzzle.data,
+      isFilled: this.puzzle.isFilled,
+      isSolved: this.puzzle.isSolved
+    });
   };
 
   handleContentChange = () => {
@@ -384,11 +385,34 @@ class Puzzle extends Component {
   };
 
   handleBlur = () => {
-    this.blurTimeout = setTimeout(this.clock.stop, this.blurInterval);
+    if (!this.state.isSolved)
+      this.blurTimeout = setTimeout(this.clock.stop, this.blurInterval);
   };
 
   handleFocus = () => {
     if (this.blurTimeout) clearTimeout(this.blurTimeout);
+  };
+
+  handleDrop = event => {
+    event.preventDefault();
+    const transfer = event.dataTransfer,
+      file = transfer.items
+        ? transfer.items[0] && transfer.items[0].kind === "file"
+          ? transfer.items[0].getAsFile()
+          : null
+        : transfer.files[0];
+
+    if (!file) {
+      console.log("No file found");
+    } else {
+      const reader = new FileReader();
+      reader.onabort = () => console.log("File reading was aborted");
+      reader.onerror = () => console.log("File reading has failed");
+      reader.onload = () => {
+        this.handleFileDrop(reader.result);
+      };
+      reader.readAsArrayBuffer(file);
+    }
   };
 
   render() {
@@ -412,7 +436,11 @@ class Puzzle extends Component {
             onMenuSelect={this.handleMenuSelect}
             checkmarks={this.state.checkmarks}
           />
-          <div className="layout-puzzle">
+          <div
+            className="layout-puzzle"
+            onDrop={this.handleDrop}
+            onDragOver={e => e.preventDefault()}
+          >
             <ClueBarAndBoard
               clue={puzzle.currentClue}
               grid={grid}
@@ -428,15 +456,16 @@ class Puzzle extends Component {
         />
       </React.Fragment>
     ) : (
-      ""
-    );
-
-    return (
-      <div>
-        {puzzleHtml}
-        <PuzzleFileDrop onFileLoad={this.handleFileDrop} />
+      <div
+        className="no-puzzle"
+        onDrop={this.handleDrop}
+        onDragOver={e => e.preventDefault()}
+      >
+        Drop a puzzle file here!
       </div>
     );
+
+    return <div>{puzzleHtml}</div>;
   }
 }
 

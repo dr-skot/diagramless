@@ -91,7 +91,7 @@ class CursoredXwdGrid extends XwdGrid {
     const newWord = getWord(this.grid, startOfWord, direction);
     const emptyCell = _.find(newWord, pos => !this.cell(...pos).content);
     const newPos = emptyCell || newWord[0];
-    console.log({ newWord, emptyCell, newPos });
+    //console.log({ newWord, emptyCell, newPos });
     this.setCursor(...newPos);
     this.direction = direction;
   }

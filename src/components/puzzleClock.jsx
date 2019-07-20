@@ -70,7 +70,11 @@ class PuzzleClock extends Component {
       <li className="Timer-button--Jg5pv Tool-tool--Fiz94">
         <button onClick={this.toggleTimer}>
           <div className="timer-count">{this.clockString(this.state.time)}</div>
-          <i className="Icon-pause--1dqCf Icon-icon--1RAWC" />
+          {this.state.isRunning ? (
+            <i className="Icon-pause--1dqCf Icon-icon--1RAWC" />
+          ) : (
+            ""
+          )}
         </button>
       </li>
     );
