@@ -3,21 +3,20 @@ import XwdPuzzle from "../model/xwdPuzzle";
 import PuzzleHeader from "./puzzleHeader";
 import ClueBarAndBoard from "./clueBarAndBoard";
 import ClueLists from "./clueLists";
-import PuzzleFileDrop from "./puzzleFileDrop";
 import PuzzleModal, { SOLVED, FILLED, PAUSED } from "./puzzleModal";
 import PuzzleToolbar from "./puzzleToolbar";
+import PuzzleActionTracker, {
+  CHANGE_CURSOR,
+  CHANGE_DIRECTION,
+  CHANGE_NUMBER,
+  CHANGE_BLACK
+} from "../services/puzzleActionTracker";
 import { observer } from "mobx-react";
 import { ACROSS, DOWN, LEFT, RIGHT, UP } from "../services/xwdService";
 import { DIAGONAL, LEFT_RIGHT } from "../model/xwdGrid";
 import { nextOrLast, wrapFindIndex } from "../services/common/utils";
 import { decorate, action } from "mobx";
 import _ from "lodash";
-
-const SET_CURSOR = "setCursor",
-  SET_DIRECTION = "setDirection",
-  SET_BLACK = "setBlack",
-  SET_CONTENT = "setContent",
-  SET_NUMBER = "setNumber";
 
 // TODO: allow only 4 state-changing methods
 // changeCellContent(newValue)
@@ -27,28 +26,18 @@ const SET_CURSOR = "setCursor",
 // and record on action stack undoable groups of these, with before and after values
 class Puzzle extends Component {
   state = {
-    puz: null,
     checkmarks: {}
   };
   clock = {
     time: 0,
     isRunning: true
   };
-  actionStack = [];
   blurInterval = 6000;
+  wasFilled = false;
+  wasSolved = false;
 
   componentDidMount() {
-    const puzzleData = JSON.parse(localStorage.getItem("xword"));
-    this.puzzle = XwdPuzzle.deserialize(puzzleData);
-    this.clock = puzzleData.clock || this.clock;
-    const { isFilled, isSolved } = this.puzzle;
-    this.setState({
-      puz: this.puzzle.data,
-      puzzle: this.puzzle,
-      isFilled,
-      isSolved
-    });
-    this.clock.isRunning = !isSolved;
+    this.setPuzzleFromLocalStorage();
     window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("blur", this.handleBlur);
     window.addEventListener("focus", this.handleFocus);
@@ -65,6 +54,30 @@ class Puzzle extends Component {
     document.removeEventListener("mousedown", this.disableDoubleClick);
   }
 
+  setPuzzleFromLocalStorage() {
+    const puzzleData = JSON.parse(localStorage.getItem("xword"));
+    this.clock = puzzleData.clock || this.clock;
+    this.setPuzzle(XwdPuzzle.deserialize(puzzleData));
+  }
+
+  // TODO is clock part of file data?
+  setPuzzleFromDroppedFile = fileContents => {
+    const puzzle = XwdPuzzle.fromFileData(fileContents);
+    this.clock.reset();
+    this.setPuzzle(puzzle);
+  };
+
+  setPuzzle(puzzle) {
+    this.puzzle = puzzle;
+    this.actionTracker = new PuzzleActionTracker(puzzle);
+    Object.assign(this, {
+      wasFilled: puzzle.isFilled,
+      wasSolved: puzzle.isSolved
+    });
+    this.clock.isRunning = !puzzle.isSolved;
+    this.setState({ puzzle });
+  }
+
   disableDoubleClick = event => {
     // TODO check that mouse is on the puzzle grid somewhere
     if (event.detail > 1) event.preventDefault();
@@ -77,14 +90,15 @@ class Puzzle extends Component {
     }
   };
 
-  recordAction(name, ...args) {
-    this.actionStack.unshift({ name, args });
-  }
-
-  get lastAction() {
-    if (this.actionStack.length === 0) return {};
-    return this.actionStack[0];
-  }
+  handleArrowKeys = event => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return false;
+    const direction = { 37: LEFT, 38: UP, 39: RIGHT, 40: DOWN }[event.keyCode];
+    if (direction) {
+      return this.hanleArrow(direction);
+    } else {
+      return true;
+    }
+  };
 
   handleKeyDown = event => {
     const keyCode = event.keyCode;
@@ -99,6 +113,7 @@ class Puzzle extends Component {
       return;
     }
 
+    // handleArrowKeys() || handleTabKey() || handleDigit() || handleContent() || handleBackspace() || handleRebusKey()
     if (event.metaKey || event.ctrlKey || event.altKey) return;
 
     const shiftKeys = {
@@ -119,10 +134,11 @@ class Puzzle extends Component {
       9: () => this.handleTab()
     };
 
-    const solved = this.state.isSolved;
+    const solved = this.puzzle.isSolved;
     let shouldPreventDefault = true;
 
     // TODO: organize this better
+    // TODO: also disallow this if cell is verified
     if (solved) {
       keys[32] = null;
       keys[8] = null;
@@ -152,7 +168,7 @@ class Puzzle extends Component {
   }
 
   moveCursor(i, j) {
-    this.setCursor(...this.puzzle.grid.addToCursor(i, j));
+    this.actionTracker.setCursor(...this.puzzle.grid.addToCursor(i, j));
   }
 
   isPerpendicular(direction) {
@@ -162,8 +178,9 @@ class Puzzle extends Component {
   }
 
   handleTab(options = {}) {
-    this.puzzle.grid.goToNextWord(options);
-    this.recordAction(SET_CURSOR, this.cursor);
+    this.actionTracker.recordAction(CHANGE_CURSOR, () =>
+      this.puzzle.grid.goToNextWord(options)
+    );
   }
 
   handleArrow(direction) {
@@ -176,16 +193,17 @@ class Puzzle extends Component {
   }
 
   isEditingNumber() {
-    return this.lastAction.name === SET_NUMBER;
+    console.log("lastActionName", this.actionTracker.lastAction.name);
+    return this.actionTracker.lastAction.name === CHANGE_NUMBER;
   }
 
   handleDigit(digit) {
-    const cell = this.puzzle.grid.currentCell;
-    cell.isBlack = false; // come out of black if edit number
-    cell.number = (this.isEditingNumber() ? cell.number : "") + digit;
-    if (cell.number === "0") cell.number = ""; // delete if 0
-    this.recordAction(SET_NUMBER, cell.number);
-    this.setState({});
+    this.actionTracker.recordAction(CHANGE_NUMBER, () => {
+      const cell = this.puzzle.grid.currentCell;
+      cell.isBlack = false; // come out of black if edit number
+      cell.number = (this.isEditingNumber() ? cell.number : "") + digit;
+      if (cell.number === "0") cell.number = ""; // delete if 0
+    });
   }
 
   handleAlpha(a) {
@@ -198,8 +216,8 @@ class Puzzle extends Component {
     if (grid.currentCell.isBlack) this.toggleBlack();
 
     const cellWasEmpty = cellIsEmpty(grid.cursor);
-    cell.setContent(a);
-    this.recordAction(SET_CONTENT, a);
+
+    this.actionTracker.setContent(a);
 
     // advanceCursor(cursorPolicy[cellWasEmpty ? TYPE_IN_EMPTY_CELL : TYPE_IN_FULL_CELL]);
 
@@ -216,19 +234,19 @@ class Puzzle extends Component {
     }
 
     const newCursor = word[nextCellIdx];
-    this.setCursor(...newCursor);
-    this.recordAction(SET_CURSOR, newCursor);
+    this.actionTracker.setCursor(...newCursor);
 
     this.handleContentChange();
   }
 
   handleBackspace() {
     const grid = this.puzzle.grid;
-    if (this.lastAction.name === SET_NUMBER) {
+    if (this.actionTracker.lastAction.name === CHANGE_NUMBER) {
       const cell = grid.currentCell;
       if (cell.number && cell.number.length) {
-        cell.number = cell.number.slice(0, -1); // all but last letter
-        this.recordAction(SET_NUMBER, cell.number);
+        this.actionTracker.recordAction(CHANGE_NUMBER, () => {
+          cell.number = cell.number.slice(0, -1); // all but last letter
+        });
       }
     } else {
       if (!grid.currentCell.content) {
@@ -237,56 +255,41 @@ class Puzzle extends Component {
       }
       // TODO: disallow this on model
       if (
-        !this.state.isSolved &&
+        !this.puzzle.isSolved &&
         !grid.currentCell.isVerified &&
         !grid.currentCell.wasRevealed
       ) {
-        grid.currentCell.setContent("");
-        this.recordAction(SET_CONTENT, "");
+        this.actionTracker.setContent("");
       }
     }
-    this.setState({});
   }
 
   toggleBlack() {
     const cell = this.puzzle.grid.currentCell;
     if (cell.isVerified) return;
-    cell.isBlack = !cell.isBlack;
-    cell.isMarkedWrong = false; // TODO handle this elsewhere
-    this.recordAction(SET_BLACK, cell.isBlack);
+    this.actionTracker.recordAction(CHANGE_BLACK, () => {
+      cell.isBlack = !cell.isBlack;
+      cell.isMarkedWrong = false; // TODO handle this elsewhere
+    });
   }
 
   toggleDirection() {
-    this.puzzle.grid.toggleDirection();
-    this.recordAction(SET_DIRECTION, this.puzzle.grid.direction.slice());
-  }
-
-  setCursor(row, col) {
-    this.puzzle.grid.cursor = [row, col];
-    this.recordAction(SET_CURSOR, this.puzzle.grid.cursor.slice());
+    this.actionTracker.recordAction(CHANGE_DIRECTION, () => {
+      this.puzzle.grid.toggleDirection();
+    });
   }
 
   handleCellClick = (row, col, event) => {
     if (this.puzzle.grid.cursorIsAt(row, col)) {
       this.toggleDirection();
     } else {
-      this.setCursor(row, col);
+      this.actionTracker.setCursor(row, col);
     }
     event.preventDefault();
   };
 
-  handleFileDrop = fileContents => {
-    this.puzzle = XwdPuzzle.fromFileData(fileContents);
-    this.clock.reset();
-    this.setState({
-      puz: this.puzzle.data,
-      isFilled: this.puzzle.isFilled,
-      isSolved: this.puzzle.isSolved
-    });
-  };
-
   handleContentChange = () => {
-    const { isFilled: wasFilled, isSolved: wasSolved } = this.state;
+    const { wasFilled, wasSolved } = this;
     const { isFilled, isSolved } = this.puzzle;
     const showModal =
       (!wasSolved && isSolved && SOLVED) || (!wasFilled && isFilled && FILLED);
@@ -297,7 +300,8 @@ class Puzzle extends Component {
       });
       this.clock.stop();
     }
-    this.setState({ showModal, isFilled, isSolved });
+    Object.assign(this, { wasFilled: isFilled, wasSolved: isSolved });
+    this.setState({ showModal });
   };
 
   handleModalClose = reason => {
@@ -309,6 +313,7 @@ class Puzzle extends Component {
     this.setState({ showModal: PAUSED });
   };
 
+  // TODO all these state changes should register their actions (ugh)
   handleMenuSelect = (title, item) => {
     const grid = this.puzzle.grid,
       cellFinder = {
@@ -385,8 +390,7 @@ class Puzzle extends Component {
   };
 
   handleBlur = () => {
-    if (!this.state.isSolved)
-      this.blurTimeout = setTimeout(this.clock.stop, this.blurInterval);
+    this.blurTimeout = setTimeout(this.clock.stop, this.blurInterval);
   };
 
   handleFocus = () => {
@@ -394,6 +398,7 @@ class Puzzle extends Component {
   };
 
   handleDrop = event => {
+    console.log("handleDrop");
     event.preventDefault();
     const transfer = event.dataTransfer,
       file = transfer.items
@@ -409,7 +414,7 @@ class Puzzle extends Component {
       reader.onabort = () => console.log("File reading was aborted");
       reader.onerror = () => console.log("File reading has failed");
       reader.onload = () => {
-        this.handleFileDrop(reader.result);
+        this.setPuzzleFromDroppedFile(reader.result);
       };
       reader.readAsArrayBuffer(file);
     }
@@ -418,7 +423,7 @@ class Puzzle extends Component {
   render() {
     const puzzle = this.puzzle,
       grid = puzzle ? puzzle.grid : null,
-      puz = puzzle ? puzzle.data : null;
+      puzzleData = puzzle ? puzzle.data : null;
 
     if (puzzle) puzzle.calculateCurrentClue();
 
@@ -429,7 +434,7 @@ class Puzzle extends Component {
             this.state.showModal === PAUSED ? "app-obscured--26XpG " : ""
           }
         >
-          <PuzzleHeader title={puz.title} author={puz.author} />
+          <PuzzleHeader title={puzzleData.title} author={puzzleData.author} />
           <PuzzleToolbar
             clock={this.clock}
             onClockPause={this.handleClockPause}

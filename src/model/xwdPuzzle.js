@@ -8,6 +8,11 @@ import {
 import { decorate, action } from "mobx";
 
 class XwdPuzzle {
+  clock = {
+    time: 0,
+    isRunning: true
+  };
+
   constructor(data) {
     this._initialize(data);
   }
@@ -27,6 +32,9 @@ class XwdPuzzle {
     });
     if (data.user) {
       this.grid.setData(data.user);
+    }
+    if (data.clock) {
+      this.clock = data.clock;
     }
   }
 
@@ -68,6 +76,7 @@ class XwdPuzzle {
 
   serialize() {
     this.data.user = this.grid.serialize();
+    this.data.clock = this.clock;
     return this.data;
   }
 
@@ -79,6 +88,11 @@ class XwdPuzzle {
   static fromFileData(arrayBuffer) {
     const data = puzzleFromFileData(arrayBuffer);
     return data ? new XwdPuzzle(data) : null;
+  }
+
+  static fromLocalStorage(key) {
+    const puzzleData = JSON.parse(localStorage.getItem(key));
+    return XwdPuzzle.deserialize(puzzleData);
   }
 }
 
