@@ -1,9 +1,32 @@
 import React, { Component } from "react";
 import { keysWithTrueValues } from "../services/common/utils";
 import { observer } from "mobx-react";
+import { tsExpressionWithTypeArguments } from "@babel/types";
 
 class PuzzleCell extends Component {
   state = {};
+
+  componentDidUpdate() {
+    this.fitText();
+  }
+
+  componentWillUpdate() {
+    this.unfitText();
+  }
+
+  fitText() {
+    const text = this.textSpan;
+    const boxWidth = this.props.width - 2;
+    const baseFontSize = this.getFontSize();
+    if (text.offsetWidth > boxWidth) {
+      const newFontSize = baseFontSize * (boxWidth / text.offsetWidth);
+      text.style.fontSize = Math.min(newFontSize, baseFontSize) + "px";
+    }
+  }
+
+  unfitText() {
+    this.textSpan.style.fontSize = "inherit";
+  }
 
   getClasses() {
     const { cell, cursor } = this.props;
@@ -32,9 +55,13 @@ class PuzzleCell extends Component {
           width: width,
           height: width,
           minWidth: width,
-          fontSize: (width * 26) / 36
+          fontSize: this.getFontSize()
         }
       : {};
+  }
+
+  getFontSize() {
+    return (26 / 36) * this.props.width;
   }
 
   render() {
@@ -46,7 +73,9 @@ class PuzzleCell extends Component {
         style={this.getStyle()}
         ref={this.getCursorRef()}
       >
-        <div className="content">{isBlack ? "" : content}</div>
+        <div className="content">
+          <span ref={el => (this.textSpan = el)}>{isBlack ? "" : content}</span>
+        </div>
         <div className="label">{isBlack ? "" : number}</div>
         {circle ? <div className="circle" /> : ""}
       </td>
