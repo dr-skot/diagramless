@@ -55,6 +55,7 @@ class ClueBarAndBoard extends Component {
               relatedCells={this.props.relatedCells}
               cellWidth={this.state.sizes.cellWidth}
               onCellClick={this.props.onCellClick}
+              cursorRef={this.props.cursorRef}
             />
           </React.Fragment>
         ) : (

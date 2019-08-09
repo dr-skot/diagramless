@@ -20,6 +20,11 @@ class PuzzleCell extends Component {
     return keysWithTrueValues(classes).join(" ");
   }
 
+  getCursorRef() {
+    const { cursor, cursorRef } = this.props;
+    return cursor.cell ? cursorRef : null;
+  }
+
   getStyle() {
     const { width } = this.props;
     return width
@@ -39,6 +44,7 @@ class PuzzleCell extends Component {
         className={this.getClasses()}
         onClick={this.props.onClick}
         style={this.getStyle()}
+        ref={this.getCursorRef()}
       >
         <div className="content">{isBlack ? "" : content}</div>
         <div className="label">{isBlack ? "" : number}</div>

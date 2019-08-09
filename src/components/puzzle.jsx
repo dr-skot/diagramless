@@ -14,7 +14,7 @@ import PuzzleActionTracker, {
 import { observer } from "mobx-react";
 import { ACROSS, DOWN, LEFT, RIGHT, UP } from "../services/xwdService";
 import { DIAGONAL, LEFT_RIGHT } from "../model/xwdGrid";
-import { nextOrLast, wrapFindIndex } from "../services/common/utils";
+import { nextOrLast, wrapFindIndex, fitTo } from "../services/common/utils";
 import { decorate, action } from "mobx";
 import _ from "lodash";
 
@@ -52,6 +52,10 @@ class Puzzle extends Component {
     window.removeEventListener("beforeunload", this.saveState);
     window.removeEventListener("focus", this.handleFocus);
     document.removeEventListener("mousedown", this.disableDoubleClick);
+  }
+
+  componentDidUpdate() {
+    this.rebusInput[this.rebus ? "focus" : "blur"]();
   }
 
   setPuzzleFromLocalStorage() {
@@ -93,11 +97,28 @@ class Puzzle extends Component {
   handleArrowKeys = event => {
     if (event.ctrlKey || event.metaKey || event.altKey) return false;
     const direction = { 37: LEFT, 38: UP, 39: RIGHT, 40: DOWN }[event.keyCode];
-    if (direction) {
-      return this.hanleArrow(direction);
+    if (!direction) return false;
+    return this.handleArrow(direction);
+  };
+
+  handleRebus = event => {
+    const esc = 27,
+      enter = 13,
+      key = event.keyCode;
+    if (key !== esc && !this.rebus) return false; // not rebus
+    if (key !== esc && key !== enter) return true; // typing rebus
+
+    if (key === esc) {
+      this.rebusInput.value = this.puzzle.grid.currentCell.content;
+      // align rebus with current cell & show it
+      fitTo(this.cursorTd, this.rebusDiv);
     } else {
-      return true;
+      // key === enter
+      this.actionTracker.setContent(this.rebusInput.value.trim().toUpperCase());
     }
+    this.rebus = !this.rebus;
+    this.setState({ rebus: this.rebus });
+    return true;
   };
 
   handleKeyDown = event => {
@@ -105,6 +126,8 @@ class Puzzle extends Component {
     //console.log("keyCode", keyCode);
 
     if (this.state.showModal) return;
+
+    if (this.handleRebus(event)) return;
 
     // TODO normalize handling of helper keys
     if (event.altKey && keyCode === 9) {
@@ -193,7 +216,6 @@ class Puzzle extends Component {
   }
 
   isEditingNumber() {
-    console.log("lastActionName", this.actionTracker.lastAction.name);
     return this.actionTracker.lastAction.name === CHANGE_NUMBER;
   }
 
@@ -451,9 +473,16 @@ class Puzzle extends Component {
               grid={grid}
               onCellClick={this.handleCellClick}
               relatedCells={puzzle.relatedCells}
+              cursorRef={el => (this.cursorTd = el)}
             />
             <ClueLists puzzle={puzzle} onClueSelect={this.handleClueSelect} />
           </div>
+        </div>
+        <div id="rebus" ref={el => (this.rebusDiv = el)}>
+          <input
+            ref={el => (this.rebusInput = el)}
+            style={this.rebus ? {} : { display: "none" }}
+          />
         </div>
         <PuzzleModal
           reason={this.state.showModal}

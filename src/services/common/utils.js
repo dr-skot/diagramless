@@ -67,3 +67,30 @@ export function capitalize(string) {
     .map(s => (s.length > 0 ? s[0].toUpperCase() + s.slice(1) : s))
     .join(" ");
 }
+
+// return the bounding rect of an element, relative to document
+export function offsetRect(el) {
+  const rect = el.getBoundingClientRect(),
+    scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+    scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  return {
+    top: rect.top + scrollTop,
+    left: rect.left + scrollLeft,
+    height: rect.height,
+    width: rect.width
+  };
+}
+
+// run map on values of an object
+// fn is called with (value, key) so you can easily ignore the key
+function objValueMap(obj, fn) {
+  return Object.assign(
+    ...Object.keys(obj).map(key => ({ [key]: fn(obj[key], key) }))
+  );
+}
+
+// fits one DOM element on top of another
+export function fitTo(anchor, el) {
+  const rect = objValueMap(offsetRect(anchor), v => v + "px");
+  Object.assign(el.style, rect);
+}

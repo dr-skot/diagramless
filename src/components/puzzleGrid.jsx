@@ -54,6 +54,7 @@ class PuzzleGrid extends Component {
                       cursor={this.cursorSettings(row, col)}
                       onClick={event => this.props.onCellClick(row, col, event)}
                       width={this.props.cellWidth}
+                      cursorRef={this.props.cursorRef}
                     />
                   ))}
                 </tr>

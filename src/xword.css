@@ -367,8 +367,9 @@ div.circle {
 #rebus input {
   width: 32px;
   height: 32px;
-  font-size: inherit;
   text-transform: uppercase;
+  font-family: franklin;
+  font-size: inherit;
 }
 
 .empty-dropzone {

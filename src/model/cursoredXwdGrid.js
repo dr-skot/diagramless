@@ -87,7 +87,7 @@ class CursoredXwdGrid extends XwdGrid {
       until: pos =>
         this.wordStartsAt(...pos, eitherDirection ? null : direction)
     });
-    // TODO DRY this out there's similar in puzzle.jsx
+    // TODO DRY this out there's similar in puzzle.jsx moveInWord(grid, policy, word)
     const newWord = getWord(this.grid, startOfWord, direction);
     const emptyCell = _.find(newWord, pos => !this.cell(...pos).content);
     const newPos = emptyCell || newWord[0];
