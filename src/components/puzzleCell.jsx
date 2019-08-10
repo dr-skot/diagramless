@@ -43,6 +43,7 @@ class PuzzleCell extends Component {
     return keysWithTrueValues(classes).join(" ");
   }
 
+  // TODO move this logic out to grid
   getCursorRef() {
     const { cursor, cursorRef } = this.props;
     return cursor.cell ? cursorRef : null;
@@ -61,6 +62,7 @@ class PuzzleCell extends Component {
   }
 
   getFontSize() {
+    // TODO instead of magic constant, derive from CSS: cssFontSize * realCellWidth / cssCellWidth
     return (26 / 36) * this.props.width;
   }
 

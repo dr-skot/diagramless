@@ -412,7 +412,9 @@ class Puzzle extends Component {
   };
 
   handleBlur = () => {
-    this.blurTimeout = setTimeout(this.clock.stop, this.blurInterval);
+    if (!this.puzzle.isSolved) {
+      this.blurTimeout = setTimeout(this.clock.stop, this.blurInterval);
+    }
   };
 
   handleFocus = () => {
