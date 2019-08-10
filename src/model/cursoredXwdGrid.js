@@ -94,6 +94,9 @@ class CursoredXwdGrid extends XwdGrid {
     //console.log({ newWord, emptyCell, newPos });
     this.setCursor(...newPos);
     this.direction = direction;
+    if (!emptyCell && options.skipFilled && !this.isFilled) {
+      this.goToNextWord(options);
+    }
   }
 
   cursorShadowFallsOn(row, col) {

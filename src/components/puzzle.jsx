@@ -98,7 +98,8 @@ class Puzzle extends Component {
     if (event.ctrlKey || event.metaKey || event.altKey) return false;
     const direction = { 37: LEFT, 38: UP, 39: RIGHT, 40: DOWN }[event.keyCode];
     if (!direction) return false;
-    return this.handleArrow(direction);
+    this.handleArrow(direction);
+    return true;
   };
 
   handleRebus = event => {
@@ -201,6 +202,7 @@ class Puzzle extends Component {
   }
 
   handleTab(options = {}) {
+    options.skipFilled = true;
     this.actionTracker.recordAction(CHANGE_CURSOR, () =>
       this.puzzle.grid.goToNextWord(options)
     );
