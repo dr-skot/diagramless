@@ -94,3 +94,21 @@ export function fitTo(anchor, el) {
   const rect = objValueMap(offsetRect(anchor), v => v + "px");
   Object.assign(el.style, rect);
 }
+
+function matchOrInRange(x, singleOrRange) {
+  const range = singleOrRange.length
+    ? singleOrRange
+    : [singleOrRange, singleOrRange];
+  return _.inRange(x, range[0], range[1] + 1);
+}
+
+// TODO move to separate module?
+export const altKey = "altKey";
+export const ctrlKey = "ctrlKey";
+export function keyMatch(event, keyCodes, modifiers = []) {
+  return (
+    matchOrInRange(event.keyCode, keyCodes) &&
+    (!event.ctrlKey || modifiers.indexOf(ctrlKey) > -1) &&
+    (!event.altKey || modifiers.indexOf(altKey) > -1)
+  );
+}

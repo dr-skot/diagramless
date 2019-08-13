@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { keysWithTrueValues } from "../services/common/utils";
 import { observer } from "mobx-react";
-import { tsExpressionWithTypeArguments } from "@babel/types";
 
 class PuzzleCell extends Component {
   state = {};

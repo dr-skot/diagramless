@@ -14,7 +14,13 @@ import PuzzleActionTracker, {
 import { observer } from "mobx-react";
 import { ACROSS, DOWN, LEFT, RIGHT, UP } from "../services/xwdService";
 import { DIAGONAL, LEFT_RIGHT } from "../model/xwdGrid";
-import { nextOrLast, wrapFindIndex, fitTo } from "../services/common/utils";
+import {
+  nextOrLast,
+  wrapFindIndex,
+  fitTo,
+  keyMatch,
+  altKey
+} from "../services/common/utils";
 import { decorate, action } from "mobx";
 import _ from "lodash";
 
@@ -94,12 +100,77 @@ class Puzzle extends Component {
     }
   };
 
-  handleArrowKeys = event => {
-    if (event.ctrlKey || event.metaKey || event.altKey) return false;
-    const direction = { 37: LEFT, 38: UP, 39: RIGHT, 40: DOWN }[event.keyCode];
-    if (!direction) return false;
-    this.handleArrow(direction);
-    return true;
+  handleArrowKey = event => {
+    if (keyMatch(event, [37, 40])) {
+      const direction = { 37: LEFT, 38: UP, 39: RIGHT, 40: DOWN }[
+        event.keyCode
+      ];
+      if (direction) {
+        this.handleArrow(direction);
+        return true;
+      }
+    }
+  };
+
+  handleTabKey = event => {
+    if (keyMatch(event, 9, [altKey])) {
+      this.handleTab({
+        eitherDirection: event.altKey,
+        backward: event.shiftKey
+      });
+      return true;
+    }
+  };
+
+  handlePeriodKey = event => {
+    if (keyMatch(event, 190) && !this.puzzle.isSolved) {
+      this.toggleBlack();
+      this.advanceCursor();
+      return true;
+    }
+  };
+
+  handleAlphaKey = event => {
+    if (
+      (keyMatch(event, [58, 90]) || keyMatch(event, 32)) &&
+      !this.puzzle.isSolved
+    ) {
+      this.handleAlpha(String.fromCharCode(event.keyCode));
+      return true;
+    }
+  };
+
+  handleDigitKey = event => {
+    if (keyMatch(event, [48, 57]) && !this.puzzle.isSolved) {
+      this.handleDigit(String.fromCharCode(event.keyCode));
+      return true;
+    }
+  };
+
+  handleBackspaceKey = event => {
+    if (keyMatch(event, 8) && !this.puzzle.isSolved) {
+      this.handleBackspace();
+      return true;
+    }
+  };
+
+  keyHandlers = [
+    this.handleArrowKey,
+    this.handleTabKey,
+    this.handleBackspaceKey,
+    this.handleAlphaKey,
+    this.handleDigitKey,
+    this.handlePeriodKey
+  ];
+
+  handleKeyDown = event => {
+    if (event.metaKey) return;
+    if (this.state.showModal) return;
+    if (this.handleRebus(event)) return;
+
+    this.keyHandlers.forEach(handler => {
+      if (handler(event)) event.preventDefault();
+    });
   };
 
   handleRebus = event => {
@@ -107,8 +178,9 @@ class Puzzle extends Component {
       enter = 13,
       key = event.keyCode;
     if (key !== esc && !this.rebus) return false; // not rebus
-    if (key !== esc && key !== enter) return true; // typing rebus
+    if (key !== esc && key !== enter) return true; // still typing rebus
 
+    // otherwise, start (esc), cancel (esc), or set rebus (enter)
     if (key === esc) {
       this.rebusInput.value = this.puzzle.grid.currentCell.content;
       // align rebus with current cell & show it
@@ -120,71 +192,6 @@ class Puzzle extends Component {
     this.rebus = !this.rebus;
     this.setState({ rebus: this.rebus });
     return true;
-  };
-
-  handleKeyDown = event => {
-    const keyCode = event.keyCode;
-    //console.log("keyCode", keyCode);
-
-    if (this.state.showModal) return;
-
-    if (this.handleRebus(event)) return;
-
-    // TODO normalize handling of helper keys
-    if (event.altKey && keyCode === 9) {
-      this.handleTab({ eitherDirection: true, backward: event.shiftKey });
-      event.preventDefault();
-      return;
-    }
-
-    // handleArrowKeys() || handleTabKey() || handleDigit() || handleContent() || handleBackspace() || handleRebusKey()
-    if (event.metaKey || event.ctrlKey || event.altKey) return;
-
-    const shiftKeys = {
-      9: () => this.handleTab({ backward: true })
-    };
-
-    const keys = {
-      37: () => this.handleArrow(LEFT), // arrow left
-      38: () => this.handleArrow(UP), // arrow up
-      39: () => this.handleArrow(RIGHT), // arrow right
-      40: () => this.handleArrow(DOWN), // arrow down
-      190: () => {
-        this.toggleBlack();
-        this.advanceCursor();
-      }, // . (period)
-      32: () => this.handleAlpha(""), // space
-      8: () => this.handleBackspace(), //
-      9: () => this.handleTab()
-    };
-
-    const solved = this.puzzle.isSolved;
-    let shouldPreventDefault = true;
-
-    // TODO: organize this better
-    // TODO: also disallow this if cell is verified
-    if (solved) {
-      keys[32] = null;
-      keys[8] = null;
-      keys[190] = null;
-    }
-
-    const keyAction = (event.shiftKey ? shiftKeys : keys)[event.keyCode];
-    if (keyAction) {
-      keyAction();
-    } else if (!solved && _.inRange(keyCode, 48, 57 + 1)) {
-      // digits
-      this.handleDigit(String.fromCharCode(keyCode));
-    } else if (!solved && _.inRange(keyCode, 58, 90 + 1)) {
-      // alpha
-      this.handleAlpha(String.fromCharCode(keyCode));
-    } else {
-      shouldPreventDefault = false;
-    }
-
-    if (shouldPreventDefault) {
-      event.preventDefault();
-    }
   };
 
   advanceCursor() {
@@ -264,25 +271,21 @@ class Puzzle extends Component {
   }
 
   handleBackspace() {
-    const grid = this.puzzle.grid;
-    if (this.actionTracker.lastAction.name === CHANGE_NUMBER) {
-      const cell = grid.currentCell;
+    const grid = this.puzzle.grid,
+      cell = grid.currentCell;
+    if (this.isEditingNumber()) {
       if (cell.number && cell.number.length) {
         this.actionTracker.recordAction(CHANGE_NUMBER, () => {
           cell.number = cell.number.slice(0, -1); // all but last letter
         });
       }
     } else {
-      if (!grid.currentCell.content) {
+      if (!cell.content) {
         const [i, j] = grid.direction;
         this.moveCursor(-i, -j);
       }
-      // TODO: disallow this on model
-      if (
-        !this.puzzle.isSolved &&
-        !grid.currentCell.isVerified &&
-        !grid.currentCell.wasRevealed
-      ) {
+      // TODO: protect verified and revealed cells on model, or tracker
+      if (!cell.isVerified && !cell.wasRevealed) {
         this.actionTracker.setContent("");
       }
     }
