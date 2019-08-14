@@ -193,7 +193,9 @@ class Puzzle extends Component {
       fitTo(this.cursorTd, this.rebusDiv);
     } else {
       // key === enter
-      this.actionTracker.setContent(this.rebusInput.value.trim().toUpperCase());
+      this.actionTracker.setContent(
+        this.rebusInput.value.replace(/\s/g, "").toUpperCase()
+      );
     }
     this.rebus = !this.rebus;
     this.setState({ rebus: this.rebus });
