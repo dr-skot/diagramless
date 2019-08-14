@@ -84,7 +84,9 @@ class Puzzle extends Component {
       wasFilled: puzzle.isFilled,
       wasSolved: puzzle.isSolved
     });
+    // TODO eliminate this redudancy
     this.clock.isRunning = !puzzle.isSolved;
+    if (this.clock.isRunning && this.clock.start) this.clock.start();
     this.setState({ puzzle });
   }
 
