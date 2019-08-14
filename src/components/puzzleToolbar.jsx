@@ -12,7 +12,7 @@ class PuzzleToolbar extends Component {
     number: ["now", "continuously"],
     symmetry: ["diagonal", "left/right"],
     clear: ["word", "white squares", "puzzle", "puzzle & timer"],
-    reveal: ["square", "word", "puzzle", "diagram"],
+    reveal: ["square", "word", "puzzle", "diagram", "circles"],
     check: ["square", "word", "puzzle"]
   };
 

@@ -371,6 +371,10 @@ class Puzzle extends Component {
           cell.number = cell.solution.number;
           cell.circle = cell.solution.circle;
         });
+      } else if (item === "circles") {
+        grid.forEachCell(cell => {
+          cell.circle = cell.solution.circle;
+        });
       } else {
         cells.forEach(cell => cell.reveal());
       }

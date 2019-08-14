@@ -8,6 +8,7 @@ class XwdCell {
   isMarkedWrong = false;
   wasRevealed = false;
   solution = {};
+  circle = false;
 
   setContent(content) {
     this.content = content;
@@ -62,6 +63,7 @@ decorate(XwdCell, {
   isBlack: observable,
   content: observable,
   number: observable,
+  circle: observable,
   isVerified: observable,
   isMarkedWrong: observable,
   wasRevealed: observable,
