@@ -31,6 +31,20 @@ class XwdGrid {
     return this;
   }
 
+  revealDiagram() {
+    this.forEachCell(cell => {
+      cell.isBlack = cell.solution.isBlack;
+      cell.number = cell.solution.number;
+      cell.circle = cell.solution.circle;
+    });
+  }
+
+  revealCircles() {
+    this.forEachCell(cell => {
+      cell.circle = cell.solution.circle;
+    });
+  }
+
   onBlackChange = (cell, row, col, change) => {
     if (this.symmetry) {
       const sister = this.getSisterCell(row, col, this.symmetry);

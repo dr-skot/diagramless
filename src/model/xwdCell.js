@@ -17,6 +17,7 @@ class XwdCell {
 
   toggleBlack() {
     this.isBlack = !this.isBlack;
+    this.isMarkedWrong = false;
   }
 
   // Checking and revealing
@@ -52,6 +53,15 @@ class XwdCell {
     }
     this.isVerified = correct;
     this.wasRevealed = !correct;
+  }
+
+  clear(options = {}) {
+    this.setContent("");
+    this.isBlack = false;
+    this.circle = false;
+    this.wasRevealed = false;
+    this.isVerified = false;
+    if (options.numbers) this.number = "";
   }
 
   exposeNumber() {

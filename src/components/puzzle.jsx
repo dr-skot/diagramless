@@ -23,6 +23,7 @@ import {
 } from "../services/common/utils";
 import { decorate, action } from "mobx";
 import _ from "lodash";
+import { HighlightSpanKind } from "typescript";
 
 // TODO: allow only 4 state-changing methods
 // changeCellContent(newValue)
@@ -304,7 +305,7 @@ class Puzzle extends Component {
     if (cell.isVerified) return;
     this.actionTracker.recordAction(CHANGE_BLACK, () => {
       cell.isBlack = !cell.isBlack;
-      cell.isMarkedWrong = false; // TODO handle this elsewhere
+      cell.isMarkedWrong = false; // TODO handle this on model
     });
   }
 
@@ -365,12 +366,7 @@ class Puzzle extends Component {
     }
     if (title === "reveal") {
       if (item === "diagram") {
-        grid.forEachCell(cell => {
-          // basically, everything except content
-          cell.isBlack = cell.solution.isBlack;
-          cell.number = cell.solution.number;
-          cell.circle = cell.solution.circle;
-        });
+        grid.revealDiagram();
       } else if (item === "circles") {
         grid.forEachCell(cell => {
           cell.circle = cell.solution.circle;
@@ -381,12 +377,7 @@ class Puzzle extends Component {
     }
     if (title === "clear") {
       cells.forEach(cell => {
-        cell.setContent("");
-        cell.isBlack = false;
-        cell.circle = false;
-        cell.wasRevealed = false;
-        cell.isVerified = false;
-        if (item.match(/^puzzle/)) cell.number = "";
+        cell.clear({ numbers: item.match(/^puzzle/) });
       });
       if (item === "puzzle & timer") {
         this.clock.reset();
