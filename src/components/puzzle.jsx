@@ -141,7 +141,11 @@ class Puzzle extends Component {
   };
 
   handleDigitKey = event => {
-    if (keyMatch(event, [48, 57]) && !this.puzzle.isSolved) {
+    if (
+      keyMatch(event, [48, 57]) &&
+      !this.puzzle.grid.autonumbering &&
+      !this.puzzle.isSolved
+    ) {
       this.handleDigit(String.fromCharCode(event.keyCode));
       return true;
     }
