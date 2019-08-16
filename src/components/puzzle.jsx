@@ -257,7 +257,7 @@ class Puzzle extends Component {
 
     const cellWasEmpty = cellIsEmpty(grid.cursor);
 
-    this.actionTracker.setContent(a);
+    this.actionTracker.setContent(a.trim());
 
     // advanceCursor(cursorPolicy[cellWasEmpty ? TYPE_IN_EMPTY_CELL : TYPE_IN_FULL_CELL]);
 
@@ -368,9 +368,7 @@ class Puzzle extends Component {
       if (item === "diagram") {
         grid.revealDiagram();
       } else if (item === "circles") {
-        grid.forEachCell(cell => {
-          cell.circle = cell.solution.circle;
-        });
+        grid.revealCircles();
       } else {
         cells.forEach(cell => cell.reveal());
       }
