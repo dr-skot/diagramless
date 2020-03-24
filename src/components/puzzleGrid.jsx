@@ -38,6 +38,7 @@ class PuzzleGrid extends Component {
   }
 
   render() {
+    console.log("render puzzleGrid");
     const grid = this.props.grid;
     if (grid.length === 0) return null;
     return (

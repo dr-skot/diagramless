@@ -25,12 +25,6 @@ import { decorate, action } from "mobx";
 import _ from "lodash";
 import { HighlightSpanKind } from "typescript";
 
-// TODO: allow only 4 state-changing methods
-// changeCellContent(newValue)
-// changeCellNumber(newValue)
-// changeCellIsBlack(newValue)
-// changeCursor(newValue)
-// and record on action stack undoable groups of these, with before and after values
 class Puzzle extends Component {
   state = {
     checkmarks: {}
@@ -184,6 +178,8 @@ class Puzzle extends Component {
     const esc = 27,
       enter = 13,
       key = event.keyCode;
+
+    if (this.wasSolved) return false;
     if (key !== esc && !this.rebus) return false; // not rebus
     if (key !== esc && key !== enter) return true; // still typing rebus
 
