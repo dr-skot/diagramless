@@ -72,7 +72,7 @@ export function getWord(grid, cursor, direction) {
 export function puzzleFromFileData(data) {
   if (!data) return;
   // using file descriptions at
-  // http://acrossdown.net/specification.htmvar puzzle = {}
+  // http://acrossdown.net/specification.htmvar
   // https://code.google.com/archive/p/puz/wikis/FileFormat.wiki
   var decoder = new TextDecoder("ascii"),
     dv = new DataView(data),
@@ -122,7 +122,7 @@ export function puzzleFromFileData(data) {
   // The string is the rebus solution.
   // For example, in a puzzle which had four rebus squares "HEART", "DIAMOND", "CLUB", and "SPADE", the string might be:
   //    " 0:HEART; 1:DIAMOND;17:CLUB;23:SPADE;"
-  if (extras.GRBS) extras.GRBS = new Uint8Array(extras.GEXT);
+  if (extras.GRBS) extras.GRBS = new Uint8Array(extras.GRBS);
   if (extras.GRBS && extras.RTBL) {
     var table = [];
     decoder

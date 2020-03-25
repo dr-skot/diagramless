@@ -73,6 +73,7 @@ class Puzzle extends Component {
   };
 
   setPuzzle(puzzle) {
+    console.log({setPuzzle: puzzle});
     this.puzzle = puzzle;
     this.actionTracker = new PuzzleActionTracker(puzzle);
     Object.assign(this, {
@@ -193,9 +194,15 @@ class Puzzle extends Component {
       this.actionTracker.setContent(
         this.rebusInput.value.replace(/\s/g, "").toUpperCase()
       );
+      //this.handleContentChange();
     }
     this.rebus = !this.rebus;
-    this.setState({ rebus: this.rebus });
+    //this.setState({ rebus: this.rebus });
+
+    // it's a kludge: handleContentChange will also set state with rebus
+    // TODO get rid of this kludge
+    this.handleContentChange();
+
     return true;
   };
 
@@ -333,7 +340,10 @@ class Puzzle extends Component {
       this.clock.stop();
     }
     Object.assign(this, { wasFilled: isFilled, wasSolved: isSolved });
-    this.setState({ showModal });
+    // TODO: clean up this rebus kludge
+    console.log("handleContentChange", {showModal, rebus: this.rebus});
+    this.setState({ showModal, rebus: this.rebus });
+    //this.setState({ showModal });
   };
 
   handleModalClose = reason => {
@@ -447,6 +457,7 @@ class Puzzle extends Component {
   };
 
   render() {
+    console.log('render puzzle', this.state);
     const puzzle = this.puzzle,
       grid = puzzle ? puzzle.grid : null,
       puzzleData = puzzle ? puzzle.data : null;
