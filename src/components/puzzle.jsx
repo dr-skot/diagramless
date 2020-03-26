@@ -60,8 +60,11 @@ class Puzzle extends Component {
 
   setPuzzleFromLocalStorage() {
     const puzzleData = JSON.parse(localStorage.getItem("xword"));
+    const checkmarks = puzzleData.checkmarks;
     this.clock = puzzleData.clock || this.clock;
     this.setPuzzle(XwdPuzzle.deserialize(puzzleData));
+    Object.keys(checkmarks).forEach((menu) => { this.handleMenuSelect(menu, checkmarks[menu]) });
+    this.setState({ checkmarks });
   }
 
   // TODO is clock part of file data?
@@ -92,7 +95,7 @@ class Puzzle extends Component {
 
   saveState = () => {
     if (this.puzzle) {
-      const serialized = { ...this.puzzle.serialize(), clock: this.clock };
+      const serialized = { ...this.puzzle.serialize(), clock: this.clock, checkmarks: this.state.checkmarks };
       localStorage.setItem("xword", JSON.stringify(serialized));
     }
   };
@@ -175,7 +178,6 @@ class Puzzle extends Component {
   };
 
   handleRebus = event => {
-    console.log('handleRebus', event);
     const esc = 27,
       enter = 13,
       key = event.keyCode;
