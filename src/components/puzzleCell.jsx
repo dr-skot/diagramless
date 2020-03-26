@@ -5,6 +5,10 @@ import { observer } from "mobx-react";
 class PuzzleCell extends Component {
   state = {};
 
+   componentDidMount() {
+     this.fitText();
+   }
+
   componentDidUpdate() {
     this.fitText();
   }
