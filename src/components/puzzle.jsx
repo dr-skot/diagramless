@@ -23,7 +23,6 @@ import {
 } from "../services/common/utils";
 import { decorate, action } from "mobx";
 import _ from "lodash";
-import { HighlightSpanKind } from "typescript";
 
 class Puzzle extends Component {
   state = {
@@ -39,7 +38,7 @@ class Puzzle extends Component {
 
   componentDidMount() {
     this.setPuzzleFromLocalStorage();
-    window.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("keyup", this.handleKeyUp);
     window.addEventListener("blur", this.handleBlur);
     window.addEventListener("focus", this.handleFocus);
     window.addEventListener("beforeunload", this.saveState);
@@ -48,7 +47,7 @@ class Puzzle extends Component {
 
   componentWillUnmount() {
     this.saveState();
-    window.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener("keyup", this.handleKeyUp);
     window.removeEventListener("blur", this.handleBlur);
     window.removeEventListener("beforeunload", this.saveState);
     window.removeEventListener("focus", this.handleFocus);
@@ -165,7 +164,7 @@ class Puzzle extends Component {
     this.handlePeriodKey
   ];
 
-  handleKeyDown = event => {
+  handleKeyUp = event => {
     if (event.metaKey) return;
     if (this.state.showModal) return;
     if (this.handleRebus(event)) return;
@@ -176,6 +175,7 @@ class Puzzle extends Component {
   };
 
   handleRebus = event => {
+    console.log('handleRebus', event);
     const esc = 27,
       enter = 13,
       key = event.keyCode;
@@ -191,17 +191,13 @@ class Puzzle extends Component {
       fitTo(this.cursorTd, this.rebusDiv);
     } else {
       // key === enter
+      event.stopImmediatePropagation();
       this.actionTracker.setContent(
         this.rebusInput.value.replace(/\s/g, "").toUpperCase()
       );
-      //this.handleContentChange();
+      this.handleContentChange();
     }
-    this.rebus = !this.rebus;
-    //this.setState({ rebus: this.rebus });
-
-    // it's a kludge: handleContentChange will also set state with rebus
-    // TODO get rid of this kludge
-    this.handleContentChange();
+    this.rebus = !this.rebus;this.setState({ rebus: this.rebus });
 
     return true;
   };
@@ -340,10 +336,7 @@ class Puzzle extends Component {
       this.clock.stop();
     }
     Object.assign(this, { wasFilled: isFilled, wasSolved: isSolved });
-    // TODO: clean up this rebus kludge
-    console.log("handleContentChange", {showModal, rebus: this.rebus});
-    this.setState({ showModal, rebus: this.rebus });
-    //this.setState({ showModal });
+    this.setState({ showModal });
   };
 
   handleModalClose = reason => {
@@ -522,7 +515,7 @@ decorate(Puzzle, {
   handleClueSelect: action,
   handleMenuSelect: action,
   handleContentChange: action,
-  handleKeyDown: action,
+  handleKeyUp: action,
   handleCellClick: action
 });
 observer(Puzzle);
