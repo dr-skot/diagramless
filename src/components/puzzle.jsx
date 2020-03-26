@@ -70,8 +70,10 @@ class Puzzle extends Component {
   // TODO is clock part of file data?
   setPuzzleFromDroppedFile = fileContents => {
     const puzzle = XwdPuzzle.fromFileData(fileContents);
+    const checkmarks = this.state.checkmarks;
     this.clock.reset();
     this.setPuzzle(puzzle);
+    Object.keys(checkmarks).forEach((menu) => { this.handleMenuSelect(menu, checkmarks[menu]) });
   };
 
   setPuzzle(puzzle) {
