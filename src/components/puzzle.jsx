@@ -72,7 +72,7 @@ class Puzzle extends Component {
   setPuzzleFromDroppedFile = fileContents => {
     const puzzle = XwdPuzzle.fromFileData(fileContents);
     const checkmarks = this.state.checkmarks;
-    this.clock.reset();
+    if (this.clock.reset) this.clock.reset();
     this.setPuzzle(puzzle);
     Object.keys(checkmarks).forEach((menu) => { this.handleMenuSelect(menu, checkmarks[menu]) });
   };
@@ -126,7 +126,7 @@ class Puzzle extends Component {
   };
 
   handlePeriodKey = event => {
-    if (keyMatch(event, 190) && !this.puzzle.isSolved) {
+    if (keyMatch(event, 190) && this.puzzle && !this.puzzle.isSolved) {
       this.toggleBlack();
       this.advanceCursor();
       return true;
@@ -136,7 +136,7 @@ class Puzzle extends Component {
   handleAlphaKey = event => {
     if (
       (keyMatch(event, [58, 90]) || keyMatch(event, 32)) &&
-      !this.puzzle.isSolved
+      this.puzzle && !this.puzzle.isSolved
     ) {
       this.handleAlpha(String.fromCharCode(event.keyCode));
       return true;
@@ -147,7 +147,7 @@ class Puzzle extends Component {
     if (
       keyMatch(event, [48, 57]) &&
       !this.puzzle.grid.autonumbering &&
-      !this.puzzle.isSolved
+      this.puzzle && !this.puzzle.isSolved
     ) {
       this.handleDigit(String.fromCharCode(event.keyCode));
       return true;
@@ -155,7 +155,7 @@ class Puzzle extends Component {
   };
 
   handleBackspaceKey = event => {
-    if (keyMatch(event, 8) && !this.puzzle.isSolved) {
+    if (keyMatch(event, 8) && this.puzzle && !this.puzzle.isSolved) {
       this.handleBackspace();
       return true;
     }
@@ -422,7 +422,7 @@ class Puzzle extends Component {
   };
 
   handleBlur = () => {
-    if (!this.puzzle.isSolved) {
+    if (this.puzzle && !this.puzzle.isSolved) {
       this.blurTimeout = setTimeout(this.clock.stop, this.blurInterval);
     }
   };
