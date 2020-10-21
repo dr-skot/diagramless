@@ -38,7 +38,7 @@ class Puzzle extends Component {
 
   componentDidMount() {
     this.setPuzzleFromLocalStorage();
-    window.addEventListener("keyup", this.handleKeyUp);
+    window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("blur", this.handleBlur);
     window.addEventListener("focus", this.handleFocus);
     window.addEventListener("beforeunload", this.saveState);
@@ -47,7 +47,7 @@ class Puzzle extends Component {
 
   componentWillUnmount() {
     this.saveState();
-    window.removeEventListener("keyup", this.handleKeyUp);
+    window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("blur", this.handleBlur);
     window.removeEventListener("beforeunload", this.saveState);
     window.removeEventListener("focus", this.handleFocus);
@@ -169,7 +169,7 @@ class Puzzle extends Component {
     this.handlePeriodKey
   ];
 
-  handleKeyUp = event => {
+  handleKeyDown = event => {
     if (event.metaKey) return;
     if (this.state.showModal) return;
     if (this.handleRebus(event)) return;
@@ -519,7 +519,7 @@ decorate(Puzzle, {
   handleClueSelect: action,
   handleMenuSelect: action,
   handleContentChange: action,
-  handleKeyUp: action,
+  handleKeyDown: action,
   handleCellClick: action
 });
 observer(Puzzle);
