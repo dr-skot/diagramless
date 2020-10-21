@@ -60,7 +60,8 @@ class Puzzle extends Component {
 
   setPuzzleFromLocalStorage() {
     const puzzleData = JSON.parse(localStorage.getItem("xword"));
-    const checkmarks = puzzleData.checkmarks;
+    if (!puzzleData) return;
+    const checkmarks = puzzleData.checkmarks || this.state.checkmarks;
     this.clock = puzzleData.clock || this.clock;
     this.setPuzzle(XwdPuzzle.deserialize(puzzleData));
     Object.keys(checkmarks).forEach((menu) => { this.handleMenuSelect(menu, checkmarks[menu]) });
