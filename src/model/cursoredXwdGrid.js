@@ -17,12 +17,7 @@ console.debug('CursoredXwdGrid loaded');
 class CursoredXwdGrid extends XwdGrid {
   cursor = [0, 0];
   direction = RIGHT; // across
-
-  constructor(...args) {
-    console.debug('CursoredXwdGrid.constructor');
-    super(...args);
-  }
-
+  
   get currentCell() {
     return this.cell(...this.cursor);
   }
