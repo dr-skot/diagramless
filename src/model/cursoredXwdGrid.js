@@ -12,6 +12,8 @@ import {
 } from "../services/xwdService";
 import { mod, includesEqual } from "../services/common/utils";
 
+console.debug('CursoredXwdGrid loaded');
+
 class CursoredXwdGrid extends XwdGrid {
   cursor = [0, 0];
   direction = RIGHT; // across
