@@ -4,14 +4,13 @@ import "./xword.css";
 import "./nyt.css";
 import "./nyt-fonts";
 import "./reactFileDropDemo.css";
-// import Puzzle from "./components/puzzle";
-// import { configure } from "mobx";
+import Puzzle from "./components/puzzle";
+import { configure } from "mobx";
 
-// configure({ enforceActions: "always" });
+configure({ enforceActions: "always" });
 
 function App() {
-  // return <Puzzle />;
-  return <h1>Hi!</h1>;
+  return <Puzzle />;
 }
 
 export default App;
