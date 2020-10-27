@@ -12,10 +12,12 @@ class XwdGrid {
   symmetry = null;
 
   constructor(height, width, data) {
+    console.debug('XwdGrid.constructor');
     this._initialize(height, width, data);
   }
 
   _initialize(height, width, data) {
+    console.debug('XwdGrid._initialize');
     this.grid = _.times(height, () => _.times(width, () => new XwdCell()));
     if (data) this.setData(data);
 
@@ -28,6 +30,7 @@ class XwdGrid {
       );
     });
 
+    console.debug('XwdGrid._initialize: done');
     return this;
   }
 
