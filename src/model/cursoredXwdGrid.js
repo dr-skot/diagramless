@@ -17,7 +17,7 @@ console.debug('CursoredXwdGrid loaded');
 class CursoredXwdGrid extends XwdGrid {
   cursor = [0, 0];
   direction = RIGHT; // across
-  
+
   get currentCell() {
     return this.cell(...this.cursor);
   }
@@ -109,7 +109,7 @@ class CursoredXwdGrid extends XwdGrid {
 }
 
 decorate(CursoredXwdGrid, {
-  constructor: action,
+  // constructor: action,
   cursor: observable,
   direction: observable,
   currentCell: computed,

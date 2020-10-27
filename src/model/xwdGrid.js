@@ -221,6 +221,7 @@ class XwdGrid {
 }
 
 decorate(XwdGrid, {
+  // constructor: action,
   _initialize: action,
   grid: observable
 });
