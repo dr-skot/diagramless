@@ -17,6 +17,7 @@ class CursoredXwdGrid extends XwdGrid {
   direction = RIGHT; // across
 
   constructor(...args) {
+    console.debug('CursoredXwdGrid.constructor');
     super(...args);
   }
 
