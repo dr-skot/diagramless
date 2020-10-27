@@ -16,6 +16,10 @@ class CursoredXwdGrid extends XwdGrid {
   cursor = [0, 0];
   direction = RIGHT; // across
 
+  constructor() {
+    super();
+  }
+
   get currentCell() {
     return this.cell(...this.cursor);
   }
