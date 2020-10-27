@@ -10,7 +10,8 @@ import { configure } from "mobx";
 configure({ enforceActions: "always" });
 
 function App() {
-  return <Puzzle />;
+  // return <Puzzle />;
+  <h1>Hi</h1>
 }
 
 export default App;
