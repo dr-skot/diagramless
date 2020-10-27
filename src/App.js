@@ -11,7 +11,7 @@ import "./reactFileDropDemo.css";
 
 function App() {
   // return <Puzzle />;
-  return <h1>Hi</h1>;
+  return <h1>Hi!</h1>;
 }
 
 export default App;
