@@ -202,7 +202,25 @@ class Puzzle extends Component {
       );
       this.handleContentChange();
     }
-    this.rebus = !this.rebus;this.setState({ rebus: this.rebus });
+    this.rebus = !this.rebus; this.setState({ rebus: this.rebus });
+
+    return true;
+  };
+
+  // TODO consolidate with handleRebus above
+  handleRebusButton = () => {
+    if (this.wasSolved) return false;
+    if (!this.rebus) {
+      this.rebusInput.value = this.puzzle.grid.currentCell.content;
+      // align rebus with current cell & show it
+      fitTo(this.cursorTd, this.rebusDiv);
+    } else {
+      this.actionTracker.setContent(
+        this.rebusInput.value.replace(/\s/g, "").toUpperCase()
+      );
+      this.handleContentChange();
+    }
+    this.rebus = !this.rebus; this.setState({ rebus: this.rebus });
 
     return true;
   };
@@ -365,6 +383,9 @@ class Puzzle extends Component {
         // TODO support incomplete
       }[item],
       cells = cellFinder ? cellFinder() : [];
+    if (title === "rebus") {
+      this.handleRebusButton();
+    }
     if (title === "check") {
       cells.forEach(cell => cell.check());
     }
@@ -445,8 +466,8 @@ class Puzzle extends Component {
       console.log("No file found");
     } else {
       const reader = new FileReader();
-      reader.onabort = () => console.log("File reading was aborted");
-      reader.onerror = () => console.log("File reading has failed");
+      reader.onabort = () => console.error("File reading was aborted");
+      reader.onerror = () => console.error("File reading has failed");
       reader.onload = () => {
         this.setPuzzleFromDroppedFile(reader.result);
       };

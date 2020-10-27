@@ -17,7 +17,7 @@ class PuzzleToolbar extends Component {
   };
 
   handleDropMenuSelect = (title, item) => {
-    console.log("menu item selected:", title, item);
+    console.debug("menu item selected:", title, item);
     this.props.onMenuSelect(title, item);
   };
 
@@ -26,16 +26,16 @@ class PuzzleToolbar extends Component {
       <div className="Toolbar-wrapper--1S7nZ toolbar-wrapper">
         <ul className="Toolbar-tools--2qUqg">
           <li className="Tool-button--39W4J Tool-tool--Fiz94">
-            <button>
+            { /* <button>
               <i className="Icon-settings-gear--18j4O Icon-icon--1RAWC" />
-            </button>
+            </button> */ }
           </li>
           <PuzzleClock
             clock={this.props.clock}
             onClockPause={this.props.onClockPause}
           />
           <li className="Tool-button--39W4J Tool-tool--Fiz94 Tool-texty--2w4Br">
-            <button>rebus</button>
+            <button onClick={() => this.handleDropMenuSelect('rebus', '')}>rebus</button>
           </li>
           <div className="Toolbar-expandedMenu--2s4M4">
             {Object.entries(this.menu).map(([title, items]) => (
