@@ -30,7 +30,8 @@ class Puzzle extends Component {
   };
   clock = {
     time: 0,
-    isRunning: true
+    isRunning: true,
+    disabled: false,
   };
   blurInterval = 6000;
   wasFilled = false;
@@ -85,9 +86,14 @@ class Puzzle extends Component {
       wasFilled: puzzle.isFilled,
       wasSolved: puzzle.isSolved
     });
-    // TODO eliminate this redudancy
-    this.clock.isRunning = !puzzle.isSolved;
-    if (this.clock.isRunning && this.clock.start) this.clock.start();
+    // TODO rewrite clock component to simplify this if...then business
+    if (puzzle.isSolved) {
+      if (this.clock.stop) this.clock.stop(true);
+      else { this.clock.isRunning = false; this.clock.disabled = true; }
+    } else {
+      if (this.clock.start) this.clock.start();
+      else { this.clock.isRunning = true; this.clock.disabled = false; }
+    }
     this.setState({ puzzle });
   }
 
@@ -356,7 +362,7 @@ class Puzzle extends Component {
         cell.exposeNumber();
         cell.circle = cell.solution.circle;
       });
-      this.clock.stop();
+      this.clock.stop(true);
     }
     Object.assign(this, { wasFilled: isFilled, wasSolved: isSolved });
     this.setState({ showModal });
@@ -405,6 +411,7 @@ class Puzzle extends Component {
       if (item === "puzzle & timer") {
         this.clock.reset();
       }
+      this.clock.start();
     }
     if (title === "symmetry") {
       const symmetryType = {
@@ -529,7 +536,7 @@ class Puzzle extends Component {
         onDrop={this.handleDrop}
         onDragOver={e => e.preventDefault()}
       >
-        Drop a puzzle file here!
+        Drop a puzzle file here
       </div>
     );
 

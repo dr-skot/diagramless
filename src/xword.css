@@ -425,3 +425,14 @@ div.circle {
 .display-none {
   visibility: hidden;
 }
+
+/* TODO this should be relative to container, not viewport */
+.no-puzzle {
+  width: 90vw;
+  margin: 5vh 5vw;
+  height: 90vh;
+  padding-top: 42vh;
+  border: 1px dashed black;
+  text-align: center;
+  font-family: Arial;
+}

@@ -25,15 +25,17 @@ class PuzzleClock extends Component {
     const clock = this.props.clock;
     clock.startTime = Date.now() - clock.time;
     clock.isRunning = true;
+    clock.disabled = false;
     this.setState(clock);
     this.timer = setInterval(this.tick, 1000);
   };
 
-  stopTimer = () => {
+  stopTimer = (disable = true) => {
     clearInterval(this.timer);
     const clock = this.props.clock;
     clock.time = Date.now() - clock.startTime;
     clock.isRunning = false;
+    clock.disabled = disable;
     this.setState(clock);
     this.props.onClockPause(clock);
   };
@@ -65,10 +67,11 @@ class PuzzleClock extends Component {
     return [hrs, ...[mins, secs].map(nn)].join(":");
   };
 
+
   render() {
     return (
       <li className="Timer-button--Jg5pv Tool-tool--Fiz94">
-        <button onClick={this.toggleTimer}>
+        <button onClick={this.toggleTimer} disabled={this.state.disabled}>
           <div className="timer-count">{this.clockString(this.state.time)}</div>
           {this.state.isRunning ? (
             <i className="Icon-pause--1dqCf Icon-icon--1RAWC" />

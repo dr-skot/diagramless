@@ -41,7 +41,8 @@ class PuzzleCell extends Component {
       cursor: cursor.cell,
       focus: cursor.word,
       related: cursor.related,
-      shadow: cursor.shadow
+      shadow: cursor.shadow,
+      noselect: true,
     };
     return keysWithTrueValues(classes).join(" ");
   }
