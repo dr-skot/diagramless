@@ -32,7 +32,7 @@ class PuzzleToolbar extends Component {
           </li>
           <PuzzleClock
             clock={this.props.clock}
-            onClockPause={this.props.onClockPause}
+            disabled={this.props.puzzleIsSolved}
           />
           <li className="Tool-button--39W4J Tool-tool--Fiz94 Tool-texty--2w4Br">
             <button onClick={() => this.handleDropMenuSelect('rebus', '')}>rebus</button>

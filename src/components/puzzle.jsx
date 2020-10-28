@@ -23,16 +23,13 @@ import {
 } from "../services/common/utils";
 import { decorate, action } from "mobx";
 import _ from "lodash";
+import Clock from "../model/clock";
 
 class Puzzle extends Component {
   state = {
     checkmarks: {}
   };
-  clock = {
-    time: 0,
-    isRunning: true,
-    disabled: false,
-  };
+  clock = new Clock();
   blurInterval = 6000;
   wasFilled = false;
   wasSolved = false;
@@ -63,7 +60,8 @@ class Puzzle extends Component {
     const puzzleData = JSON.parse(localStorage.getItem("xword"));
     if (!puzzleData) return;
     const checkmarks = puzzleData.checkmarks || this.state.checkmarks;
-    this.clock = puzzleData.clock || this.clock;
+    console.log('puzzleData', puzzleData);
+    this.clock.setTime(puzzleData.clock || 0);
     this.setPuzzle(XwdPuzzle.deserialize(puzzleData));
     Object.keys(checkmarks).forEach((menu) => { this.handleMenuSelect(menu, checkmarks[menu]) });
     this.setState({ checkmarks });
@@ -73,7 +71,7 @@ class Puzzle extends Component {
   setPuzzleFromDroppedFile = fileContents => {
     const puzzle = XwdPuzzle.fromFileData(fileContents);
     const checkmarks = this.state.checkmarks;
-    if (this.clock.reset) this.clock.reset();
+    this.clock.reset();
     this.setPuzzle(puzzle);
     Object.keys(checkmarks).forEach((menu) => { this.handleMenuSelect(menu, checkmarks[menu]) });
   };
@@ -86,14 +84,7 @@ class Puzzle extends Component {
       wasFilled: puzzle.isFilled,
       wasSolved: puzzle.isSolved
     });
-    // TODO rewrite clock component to simplify this if...then business
-    if (puzzle.isSolved) {
-      if (this.clock.stop) this.clock.stop(true);
-      else { this.clock.isRunning = false; this.clock.disabled = true; }
-    } else {
-      if (this.clock.start) this.clock.start();
-      else { this.clock.isRunning = true; this.clock.disabled = false; }
-    }
+    (puzzle.isSolved ? this.clock.stop : this.clock.start)();
     this.setState({ puzzle });
   }
 
@@ -104,7 +95,7 @@ class Puzzle extends Component {
 
   saveState = () => {
     if (this.puzzle) {
-      const serialized = { ...this.puzzle.serialize(), clock: this.clock, checkmarks: this.state.checkmarks };
+      const serialized = { ...this.puzzle.serialize(), clock: this.clock.getTime(), checkmarks: this.state.checkmarks };
       localStorage.setItem("xword", JSON.stringify(serialized));
     }
   };
@@ -362,7 +353,7 @@ class Puzzle extends Component {
         cell.exposeNumber();
         cell.circle = cell.solution.circle;
       });
-      this.clock.stop(true);
+      this.clock.stop();
     }
     Object.assign(this, { wasFilled: isFilled, wasSolved: isSolved });
     this.setState({ showModal });
@@ -405,6 +396,7 @@ class Puzzle extends Component {
       }
     }
     if (title === "clear") {
+      if (cells.length < 1) return;
       cells.forEach(cell => {
         cell.clear({ numbers: item.match(/^puzzle/) });
       });
@@ -500,7 +492,7 @@ class Puzzle extends Component {
           <PuzzleHeader title={puzzleData.title} author={puzzleData.author} />
           <PuzzleToolbar
             clock={this.clock}
-            onClockPause={this.handleClockPause}
+            puzzleIsSolved={puzzle.isSolved}
             onMenuSelect={this.handleMenuSelect}
             checkmarks={this.state.checkmarks}
           />
