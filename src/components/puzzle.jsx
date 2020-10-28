@@ -60,7 +60,6 @@ class Puzzle extends Component {
     const puzzleData = JSON.parse(localStorage.getItem("xword"));
     if (!puzzleData) return;
     const checkmarks = puzzleData.checkmarks || this.state.checkmarks;
-    console.log('puzzleData', puzzleData);
     this.clock.setTime(puzzleData.clock || 0);
     this.setPuzzle(XwdPuzzle.deserialize(puzzleData));
     Object.keys(checkmarks).forEach((menu) => { this.handleMenuSelect(menu, checkmarks[menu]) });
@@ -77,7 +76,6 @@ class Puzzle extends Component {
   };
 
   setPuzzle(puzzle) {
-    console.log({setPuzzle: puzzle});
     this.puzzle = puzzle;
     this.actionTracker = new PuzzleActionTracker(puzzle);
     Object.assign(this, {
@@ -169,8 +167,8 @@ class Puzzle extends Component {
 
   handleKeyDown = event => {
     if (event.metaKey) return;
-    if (this.state.showModal) return;
     if (this.handleRebus(event)) return;
+    if (this.state.showModal) return;
 
     this.keyHandlers.forEach(handler => {
       if (handler(event)) event.preventDefault();
@@ -187,17 +185,22 @@ class Puzzle extends Component {
     if (key !== esc && key !== enter) return true; // still typing rebus
 
     // otherwise, start (esc), cancel (esc), or set rebus (enter)
+    event.preventDefault();
     if (key === esc) {
       this.rebusInput.value = this.puzzle.grid.currentCell.content;
       // align rebus with current cell & show it
       fitTo(this.cursorTd, this.rebusDiv);
     } else {
       // key === enter
-      event.stopImmediatePropagation();
       this.actionTracker.setContent(
         this.rebusInput.value.replace(/\s/g, "").toUpperCase()
       );
-      this.handleContentChange();
+      // prevent the next keyup event from closing the modal
+      // window.addEventListener('keyup', (e) => {
+      //   e.preventDefault(); e.stopImmediatePropagation();
+      // }, { once: true });
+      // I wish the above worked; it doesn't, so just wait 1/10 of a second and hope the keyup happens in that time
+      setTimeout(this.handleContentChange, 100);
     }
     this.rebus = !this.rebus; this.setState({ rebus: this.rebus });
 
@@ -452,7 +455,6 @@ class Puzzle extends Component {
   };
 
   handleDrop = event => {
-    console.log("handleDrop");
     event.preventDefault();
     const transfer = event.dataTransfer,
       file = transfer.items
@@ -462,7 +464,7 @@ class Puzzle extends Component {
         : transfer.files[0];
 
     if (!file) {
-      console.log("No file found");
+      console.error("No file found");
     } else {
       const reader = new FileReader();
       reader.onabort = () => console.error("File reading was aborted");
