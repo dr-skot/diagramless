@@ -195,12 +195,12 @@ class Puzzle extends Component {
       this.actionTracker.setContent(
         this.rebusInput.value.replace(/\s/g, "").toUpperCase()
       );
-      // prevent the next keyup event from closing the modal
-      // window.addEventListener('keyup', (e) => {
-      //   e.preventDefault(); e.stopImmediatePropagation();
-      // }, { once: true });
-      // I wish the above worked; it doesn't, so just wait 1/10 of a second and hope the keyup happens in that time
-      setTimeout(this.handleContentChange, 100);
+      // use the keyup event to launch the modal, so that it doesn't close the modal
+      window.addEventListener('keyup', (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        this.handleContentChange();
+      }, { once: true });
     }
     this.rebus = !this.rebus; this.setState({ rebus: this.rebus });
 
