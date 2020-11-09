@@ -24,7 +24,7 @@ import {
 import { decorate, action } from "mobx";
 import _ from "lodash";
 import Clock from "../model/clock";
-import DEFAULT_PUZZLE_DATA from "../model/defaultPuzzle";
+import { DEFAULT_PUZZLE_DATA } from "../model/defaultPuzzle";
 
 class Puzzle extends Component {
   state = {
