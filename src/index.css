@@ -18,6 +18,19 @@ code {
   -khtml-user-select: none; /* Konqueror HTML */
   -moz-user-select: none; /* Old versions of Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Edge, Opera and Firefox */
+  user-select: none; /* Chrome, Edge, Opera and Firefox */
+}
+
+.buttons-roundedRectangle {
+  background-color: #fff;
+  border: 1px solid #dcdcdc;
+  border-radius: 3px;
+  color: #2860d8;
+  height: 32px;
+  outline: none;
+  margin-top: 1em;
+  padding: 2px 15px 2px 15px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-size: smaller;
 }

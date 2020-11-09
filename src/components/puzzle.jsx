@@ -24,6 +24,7 @@ import {
 import { decorate, action } from "mobx";
 import _ from "lodash";
 import Clock from "../model/clock";
+import DEFAULT_PUZZLE_DATA from "../model/defaultPuzzle";
 
 class Puzzle extends Component {
   state = {
@@ -57,8 +58,7 @@ class Puzzle extends Component {
   }
 
   setPuzzleFromLocalStorage() {
-    const puzzleData = JSON.parse(localStorage.getItem("xword"));
-    if (!puzzleData) return;
+    const puzzleData = JSON.parse(localStorage.getItem("xword")) || DEFAULT_PUZZLE_DATA;
     const checkmarks = puzzleData.checkmarks || this.state.checkmarks;
     this.clock.setTime(puzzleData.clock || 0);
     this.setPuzzle(XwdPuzzle.deserialize(puzzleData));
@@ -530,7 +530,8 @@ class Puzzle extends Component {
         onDrop={this.handleDrop}
         onDragOver={e => e.preventDefault()}
       >
-        Drop a puzzle file here
+        <p>Drop a puzzle file here</p>
+        <button className="buttons-roundedRectangle">show me how</button>
       </div>
     );
 
