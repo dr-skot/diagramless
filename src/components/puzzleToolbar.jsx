@@ -26,9 +26,9 @@ class PuzzleToolbar extends Component {
       <div className="Toolbar-wrapper--1S7nZ toolbar-wrapper">
         <ul className="Toolbar-tools--2qUqg">
           <li className="Tool-button--39W4J Tool-tool--Fiz94">
-            { /* <button>
-              <i className="Icon-settings-gear--18j4O Icon-icon--1RAWC" />
-            </button> */ }
+            <button onClick={() => this.handleDropMenuSelect('print')}>
+              Print
+            </button>
           </li>
           <PuzzleClock
             clock={this.props.clock}

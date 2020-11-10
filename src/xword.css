@@ -2,7 +2,7 @@
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   font-size: 11px;
 }
 
@@ -106,7 +106,7 @@ table {
   outline: none;
 }
 .grid td {
-  font-family: franklin;
+  font-family: franklin, sans-serif;
   font-size: 26px;
   position: relative;
   width: 36px;
@@ -435,4 +435,13 @@ div.circle {
   border: 1px dashed black;
   text-align: center;
   font-family: Arial;
+}
+
+@media print {
+  .cluebar, .toolbar-wrapper, .layout-clue-lists {
+    display: none;
+  }
+  .puzzle-board {
+    display: none;
+  }
 }

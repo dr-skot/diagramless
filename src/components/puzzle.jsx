@@ -25,6 +25,7 @@ import { decorate, action } from "mobx";
 import _ from "lodash";
 import Clock from "../model/clock";
 import { DEFAULT_PUZZLE_DATA } from "../model/defaultPuzzle";
+import {puzdata_to_pdf} from "../services/puzzlePdf";
 
 class Puzzle extends Component {
   state = {
@@ -225,6 +226,11 @@ class Puzzle extends Component {
     return true;
   };
 
+  print() {
+    const puzzleData = JSON.parse(localStorage.getItem("xword")) || DEFAULT_PUZZLE_DATA;
+    puzdata_to_pdf(puzzleData);
+  }
+
   advanceCursor() {
     this.moveCursor(...this.puzzle.grid.direction);
   }
@@ -383,6 +389,9 @@ class Puzzle extends Component {
         // TODO support incomplete
       }[item],
       cells = cellFinder ? cellFinder() : [];
+    if (title === "print") {
+      this.print();
+    }
     if (title === "rebus") {
       this.handleRebusButton();
     }
@@ -531,7 +540,6 @@ class Puzzle extends Component {
         onDragOver={e => e.preventDefault()}
       >
         <p>Drop a puzzle file here</p>
-        <button className="buttons-roundedRectangle">show me how</button>
       </div>
     );
 
