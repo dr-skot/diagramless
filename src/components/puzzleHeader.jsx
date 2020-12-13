@@ -6,9 +6,9 @@ const PuzzleHeader = props => {
   // TODO handle other title formats than NY Times
   // do this munging on model so not rerendering every time
   const { title, author } = props,
-    [maker, editor] = author.split(" / ").map(name => name.toUpperCase()),
-    titlePieces = title.match(/NY Times, (\w+, \w+ \d+, \d+)(.*)/),
-    date = new Date(titlePieces[1]),
+    [maker, editor] = author?.split(" / ")?.map(name => name.toUpperCase()) || [],
+    titlePieces = title?.match(/NY Times, (\w+, \w+ \d+, \d+)(.*)/) || [],
+    date = titlePieces[1] ? new Date(titlePieces[1]) : new Date(),
     dayOfWeek = date.toLocaleDateString("en-US", { weekday: "long" }),
     monthDayYear = date.toLocaleDateString("en-US", {
       month: "long",
