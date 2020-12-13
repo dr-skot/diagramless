@@ -112,3 +112,13 @@ export function keyMatch(event, keyCodes, modifiers = []) {
     (!event.altKey || modifiers.indexOf(altKey) > -1)
   );
 }
+
+// don't break on parse errors
+export const tryToParse = (json, ifError) => {
+  try {
+    return JSON.parse(json);
+  } catch (e) {
+    console.error('couldn’t parse', json, e);
+    return ifError;
+  }
+};

@@ -19,7 +19,7 @@ import {
   wrapFindIndex,
   fitTo,
   keyMatch,
-  altKey
+  altKey, tryToParse
 } from "../services/common/utils";
 import { decorate, action } from "mobx";
 import _ from "lodash";
@@ -59,12 +59,22 @@ class Puzzle extends Component {
   }
 
   setPuzzleFromLocalStorage() {
-    const puzzleData = JSON.parse(localStorage.getItem("xword")) || DEFAULT_PUZZLE_DATA;
+    try {
+      this.setPuzzleFromData(JSON.parse(localStorage.getItem('xword')) || DEFAULT_PUZZLE_DATA);
+    } catch (e) {
+      console.error('Error parsing local storage data for key "xword"');
+      this.setPuzzleFromData(DEFAULT_PUZZLE_DATA);
+    }
+  }
+
+  setPuzzleFromData(puzzleData) {
     const checkmarks = puzzleData.checkmarks || this.state.checkmarks;
     this.clock.setTime(puzzleData.clock || 0);
     this.setPuzzle(XwdPuzzle.deserialize(puzzleData));
-    Object.keys(checkmarks).forEach((menu) => { this.handleMenuSelect(menu, checkmarks[menu]) });
-    this.setState({ checkmarks });
+    Object.keys(checkmarks).forEach((menu) => {
+      this.handleMenuSelect(menu, checkmarks[menu])
+    });
+    this.setState({checkmarks});
   }
 
   // TODO is clock part of file data?
