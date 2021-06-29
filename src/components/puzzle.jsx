@@ -19,7 +19,7 @@ import {
   wrapFindIndex,
   fitTo,
   keyMatch,
-  altKey, tryToParse
+  altKey,
 } from "../services/common/utils";
 import { decorate, action } from "mobx";
 import _ from "lodash";
@@ -43,6 +43,7 @@ class Puzzle extends Component {
     window.addEventListener("focus", this.handleFocus);
     window.addEventListener("beforeunload", this.saveState);
     document.addEventListener("mousedown", this.disableDoubleClick);
+    this.clock.on('stop', this.handleClockPause);
   }
 
   componentWillUnmount() {
@@ -52,6 +53,7 @@ class Puzzle extends Component {
     window.removeEventListener("beforeunload", this.saveState);
     window.removeEventListener("focus", this.handleFocus);
     document.removeEventListener("mousedown", this.disableDoubleClick);
+    this.clock.off('stop', this.handleClockPause);
   }
 
   componentDidUpdate() {

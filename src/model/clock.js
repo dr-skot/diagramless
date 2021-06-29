@@ -33,6 +33,7 @@ class Clock extends EventEmitter {
     if (!this.isRunning) return;
     this.pauseStarted = Date.now();
     this.isRunning = false;
+    console.debug('emitting stop');
     this.emit('stop');
   }
 
