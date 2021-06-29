@@ -14,17 +14,13 @@ class XwdPuzzle {
   };
 
   constructor(data) {
-    console.debug('new XwdPuzzle');
     this._initialize(data);
   }
 
   // TODO read clues from data so they can be more easily accessed by number/direction
   _initialize(data) {
-    console.debug('XwdPuzzle._initialize');
     this.data = data;
-    console.debug('new CursoredXwdGrid');
     this.grid = new CursoredXwdGrid(data.height, data.width);
-    console.debug('new CursoredXwdGrid: done');
     this.grid.forEachCell((cell, { pos }) => {
       const answer = data.solution[pos];
       cell.solution = {
@@ -39,6 +35,13 @@ class XwdPuzzle {
     }
     if (data.clock) {
       this.clock = data.clock;
+    }
+    if (data.cursor) {
+      console.log('got cursor:', data.cursor);
+      this.grid.setCursor(data.cursor[0], data.cursor[1]);
+    }
+    if (data.direction) {
+      this.grid.direction = data.direction;
     }
   }
 
@@ -81,6 +84,8 @@ class XwdPuzzle {
   serialize() {
     this.data.user = this.grid.serialize();
     this.data.clock = this.clock;
+    this.data.cursor = this.grid.cursor;
+    this.data.direction = this.grid.direction;
     return this.data;
   }
 
