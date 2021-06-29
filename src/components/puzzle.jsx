@@ -32,7 +32,7 @@ class Puzzle extends Component {
     checkmarks: {}
   };
   clock = new Clock();
-  blurInterval = 6000;
+  blurInterval = 600000;
   wasFilled = false;
   wasSolved = false;
 
