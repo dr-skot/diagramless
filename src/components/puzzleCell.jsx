@@ -4,6 +4,7 @@ import { observer } from "mobx-react";
 
 function getClasses(cell, cursor) {
   const classes = {
+    'puzzle-cell': true,
     black: cell.isBlack,
     wrong: cell.isMarkedWrong,
     revealed: cell.wasRevealed,
@@ -49,7 +50,7 @@ export default function PuzzleCell({ width, cell, cursor, cursorRef, onClick }) 
 
   const { content, number, isBlack, circle } = cell;
   return (
-    <td
+    <div
       className={getClasses(cell, cursor)}
       onClick={onClick}
       style={getStyle(width)}
@@ -60,7 +61,7 @@ export default function PuzzleCell({ width, cell, cursor, cursorRef, onClick }) 
       </div>
       <div className="label">{isBlack ? "" : number}</div>
       {circle ? <div className="circle" /> : ""}
-    </td>
+    </div>
   );
 }
 
