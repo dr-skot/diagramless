@@ -4,7 +4,7 @@ import { observer } from "mobx-react";
 import PuzzleCell from "./puzzleCell";
 
 function cellFoundInList(row, col, list) {
-  return list?.find(([i, j]) => i === row && j === col);
+  return list && list.some(([i, j]) => i === row && j === col);
 }
 
 function getCell(grid, row, col) {
@@ -27,7 +27,7 @@ export default function PuzzleGrid({ grid, cellWidth, cursorRef, relatedCells, o
     });
 
   return (
-      <div className="grid2" style={{
+      <div className="grid" style={{
         width: `${cellWidth * grid.width + 1}px`,
         gridTemplateColumns: `repeat(${grid.width}, ${cellWidth - 1}px)`,
         gridTemplateRows: `repeat(${grid.height}, ${cellWidth - 1}px)`,

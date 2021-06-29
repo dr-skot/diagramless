@@ -103,7 +103,7 @@ table {
   border-collapse: collapse;
 }
 
-.grid2 {
+.grid {
   display: grid;
   grid-gap: 1px;
   background: #666;

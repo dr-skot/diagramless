@@ -271,6 +271,7 @@ class Puzzle extends Component {
     } else {
       this.moveCursor(i, j); // to record action
     }
+    this.forceUpdate();
   }
 
   isEditingNumber() {
