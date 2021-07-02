@@ -155,6 +155,8 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
  */
 
   useEffect(() => {
+    let isEditingNumber = false;
+
     const handleArrowKey = (event: KeyboardEvent) => {
       const vector = arrowVectors[event.key];
       if (!vector) return false;
@@ -180,10 +182,9 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
 
     const handleBackspaceKey = (event: KeyboardEvent) => {
       if (event.key !== 'Backspace') return false;
-      const isEditingNumber = () => false;
       setPuzzle((prev) => {
         const cell = currentCell(prev);
-        if (isEditingNumber()) {
+        if (isEditingNumber) {
           return cell.number
             ? changeCurrentCell((c) => ({ ...c, number: c.number.slice(0, -1) }))(prev)
             : prev;
@@ -230,19 +231,44 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
       return true;
     };
 
+    const handleDigitKey = (event: KeyboardEvent) => {
+      if (!event.key.match(/^\d$/)) return false;
+
+      function editNumber(number: string, digit: string, wasEditing: boolean) {
+        const newNumber = (wasEditing ? number : '') + digit;
+        return newNumber === '0' ? '' : newNumber;
+      }
+
+      setPuzzle((prev) => {
+        const cell = currentCell(prev);
+        if (prev.isAutonumbered || cell.isLocked) return prev;
+        else {
+          const newPuzzle = changeCurrentCell((c) => ({
+            ...c,
+            isBlack: false,
+            number: editNumber(c.number, event.key, isEditingNumber),
+          }))(prev);
+          isEditingNumber = true;
+          return newPuzzle;
+        }
+      });
+      return true;
+    };
+
     const keyHandlers = [
       handleArrowKey,
       handleTabKey,
       handleBackspaceKey,
       handleAlphaKey,
       handlePeriodKey,
-      //handleDigitKey,
+      handleDigitKey,
     ];
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.metaKey) return;
       //if (this.handleRebus(event)) return;
       //if (this.state.showModal) return;
+      if (!(event.key === 'Backspace' || event.key.match(/^\d$/))) isEditingNumber = false;
 
       keyHandlers.forEach((handler) => {
         if (handler(event)) event.preventDefault();
