@@ -1,16 +1,15 @@
-import React, { Component } from "react";
-import { observer } from "mobx-react";
+import React, { Component } from 'react';
 
 class DropMenu extends Component {
   state = { showing: false };
 
   show = () => {
-    document.addEventListener("click", this.hide);
+    document.addEventListener('click', this.hide);
     this.setState({ showing: true });
   };
 
   hide = () => {
-    document.removeEventListener("click", this.hide);
+    document.removeEventListener('click', this.hide);
     this.setState({ showing: false });
   };
 
@@ -18,11 +17,10 @@ class DropMenu extends Component {
     (this.state.showing ? this.hide : this.show)();
   };
 
-  getClasses = label => {
+  getClasses = (label) => {
     const checkmarks = this.props.checkmarks || [];
     return (
-      "HelpMenu-item--1xl0_" +
-      (checkmarks.indexOf(label) > -1 ? " HelpMenu-checked--38XRQ" : "")
+      'HelpMenu-item--1xl0_' + (checkmarks.indexOf(label) > -1 ? ' HelpMenu-checked--38XRQ' : '')
     );
   };
 
@@ -34,19 +32,15 @@ class DropMenu extends Component {
         <button onClick={this.showHide}>{title}</button>
         <ul
           className="HelpMenu-menu--1Z_OA"
-          style={{ visibility: showing ? "visible" : "hidden" }} // TODO do it with className
+          style={{ visibility: showing ? 'visible' : 'hidden' }} // TODO do it with className
         >
-          {items.map(label => (
+          {items.map((label) => (
             <li
-              key={["drop-menu", title, label].join(" ")}
+              key={['drop-menu', title, label].join(' ')}
               className={this.getClasses(label)}
-              style={{ display: "list-item", textTransform: "capitalize" }} // TODO move this to css
+              style={{ display: 'list-item', textTransform: 'capitalize' }} // TODO move this to css
             >
-              <button
-                onClick={event => this.props.onSelect(title, label, event)}
-              >
-                {label}
-              </button>
+              <button onClick={(event) => this.props.onSelect(title, label, event)}>{label}</button>
             </li>
           ))}
         </ul>
@@ -54,7 +48,5 @@ class DropMenu extends Component {
     );
   }
 }
-
-observer(DropMenu);
 
 export default DropMenu;

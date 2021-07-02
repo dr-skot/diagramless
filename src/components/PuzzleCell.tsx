@@ -1,6 +1,5 @@
 import React, { useState, useEffect, LegacyRef } from 'react';
 import { keysWithTrueValues } from '../services/common/utils';
-import { observer } from 'mobx-react';
 import { isCorrect, XwdCell } from '../model/cell';
 import { XwdCellCallback } from '../model/grid';
 
@@ -84,5 +83,3 @@ export default function PuzzleCell({ width, cell, cursor, cursorRef, onClick }: 
     </div>
   );
 }
-
-observer(PuzzleCell);
