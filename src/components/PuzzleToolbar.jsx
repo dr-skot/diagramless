@@ -56,7 +56,7 @@ const handleMenuSelect = (title, item, puzzle, clock) => {
   }
 };
 
-export default function PuzzleToolbar({ clock, puzzle, onChange }) {
+export default function PuzzleToolbar({ clock, puzzle, setPuzzle }) {
   const checkmarks = {
     symmetry: puzzle.grid.symmetry,
     number: puzzle.grid.autonumbering ? 'continuously' : null,
@@ -76,7 +76,7 @@ export default function PuzzleToolbar({ clock, puzzle, onChange }) {
   function onMenuSelect(title, item) {
     console.log('handle menu select');
     handleMenuSelect(title, item, puzzle, clock);
-    onChange(puzzle);
+    // onChange(puzzle);
   }
 
   return (

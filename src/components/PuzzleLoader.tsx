@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Puzzle from './Puzzle';
 import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
 import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
@@ -30,10 +30,7 @@ const handleDrop = (callback: (buf: ArrayBuffer) => void) => (event: any) => {
 export default function PuzzleLoader() {
   const [puzzle, setPuzzle] = useState<XwdPuzzle>(loadPuzzle());
 
-  const handleChange = useCallback((puz) => {
-    setPuzzle(puz);
-    storePuzzle(puz);
-  }, []);
+  useEffect(() => storePuzzle(puzzle), [puzzle]);
 
   const onDrop = handleDrop((contents) => {
     const newPuzzle = puzzleFromFile(contents);
@@ -41,8 +38,8 @@ export default function PuzzleLoader() {
     // preserve settings
     newPuzzle.isAutonumbered = puzzle.isAutonumbered;
     newPuzzle.symmetry = puzzle.symmetry;
-    handleChange(newPuzzle);
+    setPuzzle(newPuzzle);
   });
 
-  return <Puzzle puzzle={puzzle} onDrop={onDrop} onChange={handleChange} />;
+  return <Puzzle puzzle={puzzle} setPuzzle={setPuzzle} onDrop={onDrop} />;
 }

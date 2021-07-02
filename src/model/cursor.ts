@@ -11,7 +11,8 @@ export interface XwdCursor {
   direction: XwdDirection;
 }
 
-export const perp = (direction: XwdDirection) => (direction === 'across' ? 'down' : 'across');
+export const perp = (direction: XwdDirection): XwdDirection =>
+  direction === 'across' ? 'down' : 'across';
 
 export const currentCell = (puzzle: XwdPuzzle) => puzzle.grid[puzzle.cursor.row][puzzle.cursor.col];
 

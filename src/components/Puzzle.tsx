@@ -1,4 +1,11 @@
-import React, { useState, useEffect, DragEventHandler, LegacyRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  DragEventHandler,
+  LegacyRef,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import PuzzleHeader from './PuzzleHeader';
 import ClueBarAndBoard from './ClueBarAndBoard';
 import ClueLists from './ClueLists';
@@ -7,20 +14,21 @@ import PuzzleToolbar from './PuzzleToolbar';
 import Clock from '../model/clock';
 import { gridIsSolved, XwdCellCallback } from '../model/grid';
 import { XwdPuzzle } from '../model/puzzle';
+import PuzzleKeys from './PuzzleKeys';
 
 const noOp = () => {};
 
 interface PuzzleProps {
   puzzle: XwdPuzzle;
+  setPuzzle: Dispatch<SetStateAction<XwdPuzzle>>;
   onDrop: DragEventHandler;
-  onChange: (puzzle: XwdPuzzle) => void;
 }
 
-export default function Puzzle({ puzzle, onDrop, onChange }: PuzzleProps) {
+export default function Puzzle({ puzzle, setPuzzle, onDrop }: PuzzleProps) {
   const [clock] = useState(new Clock());
   const [showModal, setShowModal] = useState('');
 
-  console.log('render puzzle', puzzle);
+  console.log('render puzzle');
 
   // reset clock when puzzle changes
   useEffect(() => {
@@ -42,9 +50,11 @@ export default function Puzzle({ puzzle, onDrop, onChange }: PuzzleProps) {
 
   return (
     <>
+      <PuzzleKeys setPuzzle={setPuzzle} />
       <div className={showModal === PAUSED ? 'app-obscured--26XpG' : ''}>
         <PuzzleView
           puzzle={puzzle}
+          setPuzzle={setPuzzle}
           clock={clock}
           cursorRef={noOp}
           rebus={false}
@@ -54,7 +64,6 @@ export default function Puzzle({ puzzle, onDrop, onChange }: PuzzleProps) {
           onCellClick={noOp}
           onClueSelect={noOp}
           onDrop={onDrop}
-          onChange={onChange}
         />
       </div>
       <PuzzleModal
@@ -70,6 +79,7 @@ export default function Puzzle({ puzzle, onDrop, onChange }: PuzzleProps) {
 
 interface PuzzleViewProps {
   puzzle: XwdPuzzle;
+  setPuzzle: Dispatch<SetStateAction<XwdPuzzle>>;
   clock: Clock;
   cursorRef: LegacyRef<HTMLDivElement>;
   rebus: boolean;
@@ -78,13 +88,13 @@ interface PuzzleViewProps {
   onDrop: DragEventHandler;
   onCellClick: XwdCellCallback;
   onClueSelect: () => void;
-  onChange: (puzzle: XwdPuzzle) => void;
   onMenuSelect: () => void;
 }
 
 function PuzzleView(props: PuzzleViewProps) {
   const {
     puzzle,
+    setPuzzle,
     clock,
     cursorRef,
     rebus,
@@ -93,13 +103,12 @@ function PuzzleView(props: PuzzleViewProps) {
     onDrop,
     onCellClick,
     onClueSelect,
-    onChange,
   } = props;
 
   return (
     <>
+      <PuzzleToolbar clock={clock} puzzle={puzzle} setPuzzle={setPuzzle} />
       <PuzzleHeader title={puzzle.title} author={puzzle.author} />
-      <PuzzleToolbar clock={clock} puzzle={puzzle} onChange={onChange} />
       <div className="layout-puzzle" onDrop={onDrop} onDragOver={(e) => e.preventDefault()}>
         <ClueBarAndBoard puzzle={puzzle} onCellClick={onCellClick} cursorRef={cursorRef} />
         <ClueLists puzzle={puzzle} onClueSelect={onClueSelect} />
