@@ -133,9 +133,12 @@ export const wordCells = (grid: XwdGrid, locations: XwdWordLoc[]) => {
 };
 
 export const changeCurrentCell =
-  (callback: (cell: XwdCell) => XwdCell) =>
+  (callback: (cell: XwdCell) => Partial<XwdCell>) =>
   (puzzle: XwdPuzzle): XwdPuzzle => {
-    const newCell = callback(currentCell(puzzle));
+    const oldCell = currentCell(puzzle);
+    const changes = callback(oldCell);
+    if (changes === oldCell) return puzzle;
+    const newCell = { ...oldCell, ...changes };
     const [i, j] = [puzzle.cursor.row, puzzle.cursor.col];
     return {
       ...puzzle,
