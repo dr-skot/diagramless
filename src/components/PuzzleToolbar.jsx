@@ -1,7 +1,6 @@
 import React from 'react';
 import DropMenu from './dropMenu';
 import PuzzleClock from './PuzzleClock';
-import { DIAGONAL, LEFT_RIGHT } from '../model/xwdGrid';
 
 // TODO all these state changes should register their actions (ugh)
 const handleMenuSelect = (title, item, puzzle, clock) => {
@@ -44,10 +43,7 @@ const handleMenuSelect = (title, item, puzzle, clock) => {
     this.clock.start();
   }
   if (title === 'symmetry') {
-    const symmetryType = {
-      diagonal: DIAGONAL,
-      'left/right': LEFT_RIGHT,
-    }[item];
+    const symmetryType = item;
     console.log('setting symmetry', symmetryType);
     grid.setSymmetry(symmetryType);
   }
@@ -62,7 +58,7 @@ const handleMenuSelect = (title, item, puzzle, clock) => {
 
 export default function PuzzleToolbar({ clock, puzzle, onChange }) {
   const checkmarks = {
-    symmetry: { DIAGONAL: 'diagonal', LEFT_RIGHT: 'left/right' }[puzzle.grid.symmetry],
+    symmetry: puzzle.grid.symmetry,
     number: puzzle.grid.autonumbering ? 'continuously' : null,
   };
 

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { currentClue, XwdClue, XwdPuzzle } from '../model/immutable/puzzle';
-import { XwdDirection } from '../model/immutable/grid';
+import { currentClue, XwdClue, XwdPuzzle } from '../model/puzzle';
+import { XwdDirection } from '../model/grid';
 
 interface ClueListProps {
   puzzle: XwdPuzzle;

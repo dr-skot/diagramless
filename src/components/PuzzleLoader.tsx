@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import Puzzle from './Puzzle';
-import { DEFAULT_PUZZLE } from '../model/immutable/defaultPuzzle';
-import { puzzleFromFile, XwdPuzzle } from '../model/immutable/puzzle';
+import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
+import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../services/common/utils';
 
 const loadPuzzle = () => tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE);

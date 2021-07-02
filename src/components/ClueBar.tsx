@@ -1,5 +1,5 @@
 import React from 'react';
-import { XwdClue } from '../model/immutable/puzzle';
+import { XwdClue } from '../model/puzzle';
 
 interface ClueBarProps {
   clue?: XwdClue | null;

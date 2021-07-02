@@ -1,8 +1,8 @@
 import React, { useState, useEffect, LegacyRef } from 'react';
 import { keysWithTrueValues } from '../services/common/utils';
 import { observer } from 'mobx-react';
-import { isCorrect, XwdCell } from '../model/immutable/cell';
-import { XwdCellCallback } from '../model/immutable/grid';
+import { isCorrect, XwdCell } from '../model/cell';
+import { XwdCellCallback } from '../model/grid';
 
 function getClasses(cell: XwdCell, cursor: CursorSettings) {
   const classes = {

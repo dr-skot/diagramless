@@ -1,4 +1,4 @@
-import { ACROSS, DOWN, getWord, isWordStart } from '../../services/xwdService';
+import { ACROSS, DOWN, getWord, isWordStart } from '../services/xwdService';
 import { mapCells, XwdDirection, XwdGrid } from './grid';
 import { XwdWordLoc } from './puzzle';
 

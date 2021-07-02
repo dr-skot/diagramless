@@ -1,6 +1,6 @@
 import React from 'react';
 import ClueList from './ClueList';
-import { XwdPuzzle } from '../model/immutable/puzzle';
+import { XwdPuzzle } from '../model/puzzle';
 
 interface ClueListsProps {
   puzzle: XwdPuzzle;

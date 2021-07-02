@@ -1,10 +1,10 @@
 import React, { LegacyRef } from 'react';
 import { range } from 'lodash';
 import PuzzleCell, { CursorSettings } from './PuzzleCell';
-import { XwdCellCallback, XwdGrid } from '../model/immutable/grid';
-import { wordStartsAt } from '../model/immutable/word';
-import { XwdPuzzle } from '../model/immutable/puzzle';
-import { currentCell, currentWord, cursorShadowFallsOn } from '../model/immutable/cursor';
+import { XwdCellCallback, XwdGrid } from '../model/grid';
+import { wordStartsAt } from '../model/word';
+import { XwdPuzzle } from '../model/puzzle';
+import { currentCell, currentWord, cursorShadowFallsOn } from '../model/cursor';
 
 function cellFoundInList(row: number, col: number, list: [number, number][]) {
   return list && list.some(([i, j]) => i === row && j === col);
@@ -24,7 +24,6 @@ interface PuzzleGridProps {
 }
 
 export default function PuzzleGrid({ puzzle, cellWidth, cursorRef, onCellClick }: PuzzleGridProps) {
-  console.debug('render puzzleGrid');
   if (!puzzle?.grid.length) return null;
   const grid = puzzle.grid;
 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, LegacyRef } from 'react';
 import ClueBar from './ClueBar';
 import PuzzleGrid from './PuzzleGrid';
-import { currentClue, XwdPuzzle } from '../model/immutable/puzzle';
-import { XwdCellCallback } from '../model/immutable/grid';
+import { currentClue, XwdPuzzle } from '../model/puzzle';
+import { XwdCellCallback } from '../model/grid';
 
 interface ClueBarAndBoardProps {
   puzzle: XwdPuzzle;

@@ -5,8 +5,8 @@ import ClueLists from './ClueLists';
 import PuzzleModal, { PAUSED } from './puzzleModal';
 import PuzzleToolbar from './PuzzleToolbar';
 import Clock from '../model/clock';
-import { gridIsSolved, XwdCellCallback } from '../model/immutable/grid';
-import { XwdPuzzle } from '../model/immutable/puzzle';
+import { gridIsSolved, XwdCellCallback } from '../model/grid';
+import { XwdPuzzle } from '../model/puzzle';
 
 const noOp = () => {};
 
@@ -19,6 +19,8 @@ interface PuzzleProps {
 export default function Puzzle({ puzzle, onDrop, onChange }: PuzzleProps) {
   const [clock] = useState(new Clock());
   const [showModal, setShowModal] = useState('');
+
+  console.log('render puzzle', puzzle);
 
   // reset clock when puzzle changes
   useEffect(() => {
@@ -35,8 +37,6 @@ export default function Puzzle({ puzzle, onDrop, onChange }: PuzzleProps) {
       clock.off('stop', handlePause);
     };
   }, [clock]);
-
-  console.log('render puzzle', puzzle);
 
   if (!puzzle) return null;
 

@@ -1,6 +1,6 @@
 import { gridHeight, gridWidth, isFilled, XwdDirection } from './grid';
-import { getWord, LEFT, moveOnGrid, NEXT_LINE, RIGHT } from '../../services/xwdService';
-import { includesEqual, mod } from '../../services/common/utils';
+import { getWord, LEFT, moveOnGrid, NEXT_LINE, RIGHT } from '../services/xwdService';
+import { includesEqual, mod } from '../services/common/utils';
 import { findWord, wordNumber, wordStartsAt } from './word';
 import { isEmpty } from './cell';
 import { XwdPuzzle } from './puzzle';
