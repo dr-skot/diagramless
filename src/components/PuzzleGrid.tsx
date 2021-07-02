@@ -4,7 +4,8 @@ import PuzzleCell, { CursorSettings } from './PuzzleCell';
 import { XwdCellCallback, XwdGrid } from '../model/grid';
 import { wordStartsAt } from '../model/word';
 import { XwdPuzzle } from '../model/puzzle';
-import { currentCell, currentWord, cursorShadowFallsOn } from '../model/cursor';
+import { currentCell, currentWord, cursorShadowFallsOn, toggleDirection } from '../model/cursor';
+import { PuzzleDispatch } from './PuzzleLoader';
 
 function cellFoundInList(row: number, col: number, list: [number, number][]) {
   return list && list.some(([i, j]) => i === row && j === col);
@@ -18,12 +19,12 @@ function getCell(grid: XwdGrid, row: number, col: number) {
 
 interface PuzzleGridProps {
   puzzle: XwdPuzzle;
+  setPuzzle: PuzzleDispatch;
   cellWidth: number;
-  onCellClick: XwdCellCallback;
   cursorRef: LegacyRef<HTMLDivElement>;
 }
 
-export default function PuzzleGrid({ puzzle, cellWidth, cursorRef, onCellClick }: PuzzleGridProps) {
+export default function PuzzleGrid({ puzzle, setPuzzle, cellWidth, cursorRef }: PuzzleGridProps) {
   if (!puzzle?.grid.length) return null;
   const grid = puzzle.grid;
 
@@ -34,7 +35,13 @@ export default function PuzzleGrid({ puzzle, cellWidth, cursorRef, onCellClick }
     shadow: !!currentCell(puzzle).isBlack && cursorShadowFallsOn(puzzle.cursor, row, col),
   });
 
-  // TODO support cell click
+  const handleCellClick = (row: number, col: number) => {
+    setPuzzle((prev: XwdPuzzle) =>
+      prev.cursor.row === row && prev.cursor.col === col
+        ? { ...prev, cursor: toggleDirection(prev.cursor) }
+        : { ...prev, cursor: { ...prev.cursor, row, col } }
+    );
+  };
 
   return (
     <div
@@ -51,7 +58,7 @@ export default function PuzzleGrid({ puzzle, cellWidth, cursorRef, onCellClick }
             key={`cell ${row}, ${col}`}
             cell={getCell(grid, row, col)}
             cursor={cursorSettings(row, col)}
-            onClick={(event) => {}}
+            onClick={() => handleCellClick(row, col)}
             width={cellWidth - 1}
             cursorRef={cursorRef}
           />

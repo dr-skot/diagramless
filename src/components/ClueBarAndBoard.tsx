@@ -2,14 +2,14 @@ import React, { useState, useEffect, LegacyRef } from 'react';
 import ClueBar from './ClueBar';
 import PuzzleGrid from './PuzzleGrid';
 import { currentClue, XwdPuzzle } from '../model/puzzle';
-import { XwdCellCallback } from '../model/grid';
+import { PuzzleDispatch } from './PuzzleLoader';
 
 interface ClueBarAndBoardProps {
   puzzle: XwdPuzzle;
-  onCellClick: XwdCellCallback;
+  setPuzzle: PuzzleDispatch;
   cursorRef: LegacyRef<HTMLDivElement>;
 }
-export default function ClueBarAndBoard({ puzzle, onCellClick, cursorRef }: ClueBarAndBoardProps) {
+export default function ClueBarAndBoard({ puzzle, setPuzzle, cursorRef }: ClueBarAndBoardProps) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [, setWindowWidth] = useState(window.innerWidth);
 
@@ -37,8 +37,8 @@ export default function ClueBarAndBoard({ puzzle, onCellClick, cursorRef }: Clue
           <ClueBar clue={currentClue(puzzle)} width={widths.boardWidth} />
           <PuzzleGrid
             puzzle={puzzle}
+            setPuzzle={setPuzzle}
             cellWidth={widths.cellWidth}
-            onCellClick={onCellClick}
             cursorRef={cursorRef}
           />
         </>

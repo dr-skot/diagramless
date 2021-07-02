@@ -9,6 +9,7 @@ import { XwdCellCallback } from '../model/grid';
 import { XwdPuzzle } from '../model/puzzle';
 import PuzzleKeys from './PuzzleKeys';
 import { PuzzleDispatch } from './PuzzleLoader';
+import { toggleDirection } from '../model/cursor';
 
 const noOp = () => {};
 
@@ -48,7 +49,6 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop }: PuzzleProps
           rebusDivRef={noOp}
           rebusInputRef={noOp}
           onMenuSelect={noOp}
-          onCellClick={noOp}
           onClueSelect={noOp}
           onDrop={onDrop}
         />
@@ -73,7 +73,6 @@ interface PuzzleViewProps {
   rebusDivRef: LegacyRef<HTMLDivElement>;
   rebusInputRef: LegacyRef<HTMLInputElement>;
   onDrop: DragEventHandler;
-  onCellClick: XwdCellCallback;
   onClueSelect: () => void;
   onMenuSelect: () => void;
 }
@@ -88,7 +87,6 @@ function PuzzleView(props: PuzzleViewProps) {
     rebusDivRef,
     rebusInputRef,
     onDrop,
-    onCellClick,
     onClueSelect,
   } = props;
 
@@ -97,7 +95,7 @@ function PuzzleView(props: PuzzleViewProps) {
       <PuzzleToolbar clock={clock} puzzle={puzzle} setPuzzle={setPuzzle} />
       <PuzzleHeader title={puzzle.title} author={puzzle.author} />
       <div className="layout-puzzle" onDrop={onDrop} onDragOver={(e) => e.preventDefault()}>
-        <ClueBarAndBoard puzzle={puzzle} onCellClick={onCellClick} cursorRef={cursorRef} />
+        <ClueBarAndBoard puzzle={puzzle} setPuzzle={setPuzzle} cursorRef={cursorRef} />
         <ClueLists puzzle={puzzle} onClueSelect={onClueSelect} />
       </div>
       <div id="rebus" ref={rebusDivRef}>

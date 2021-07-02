@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
 import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../services/common/utils';
@@ -39,9 +39,7 @@ export default function PuzzleLoader() {
 
   useEffect(() => {
     const savePuzzle = () => storePuzzle({ ...puzzle, time: clock.getTime() });
-    if (puzzle === DEFAULT_PUZZLE) console.debug('DEFAULT PUZZLE');
     (gridIsSolved(puzzle) ? clock.start : clock.start)();
-    console.log('saving puzzle with time.time', clock.getTime());
     savePuzzle();
     window.addEventListener('beforeunload', savePuzzle);
     return () => window.removeEventListener('beforeunload', savePuzzle);

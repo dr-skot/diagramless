@@ -1,7 +1,6 @@
-import React, { useState, useEffect, LegacyRef } from 'react';
+import React, { useState, useEffect, LegacyRef, MouseEventHandler } from 'react';
 import { keysWithTrueValues } from '../services/common/utils';
 import { isCorrect, XwdCell } from '../model/cell';
-import { XwdCellCallback } from '../model/grid';
 
 function getClasses(cell: XwdCell, cursor: CursorSettings) {
   const classes = {
@@ -47,7 +46,7 @@ interface PuzzleCellProps {
   cell: XwdCell;
   cursor: CursorSettings;
   cursorRef: LegacyRef<HTMLDivElement>;
-  onClick: XwdCellCallback;
+  onClick: MouseEventHandler;
 }
 
 export default function PuzzleCell({ width, cell, cursor, cursorRef, onClick }: PuzzleCellProps) {
@@ -74,6 +73,7 @@ export default function PuzzleCell({ width, cell, cursor, cursorRef, onClick }: 
       className={getClasses(cell, cursor)}
       style={getStyle(width)}
       ref={cursor.cell ? cursorRef : null}
+      onClick={onClick}
     >
       <div className="content">
         <span ref={setTextSpan}>{isBlack ? '' : content}</span>
