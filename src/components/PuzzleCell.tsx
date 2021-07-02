@@ -1,6 +1,6 @@
 import React, { useState, useEffect, LegacyRef, MouseEventHandler } from 'react';
 import { keysWithTrueValues } from '../services/common/utils';
-import { cellIsCorrect, XwdCell } from '../model/cell';
+import { XwdCell } from '../model/cell';
 
 function getClasses(cell: XwdCell, cursor: CursorSettings) {
   const classes = {

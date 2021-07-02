@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import { DOWN, LEFT, RIGHT, UP } from '../services/xwdService';
 import { advanceCursorInWord, changeCurrentCell, XwdPuzzle } from '../model/puzzle';
 import { addToCursor, currentCell, goToNextWord, toggleDirection } from '../model/cursor';

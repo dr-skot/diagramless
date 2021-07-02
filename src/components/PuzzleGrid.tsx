@@ -1,7 +1,7 @@
 import React, { LegacyRef } from 'react';
 import { range } from 'lodash';
 import PuzzleCell, { CursorSettings } from './PuzzleCell';
-import { XwdCellCallback, XwdGrid } from '../model/grid';
+import { XwdGrid } from '../model/grid';
 import { wordStartsAt } from '../model/word';
 import { XwdPuzzle } from '../model/puzzle';
 import { currentCell, currentWord, cursorShadowFallsOn, toggleDirection } from '../model/cursor';

@@ -5,11 +5,9 @@ import ClueLists from './ClueLists';
 import PuzzleModal, { PAUSED } from './puzzleModal';
 import PuzzleToolbar from './PuzzleToolbar';
 import Clock from '../model/clock';
-import { XwdCellCallback } from '../model/grid';
 import { XwdPuzzle } from '../model/puzzle';
 import PuzzleKeys from './PuzzleKeys';
 import { PuzzleDispatch } from './PuzzleLoader';
-import { toggleDirection } from '../model/cursor';
 
 const noOp = () => {};
 
