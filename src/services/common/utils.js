@@ -117,3 +117,6 @@ export const not =
   (f) =>
   (...args) =>
     !f(...args);
+
+export const arraySet = (i, x) => (xs) => [...xs.slice(0, i), x, ...xs.slice(i + 1)];
+export const arrayInsert = (i, x) => (xs) => [...xs.slice(0, i), x, ...xs.slice(i)];

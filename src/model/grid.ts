@@ -1,5 +1,5 @@
 import { times } from 'lodash';
-import { isCorrect, isEmpty, newCell, revealMeta, XwdCell } from './cell';
+import { isCorrect, isEmpty, emptyCell, revealMeta, XwdCell } from './cell';
 
 export const not =
   (f: (...args: any[]) => any) =>
@@ -11,7 +11,7 @@ export type XwdDirection = 'across' | 'down';
 export type XwdGrid = XwdCell[][];
 
 export const newGrid = (height: number, width: number) =>
-  times(height, () => times(width, () => newCell()));
+  times(height, () => times(width, () => emptyCell()));
 
 export const gridHeight = (grid: XwdGrid) => grid.length;
 export const gridWidth = (grid: XwdGrid) => grid[0]?.length || 0;

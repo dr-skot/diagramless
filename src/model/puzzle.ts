@@ -1,8 +1,10 @@
 import { findCell, mapCells, newGrid, XwdDirection, XwdGrid } from './grid';
-import { currentWord, XwdCursor } from './cursor';
+import { currentCell, currentWord, XwdCursor } from './cursor';
 import { XwdSymmetry } from './symmetry';
 import { ACROSS, parseRelatedClues, puzzleFromFileData } from '../services/xwdService';
 import { getCellsInWord, wordNumber } from './word';
+import { XwdCell } from './cell';
+import { arraySet, nextOrLast, wrapFindIndex } from '../services/common/utils';
 
 export interface XwdClue {
   number: string;
@@ -129,3 +131,37 @@ export const relatedClues = (puzzle: XwdPuzzle): XwdWordLoc =>
 export const wordCells = (grid: XwdGrid, locations: XwdWordLoc[]) => {
   locations.map((loc) => getCellsInWord(grid, loc)).flat();
 };
+
+export const changeCurrentCell =
+  (callback: (cell: XwdCell) => XwdCell) =>
+  (puzzle: XwdPuzzle): XwdPuzzle => {
+    const newCell = callback(currentCell(puzzle));
+    const [i, j] = [puzzle.cursor.row, puzzle.cursor.col];
+    return {
+      ...puzzle,
+      grid: arraySet(i, arraySet(j, newCell)(puzzle.grid[i]))(puzzle.grid),
+    };
+  };
+
+export function advanceCursorInWord(puzzle: XwdPuzzle, findEmpty: boolean) {
+  // move to next cell in word
+  const { row, col } = puzzle.cursor;
+  const word = currentWord(puzzle);
+  if (!word) return puzzle;
+
+  const currentIndex = word.findIndex(([i, j]) => i === row && j === col);
+  let nextCellIdx = nextOrLast(word, currentIndex);
+
+  // if we just filled an empty cell, skip to the next empty cell, with wrap around
+  if (findEmpty) {
+    const cellIsEmpty = ([i, j]: [number, number]) => !puzzle.grid[i][j].content;
+    const nextEmptyCellIdx = wrapFindIndex(word, nextCellIdx, cellIsEmpty);
+    if (nextEmptyCellIdx > -1) nextCellIdx = nextEmptyCellIdx;
+  }
+
+  const [i, j] = word[nextCellIdx];
+  return {
+    ...puzzle,
+    cursor: { ...puzzle.cursor, row: i, col: j },
+  };
+}

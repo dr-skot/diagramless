@@ -1,16 +1,9 @@
-import React, { useEffect, useCallback, Dispatch, SetStateAction } from 'react';
-import _ from 'lodash';
-import { altKey, keyMatch, nextOrLast, wrapFindIndex } from '../services/common/utils';
+import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import { DOWN, LEFT, RIGHT, UP } from '../services/xwdService';
-import {
-  CHANGE_BLACK,
-  CHANGE_CURSOR,
-  CHANGE_DIRECTION,
-  CHANGE_NUMBER,
-} from '../services/puzzleActionTracker';
-import { XwdPuzzle } from '../model/puzzle';
-import { addToCursor, goToNextWord, toggleDirection } from '../model/cursor';
+import { advanceCursorInWord, changeCurrentCell, XwdPuzzle } from '../model/puzzle';
+import { addToCursor, currentCell, goToNextWord, toggleDirection } from '../model/cursor';
 import { XwdDirection } from '../model/grid';
+import { setContent, toggleBlack } from '../model/cell';
 
 const arrowVectors: Record<string, number[]> = {
   ArrowLeft: LEFT,
@@ -18,6 +11,11 @@ const arrowVectors: Record<string, number[]> = {
   ArrowRight: RIGHT,
   ArrowDown: DOWN,
 };
+
+type Vector = [number, number];
+const vector = (direction: XwdDirection): Vector => (direction === 'across' ? [0, 1] : [1, 0]);
+const backVector = (direction: XwdDirection): Vector =>
+  direction === 'across' ? [0, -1] : [-1, 0];
 
 const isPerpendicular = (direction: XwdDirection, vector: number[]) =>
   (direction === 'across' && vector[0]) || (direction === 'down' && vector[1]);
@@ -146,27 +144,6 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
     this.handleContentChange();
   }
 
-  function handleBackspace() {
-    const grid = this.puzzle.grid,
-      cell = grid.currentCell;
-    if (this.isEditingNumber()) {
-      if (cell.number && cell.number.length) {
-        this.actionTracker.recordAction(CHANGE_NUMBER, () => {
-          cell.number = cell.number.slice(0, -1); // all but last letter
-        });
-      }
-    } else {
-      if (!cell.content) {
-        const [i, j] = grid.direction;
-        this.moveCursor(-i, -j);
-      }
-      // TODO: protect verified and revealed cells on model, or tracker
-      if (!cell.isVerified && !cell.wasRevealed) {
-        this.actionTracker.setContent('');
-      }
-    }
-  }
-
   function toggleBlack() {
     const cell = this.puzzle.grid.currentCell;
     if (cell.isVerified) return;
@@ -201,13 +178,65 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
       return true;
     };
 
+    const handleBackspaceKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Backspace') return false;
+      const isEditingNumber = () => false;
+      setPuzzle((prev) => {
+        const cell = currentCell(prev);
+        if (isEditingNumber()) {
+          return cell.number
+            ? changeCurrentCell((c) => ({ ...c, number: c.number.slice(0, -1) }))(prev)
+            : prev;
+        } else if (!cell.content) {
+          return addToCursor(prev, ...backVector(prev.cursor.direction));
+        } else if (!cell.wasRevealed) {
+          // TODO: reinstate isVerified
+          return changeCurrentCell((c) => ({ ...c, content: '' }))(prev);
+        } else {
+          return prev;
+        }
+      });
+      return true;
+    };
+
+    const handleAlphaKey = (event: KeyboardEvent) => {
+      if (!event.key.match(/^[A-Za-z ]$/)) return false;
+      const content = event.key.trim().toUpperCase(); // space bar sets content to ''
+      setPuzzle((prev) => {
+        const cell = currentCell(prev);
+        if (cell.isLocked) return prev;
+        // TODO curry setContent & advanceCursorInWord to make this read better
+        else
+          return advanceCursorInWord(
+            changeCurrentCell((c) => setContent(c, content))(prev),
+            !cell.content // if cell was empty, find next empty cell
+          );
+      });
+      return true;
+    };
+
+    const handlePeriodKey = (event: KeyboardEvent) => {
+      if (event.key !== '.') return false;
+      setPuzzle((prev) => {
+        const cell = currentCell(prev);
+        if (cell.isLocked) return prev;
+        // TODO curry addToCursor
+        else
+          return addToCursor(
+            changeCurrentCell(toggleBlack)(prev),
+            ...vector(prev.cursor.direction)
+          );
+      });
+      return true;
+    };
+
     const keyHandlers = [
       handleArrowKey,
       handleTabKey,
-      //handleBackspaceKey,
-      //handleAlphaKey,
+      handleBackspaceKey,
+      handleAlphaKey,
+      handlePeriodKey,
       //handleDigitKey,
-      //handlePeriodKey,
     ];
 
     const handleKeyDown = (event: KeyboardEvent) => {
