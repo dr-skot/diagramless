@@ -1,6 +1,7 @@
 import React from 'react';
-import DropMenu from './dropMenu';
+import DropMenu from './DropMenu';
 import PuzzleClock from './PuzzleClock';
+import { autonumber, setSymmetry, toggleAutonumbering } from '../model/puzzle';
 
 // TODO all these state changes should register their actions (ugh)
 const handleMenuSelect = (title, item, puzzle, clock) => {
@@ -44,7 +45,6 @@ const handleMenuSelect = (title, item, puzzle, clock) => {
   }
   if (title === 'symmetry') {
     const symmetryType = item;
-    console.log('setting symmetry', symmetryType);
     grid.setSymmetry(symmetryType);
   }
   if (title === 'number') {
@@ -57,24 +57,44 @@ const handleMenuSelect = (title, item, puzzle, clock) => {
 };
 
 export default function PuzzleToolbar({ clock, puzzle, setPuzzle }) {
-  const checkmarks = {
-    symmetry: puzzle.grid.symmetry,
-    number: puzzle.grid.autonumbering ? 'continuously' : null,
+  const checked = {
+    symmetry: puzzle.symmetry,
+    number: puzzle.isAutonumbered ? 'continuously' : null,
   };
 
   // TODO support clear incomplete
   // TODO support autocheck
-  // TODO move this menu outside component and pass as prop
+
   const menu = {
-    number: ['now', 'continuously'],
-    symmetry: ['diagonal', 'left/right'],
-    clear: ['word', 'white squares', 'puzzle', 'puzzle & timer'],
-    reveal: ['square', 'word', 'puzzle', 'diagram', 'circles'],
-    check: ['square', 'word', 'puzzle'],
+    number: {
+      now: () => setPuzzle(autonumber),
+      continuously: () => setPuzzle(toggleAutonumbering),
+    },
+    symmetry: {
+      diagonal: () => setPuzzle(setSymmetry('diagonal')),
+      'left-right': () => setPuzzle(setSymmetry('left-right')),
+    },
+    clear: {
+      word: () => {},
+      'white squares': () => {},
+      puzzle: () => {},
+      'puzzle & timer': () => {},
+    },
+    reveal: {
+      square: () => {},
+      word: () => {},
+      puzzle: () => {},
+      diagram: () => {},
+      circles: () => {},
+    },
+    check: {
+      square: () => {},
+      word: () => {},
+      puzzle: () => {},
+    },
   };
 
   function onMenuSelect(title, item) {
-    console.log('handle menu select');
     handleMenuSelect(title, item, puzzle, clock);
     // onChange(puzzle);
   }
@@ -91,13 +111,7 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle }) {
         </li>
         <div className="Toolbar-expandedMenu--2s4M4">
           {Object.entries(menu).map(([title, items]) => (
-            <DropMenu
-              key={title}
-              title={title}
-              items={items}
-              onSelect={onMenuSelect}
-              checkmarks={[checkmarks[title]]}
-            />
+            <DropMenu key={title} title={title} items={items} checked={[checked[title]]} />
           ))}
         </div>
       </ul>

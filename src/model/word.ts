@@ -46,6 +46,6 @@ export const getCellsInWord = (grid: XwdGrid, wordLocator: XwdWordLoc) => {
 export const numberWordStarts = (grid: XwdGrid) => {
   let counter = 0;
   return mapCells((cell, { row, col }) =>
-    wordStartsAt(grid, row, col) ? { ...cell, number: `${counter++}` } : cell
+    wordStartsAt(grid, row, col) ? { ...cell, number: `${++counter}` } : cell
   )(grid);
 };

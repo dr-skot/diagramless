@@ -1,7 +1,7 @@
 import { puzzleData as plainData } from '../../tests/assets/Jun2521.data';
 import { puzzleData as dataWithNote } from '../../tests/assets/note-Jul0121.data';
 import { puzzleData as dataWithCircles } from '../../tests/assets/circles-Jun2221.data';
-import { changeCurrentCell, puzzleFromData } from './puzzle';
+import { autonumber, changeCurrentCell, puzzleFromData, setSymmetry } from './puzzle';
 import { currentCell } from './cursor';
 import { emptyCell } from './cell';
 
@@ -50,8 +50,43 @@ describe('changeCurrentCell', () => {
     const puzzle = puzzleFromData(plainData);
     const cell = { ...emptyCell(), content: '%' };
     const callback = jest.fn(() => cell);
-    expect(currentCell(puzzle)).not.toBe(cell);
+    expect(currentCell(puzzle)).not.toEqual(cell);
     const newPuzzle = changeCurrentCell(callback)(puzzle);
-    expect(currentCell(newPuzzle)).toBe(cell);
+    expect(currentCell(newPuzzle)).toEqual(cell);
+  });
+  it('takes a callback function', () => {
+    let puzzle = changeCurrentCell(() => ({ content: '%' }))(puzzleFromData(plainData));
+    expect(currentCell(puzzle).content).toBe('%');
+  });
+  it('takes a partial XwdCell', () => {
+    let puzzle = changeCurrentCell({ content: '%' })(puzzleFromData(plainData));
+    expect(currentCell(puzzle).content).toBe('%');
+  });
+});
+
+describe('when symmetry is set', () => {
+  it('sets a sister cell black', () => {
+    let puzzle = setSymmetry('diagonal')(puzzleFromData(plainData));
+    expect(puzzle.width).toBe(15);
+    expect(puzzle.grid[0][0].isBlack).toBeFalsy();
+    expect(puzzle.grid[14][14].isBlack).toBeFalsy();
+    puzzle = changeCurrentCell({ isBlack: true })(puzzle);
+    expect(puzzle.grid[0][0].isBlack).toBeTruthy();
+    expect(puzzle.grid[14][14].isBlack).toBeTruthy();
+  });
+  it('sets a sister cell white again', () => {
+    let puzzle = setSymmetry('diagonal')(puzzleFromData(plainData));
+    expect(puzzle.width).toBe(15);
+    puzzle = changeCurrentCell({ isBlack: true })(puzzle);
+    puzzle = changeCurrentCell({ isBlack: false })(puzzle);
+    expect(puzzle.grid[0][0].isBlack).toBeFalsy();
+    expect(puzzle.grid[14][14].isBlack).toBeFalsy();
+  });
+});
+
+describe('autonumber', () => {
+  it('numbers from 1', () => {
+    let puzzle = autonumber(puzzleFromData(plainData));
+    expect(currentCell(puzzle).number).toBe('1');
   });
 });

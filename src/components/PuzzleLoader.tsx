@@ -39,7 +39,7 @@ export default function PuzzleLoader() {
 
   useEffect(() => {
     const savePuzzle = () => storePuzzle({ ...puzzle, time: clock.getTime() });
-    (gridIsSolved(puzzle) ? clock.start : clock.start)();
+    (gridIsSolved(puzzle.grid) ? clock.stop : clock.start)();
     savePuzzle();
     window.addEventListener('beforeunload', savePuzzle);
     return () => window.removeEventListener('beforeunload', savePuzzle);

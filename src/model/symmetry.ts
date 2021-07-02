@@ -2,7 +2,7 @@ import { gridHeight, gridWidth, mapCells, XwdGrid } from './grid';
 
 export type XwdSymmetry = 'diagonal' | 'left-right' | null;
 
-const getSisterCell = (grid: XwdGrid, row: number, col: number, symmetry: XwdSymmetry) => {
+export const getSisterCell = (grid: XwdGrid, row: number, col: number, symmetry: XwdSymmetry) => {
   if (!symmetry) return null;
   const height = gridHeight(grid),
     width = gridWidth(grid);

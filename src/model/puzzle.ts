@@ -1,8 +1,8 @@
 import { findCell, mapCells, newGrid, XwdDirection, XwdGrid } from './grid';
 import { currentCell, currentWord, XwdCursor } from './cursor';
-import { XwdSymmetry } from './symmetry';
+import { enforceSymmetry, getSisterCell, XwdSymmetry } from './symmetry';
 import { ACROSS, parseRelatedClues, puzzleFromFileData } from '../services/xwdService';
-import { getCellsInWord, wordNumber } from './word';
+import { getCellsInWord, numberWordStarts, wordNumber } from './word';
 import { XwdCell } from './cell';
 import { arraySet, nextOrLast, wrapFindIndex } from '../services/common/utils';
 
@@ -132,18 +132,36 @@ export const wordCells = (grid: XwdGrid, locations: XwdWordLoc[]) => {
   locations.map((loc) => getCellsInWord(grid, loc)).flat();
 };
 
+export const currentSisterCell = ({ grid, cursor, symmetry }: XwdPuzzle) =>
+  getSisterCell(grid, cursor.row, cursor.col, symmetry);
+
 export const changeCurrentCell =
-  (callback: (cell: XwdCell) => Partial<XwdCell>) =>
+  (change: Partial<XwdCell> | ((cell: XwdCell) => Partial<XwdCell>)) =>
   (puzzle: XwdPuzzle): XwdPuzzle => {
     const oldCell = currentCell(puzzle);
-    const changes = callback(oldCell);
+    const changes = typeof change === 'function' ? change(oldCell) : change;
     if (changes === oldCell) return puzzle;
     const newCell = { ...oldCell, ...changes };
     const [i, j] = [puzzle.cursor.row, puzzle.cursor.col];
-    return {
+    let newPuzzle = {
       ...puzzle,
       grid: arraySet(i, arraySet(j, newCell)(puzzle.grid[i]))(puzzle.grid),
     };
+    if (newCell.isBlack !== oldCell.isBlack && puzzle.symmetry) {
+      if (puzzle.symmetry) {
+        const sister = currentSisterCell(newPuzzle);
+        if (sister && !!sister.isBlack !== !!newCell.isBlack) {
+          newPuzzle = {
+            ...newPuzzle,
+            grid: mapCells((c) =>
+              c === sister ? { ...c, isBlack: newCell.isBlack && puzzle.symmetry } : c
+            )(newPuzzle.grid),
+          };
+        }
+      }
+      newPuzzle = applyAutonumbering(newPuzzle);
+    }
+    return newPuzzle;
   };
 
 export function advanceCursorInWord(puzzle: XwdPuzzle, findEmpty: boolean) {
@@ -168,3 +186,20 @@ export function advanceCursorInWord(puzzle: XwdPuzzle, findEmpty: boolean) {
     cursor: { ...puzzle.cursor, row: i, col: j },
   };
 }
+
+export const applySymmetry = (puzzle: XwdPuzzle, symmetryType = puzzle.symmetry) =>
+  symmetryType ? { ...puzzle, grid: enforceSymmetry(puzzle.grid, symmetryType) } : puzzle;
+
+export const applyAutonumbering = (puzzle: XwdPuzzle) =>
+  puzzle.isAutonumbered ? autonumber(puzzle) : puzzle;
+
+export const setSymmetry = (symmetryType: XwdSymmetry) => (puzzle: XwdPuzzle) =>
+  applySymmetry({ ...puzzle, symmetry: symmetryType });
+
+export const toggleAutonumbering = (puzzle: XwdPuzzle) =>
+  applyAutonumbering({ ...puzzle, isAutonumbered: !puzzle.isAutonumbered });
+
+export const autonumber = (puzzle: XwdPuzzle) => ({
+  ...puzzle,
+  grid: numberWordStarts(puzzle.grid),
+});

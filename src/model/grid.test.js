@@ -1,4 +1,13 @@
-import { not, newGrid, gridHeight, gridWidth, setContents, isFilled } from './grid';
+import {
+  not,
+  newGrid,
+  gridHeight,
+  gridWidth,
+  setContents,
+  isFilled,
+  gridIsSolved,
+  mapCells,
+} from './grid';
 
 describe('not', () => {
   it('returns the negative of a function', () => {
@@ -37,8 +46,25 @@ it("knows when it's filled", () => {
 it("knows when it's not filled", () => {
   const data = 'abc:defghi: kl'.split('').map((s) => s.trim());
   const xwd = setContents(data)(newGrid(2, 7));
-  expect(xwd.isFilled).toBe(false);
+  expect(isFilled(xwd)).toBe(false);
 });
+
+it("knows when it's not solved", () => {
+  const data = 'abc:defghi:jkl'.split('');
+  const xwd = setContents(data)(newGrid(2, 7));
+  expect(gridIsSolved(xwd)).toBe(false);
+});
+
+it("knows when it's solved", () => {
+  const data = 'abc:defghi: kl'.split('').map((s) => s.trim());
+  const grid = mapCells((cell, { pos }) => ({
+    ...cell,
+    solution: { ...cell.solution, content: cell.content, isBlack: cell.isBlack },
+  }))(setContents(data)(newGrid(2, 7)));
+
+  expect(gridIsSolved(grid)).toBe(true);
+});
+
 /*
 describe("word", () => {
   it("can find the across word", () => {

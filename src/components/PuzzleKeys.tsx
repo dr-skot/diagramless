@@ -3,8 +3,9 @@ import { DOWN, LEFT, RIGHT, UP } from '../services/xwdService';
 import { advanceCursorInWord, changeCurrentCell, XwdPuzzle } from '../model/puzzle';
 import { addToCursor, currentCell, goToNextWord, toggleDirection } from '../model/cursor';
 import { XwdDirection } from '../model/grid';
-import { setContent, toggleBlack, XwdCell } from '../model/cell';
+import { setContent, toggleBlack } from '../model/cell';
 
+// TODO change number[] to vector here
 const arrowVectors: Record<string, number[]> = {
   ArrowLeft: LEFT,
   ArrowUp: UP,
@@ -142,6 +143,6 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [setPuzzle]);
   return null;
 }
