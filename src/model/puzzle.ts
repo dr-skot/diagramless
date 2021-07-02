@@ -164,6 +164,19 @@ export const changeCurrentCell =
     return newPuzzle;
   };
 
+export const changeCellsInWord =
+  (change: (cell: XwdCell) => Partial<XwdCell>) =>
+  (puzzle: XwdPuzzle): XwdPuzzle => {
+    const word = currentWord(puzzle);
+    if (!word?.length) return puzzle;
+    return {
+      ...puzzle,
+      grid: mapCells((cell, { row, col }) =>
+        word.some(([i, j]) => i === row && j === col) ? change(cell) : cell
+      )(puzzle.grid),
+    };
+  };
+
 export function advanceCursorInWord(puzzle: XwdPuzzle, findEmpty: boolean) {
   // move to next cell in word
   const { row, col } = puzzle.cursor;

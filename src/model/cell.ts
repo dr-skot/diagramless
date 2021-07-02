@@ -70,7 +70,7 @@ export const isEmpty = (cell: XwdCell) => !cell.isBlack && !cell.content;
 
 export const check = (cell: XwdCell) => (isEmpty(cell) ? cell : { ...cell, wasChecked: true });
 
-export const reveal = (cell: XwdCell) =>
+export const revealCell = (cell: XwdCell) =>
   isCorrect(cell)
     ? { ...cell, wasChecked: true, isLocked: true }
     : {
@@ -81,7 +81,7 @@ export const reveal = (cell: XwdCell) =>
         isLocked: true,
       };
 
-export const clear = (cell: XwdCell, options: { number?: boolean } = {}) => ({
+export const clearCell = (cell: XwdCell, options: { number?: boolean } = {}) => ({
   ...emptyCell(cell.solution),
   number: options.number ? '' : cell.number,
 });

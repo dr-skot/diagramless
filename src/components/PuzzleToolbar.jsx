@@ -1,7 +1,16 @@
 import React from 'react';
 import DropMenu from './DropMenu';
 import PuzzleClock from './PuzzleClock';
-import { autonumber, setSymmetry, toggleAutonumbering } from '../model/puzzle';
+import {
+  autonumber,
+  changeCellsInWord,
+  changeCurrentCell,
+  setSymmetry,
+  toggleAutonumbering,
+} from '../model/puzzle';
+import { puzdata_to_pdf } from '../services/puzzlePdf';
+import { gridIsSolved, mapCells, revealCircles, revealDiagram } from '../model/grid';
+import { clearCell, revealCell } from '../model/cell';
 
 // TODO all these state changes should register their actions (ugh)
 const handleMenuSelect = (title, item, puzzle, clock) => {
@@ -64,7 +73,7 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle }) {
 
   // TODO support clear incomplete
   // TODO support autocheck
-
+  // TODO write convenience functions changePuzzleCells
   const menu = {
     number: {
       now: () => setPuzzle(autonumber),
@@ -75,21 +84,29 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle }) {
       'left-right': () => setPuzzle(setSymmetry('left-right')),
     },
     clear: {
-      word: () => {},
-      'white squares': () => {},
-      puzzle: () => {},
-      'puzzle & timer': () => {},
+      word: () => setPuzzle(changeCellsInWord(clearCell)),
+      'white squares': () =>
+        setPuzzle((prev) => ({
+          ...prev,
+          grid: mapCells((c) => (c.isBlack ? c : clearCell(c)))(prev.grid),
+        })),
+      puzzle: () =>
+        setPuzzle((prev) => ({ ...prev, grid: mapCells((cell) => clearCell(cell))(prev.grid) })),
+      'puzzle & timer': () => {
+        setPuzzle((prev) => ({ ...prev, grid: mapCells((cell) => clearCell(cell))(prev.grid) }));
+        clock.reset();
+      },
     },
     reveal: {
-      square: () => {},
-      word: () => {},
-      puzzle: () => {},
-      diagram: () => {},
-      circles: () => {},
+      square: () => setPuzzle(changeCurrentCell(revealCell)),
+      word: () => setPuzzle(changeCellsInWord(revealCell)),
+      puzzle: () => setPuzzle((prev) => ({ ...prev, grid: mapCells(revealCell)(prev.grid) })),
+      diagram: () => setPuzzle((prev) => ({ ...prev, grid: revealDiagram(prev.grid) })),
+      circles: () => setPuzzle((prev) => ({ ...prev, grid: revealCircles(prev.grid) })),
     },
     check: {
       square: () => {},
-      word: () => {},
+      // word: () => {},
       puzzle: () => {},
     },
   };
@@ -99,13 +116,17 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle }) {
     // onChange(puzzle);
   }
 
+  function print() {
+    puzdata_to_pdf(puzzle);
+  }
+
   return (
     <div className="Toolbar-wrapper--1S7nZ toolbar-wrapper">
       <ul className="Toolbar-tools--2qUqg">
         <li className="Tool-button--39W4J Tool-tool--Fiz94">
-          <button onClick={() => onMenuSelect('print')}>Print</button>
+          <button onClick={print}>Print</button>
         </li>
-        <PuzzleClock clock={clock} disabled={puzzle.isSolved} />
+        <PuzzleClock clock={clock} disabled={gridIsSolved(puzzle.grid)} />
         <li className="Tool-button--39W4J Tool-tool--Fiz94 Tool-texty--2w4Br">
           <button onClick={() => onMenuSelect('rebus', '')}>rebus</button>
         </li>

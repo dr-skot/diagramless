@@ -1,5 +1,6 @@
 import { times } from 'lodash';
-import { isCorrect, isEmpty, emptyCell, revealMeta, XwdCell } from './cell';
+import { isCorrect, isEmpty, emptyCell, revealMeta, XwdCell, XwdCellSolution } from './cell';
+import { XwdSymmetry } from './symmetry';
 
 export const not =
   (f: (...args: any[]) => any) =>
