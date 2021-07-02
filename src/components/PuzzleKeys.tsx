@@ -3,7 +3,7 @@ import { DOWN, LEFT, RIGHT, UP } from '../services/xwdService';
 import { advanceCursorInWord, changeCurrentCell, XwdPuzzle } from '../model/puzzle';
 import { addToCursor, currentCell, goToNextWord, toggleDirection } from '../model/cursor';
 import { XwdDirection } from '../model/grid';
-import { setContent, toggleBlack } from '../model/cell';
+import { setContent, toggleBlack, XwdCell } from '../model/cell';
 
 const arrowVectors: Record<string, number[]> = {
   ArrowLeft: LEFT,
@@ -26,7 +26,7 @@ interface PuzzleKeysProps {
 
 export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
   useEffect(() => {
-    let isEditingNumber = false;
+    let editingNumber: XwdPuzzle | null = null;
 
     const handleArrowKey = (event: KeyboardEvent) => {
       const vector = arrowVectors[event.key];
@@ -55,8 +55,9 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
       if (event.key !== 'Backspace') return false;
       setPuzzle((prev) => {
         const cell = currentCell(prev);
-        if (isEditingNumber) {
-          return changeCurrentCell((c) => ({ number: c.number.slice(0, -1) }))(prev);
+        if (prev === editingNumber) {
+          editingNumber = changeCurrentCell((c) => ({ number: c.number.slice(0, -1) }))(prev);
+          return editingNumber;
         } else if (cell.content && !cell.isBlack && !cell.isLocked) {
           return changeCurrentCell(() => ({ content: '' }))(prev);
         } else {
@@ -109,12 +110,11 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
         const cell = currentCell(prev);
         if (prev.isAutonumbered || cell.isLocked) return prev;
         else {
-          const newPuzzle = changeCurrentCell((c) => ({
+          editingNumber = changeCurrentCell((c) => ({
             isBlack: false,
-            number: editNumber(c.number, event.key, isEditingNumber),
+            number: editNumber(c.number, event.key, prev === editingNumber),
           }))(prev);
-          isEditingNumber = true;
-          return newPuzzle;
+          return editingNumber;
         }
       });
       return true;
@@ -131,7 +131,7 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.metaKey) return;
-      if (!(event.key === 'Backspace' || event.key.match(/^\d$/))) isEditingNumber = false;
+      if (!(event.key === 'Backspace' || event.key.match(/^\d$/))) editingNumber = null;
 
       keyHandlers.forEach((handler) => {
         if (handler(event)) event.preventDefault();
