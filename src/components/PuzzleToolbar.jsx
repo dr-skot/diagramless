@@ -10,7 +10,7 @@ import {
 } from '../model/puzzle';
 import { puzdata_to_pdf } from '../services/puzzlePdf';
 import { gridIsSolved, mapCells, revealCircles, revealDiagram } from '../model/grid';
-import { clearCell, revealCell } from '../model/cell';
+import { checkCell, clearCell, revealCell } from '../model/cell';
 
 // TODO all these state changes should register their actions (ugh)
 const handleMenuSelect = (title, item, puzzle, clock) => {
@@ -105,9 +105,9 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle }) {
       circles: () => setPuzzle((prev) => ({ ...prev, grid: revealCircles(prev.grid) })),
     },
     check: {
-      square: () => {},
-      // word: () => {},
-      puzzle: () => {},
+      square: () => setPuzzle(changeCurrentCell(checkCell)),
+      word: () => setPuzzle(changeCellsInWord(checkCell)),
+      puzzle: () => setPuzzle((prev) => ({ ...prev, grid: mapCells(checkCell)(prev.grid) })),
     },
   };
 

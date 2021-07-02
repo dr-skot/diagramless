@@ -1,16 +1,15 @@
 import React, { useState, useEffect, LegacyRef, MouseEventHandler } from 'react';
 import { keysWithTrueValues } from '../services/common/utils';
-import { isCorrect, XwdCell } from '../model/cell';
+import { cellIsCorrect, XwdCell } from '../model/cell';
 
 function getClasses(cell: XwdCell, cursor: CursorSettings) {
   const classes = {
     'puzzle-cell': true,
     noselect: true,
     black: cell.isBlack,
-    wrong: cell.wasRevealed && !isCorrect(cell),
+    wrong: cell.isMarkedWrong,
     revealed: cell.wasRevealed,
-    // TODO clean up this logic
-    fixed: cell.wasRevealed || (cell.wasChecked && isCorrect(cell)),
+    fixed: cell.isLocked,
     cursor: cursor.cell,
     focus: cursor.word,
     related: cursor.related,

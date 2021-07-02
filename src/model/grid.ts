@@ -1,5 +1,12 @@
 import { times } from 'lodash';
-import { isCorrect, isEmpty, emptyCell, revealMeta, XwdCell, XwdCellSolution } from './cell';
+import {
+  cellIsCorrect,
+  cellIsEmpty,
+  emptyCell,
+  revealMeta,
+  XwdCell,
+  XwdCellSolution,
+} from './cell';
 import { XwdSymmetry } from './symmetry';
 
 export const not =
@@ -47,8 +54,8 @@ export const everyCell = (callback: XwdCellCallback) => not(findCell(not(callbac
 export const revealDiagram = mapCells(revealMeta);
 export const revealCircles = mapCells((cell) => ({ ...cell, cirle: cell.solution.circle }));
 
-export const isFilled = not(someCell(isEmpty));
-export const gridIsSolved = everyCell(isCorrect);
+export const isFilled = not(someCell(cellIsEmpty));
+export const gridIsSolved = everyCell(cellIsCorrect);
 
 export const setContents = (data: string[]) =>
   mapCells((cell, { pos }) =>
