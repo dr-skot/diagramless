@@ -1,8 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import Puzzle from './Puzzle';
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
 import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../services/common/utils';
+import Clock from '../model/clock';
+import { gridIsSolved } from '../model/grid';
+import Puzzle from './Puzzle';
 
 const loadPuzzle = () => tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE);
 
@@ -27,10 +29,23 @@ const handleDrop = (callback: (buf: ArrayBuffer) => void) => (event: any) => {
   }
 };
 
+export type PuzzleDispatch = Dispatch<SetStateAction<XwdPuzzle>>;
+
 export default function PuzzleLoader() {
   const [puzzle, setPuzzle] = useState<XwdPuzzle>(loadPuzzle());
+  const [clock] = useState(new Clock(puzzle.time));
 
-  useEffect(() => storePuzzle(puzzle), [puzzle]);
+  // TODO fix gridIsSolved
+
+  useEffect(() => {
+    const savePuzzle = () => storePuzzle({ ...puzzle, time: clock.getTime() });
+    if (puzzle === DEFAULT_PUZZLE) console.debug('DEFAULT PUZZLE');
+    (gridIsSolved(puzzle) ? clock.start : clock.start)();
+    console.log('saving puzzle with time.time', clock.getTime());
+    savePuzzle();
+    window.addEventListener('beforeunload', savePuzzle);
+    return () => window.removeEventListener('beforeunload', savePuzzle);
+  }, [puzzle, clock]);
 
   const onDrop = handleDrop((contents) => {
     const newPuzzle = puzzleFromFile(contents);
@@ -38,8 +53,9 @@ export default function PuzzleLoader() {
     // preserve settings
     newPuzzle.isAutonumbered = puzzle.isAutonumbered;
     newPuzzle.symmetry = puzzle.symmetry;
+    clock.setTime(newPuzzle.time || 0);
     setPuzzle(newPuzzle);
   });
 
-  return <Puzzle puzzle={puzzle} setPuzzle={setPuzzle} onDrop={onDrop} />;
+  return <Puzzle puzzle={puzzle} setPuzzle={setPuzzle} clock={clock} onDrop={onDrop} />;
 }

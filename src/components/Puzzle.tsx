@@ -1,41 +1,28 @@
-import React, {
-  useState,
-  useEffect,
-  DragEventHandler,
-  LegacyRef,
-  Dispatch,
-  SetStateAction,
-} from 'react';
+import React, { useState, useEffect, DragEventHandler, LegacyRef } from 'react';
 import PuzzleHeader from './PuzzleHeader';
 import ClueBarAndBoard from './ClueBarAndBoard';
 import ClueLists from './ClueLists';
 import PuzzleModal, { PAUSED } from './puzzleModal';
 import PuzzleToolbar from './PuzzleToolbar';
 import Clock from '../model/clock';
-import { gridIsSolved, XwdCellCallback } from '../model/grid';
+import { XwdCellCallback } from '../model/grid';
 import { XwdPuzzle } from '../model/puzzle';
 import PuzzleKeys from './PuzzleKeys';
+import { PuzzleDispatch } from './PuzzleLoader';
 
 const noOp = () => {};
 
 interface PuzzleProps {
   puzzle: XwdPuzzle;
-  setPuzzle: Dispatch<SetStateAction<XwdPuzzle>>;
+  setPuzzle: PuzzleDispatch;
+  clock: Clock;
   onDrop: DragEventHandler;
 }
 
-export default function Puzzle({ puzzle, setPuzzle, onDrop }: PuzzleProps) {
-  const [clock] = useState(new Clock());
+export default function Puzzle({ puzzle, setPuzzle, clock, onDrop }: PuzzleProps) {
   const [showModal, setShowModal] = useState('');
 
   console.log('render puzzle');
-
-  // reset clock when puzzle changes
-  useEffect(() => {
-    if (!puzzle) return;
-    clock.setTime(puzzle.time || 0);
-    if (!gridIsSolved(puzzle.grid)) clock.start();
-  }, [clock, puzzle]);
 
   // show modal when clock pauses
   useEffect(() => {
@@ -79,7 +66,7 @@ export default function Puzzle({ puzzle, setPuzzle, onDrop }: PuzzleProps) {
 
 interface PuzzleViewProps {
   puzzle: XwdPuzzle;
-  setPuzzle: Dispatch<SetStateAction<XwdPuzzle>>;
+  setPuzzle: PuzzleDispatch;
   clock: Clock;
   cursorRef: LegacyRef<HTMLDivElement>;
   rebus: boolean;
