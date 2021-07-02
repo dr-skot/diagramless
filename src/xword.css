@@ -149,7 +149,9 @@ table {
     rgba(0, 0, 0, 0) 53%,
     rgba(0, 0, 0, 0) 100%
   );
+  background-color: white;
 }
+
 
 .puzzle-cell.black {
   background-color: black;
