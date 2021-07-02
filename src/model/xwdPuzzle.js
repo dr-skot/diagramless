@@ -1,16 +1,12 @@
-import _ from "lodash";
-import CursoredXwdGrid from "./cursoredXwdGrid";
-import {
-  ACROSS,
-  puzzleFromFileData,
-  parseRelatedClues
-} from "../services/xwdService";
-import { decorate, action } from "mobx";
+import _ from 'lodash';
+import CursoredXwdGrid from './cursoredXwdGrid';
+import { ACROSS, puzzleFromFileData, parseRelatedClues } from '../services/xwdService';
+import { decorate, action } from 'mobx';
 
 class XwdPuzzle {
   clock = {
     time: 0,
-    isRunning: true
+    isRunning: true,
   };
 
   constructor(data) {
@@ -25,9 +21,9 @@ class XwdPuzzle {
       const answer = data.solution[pos];
       cell.solution = {
         content: answer,
-        isBlack: answer === ":" || answer === ".",
-        number: (data.numbers[pos] || "") + "",
-        circle: data.extras.GEXT && (data.extras.GEXT[pos] & 0x80) === 0x80
+        isBlack: answer === ':' || answer === '.',
+        number: (data.numbers[pos] || '') + '',
+        circle: data.extras.GEXT && (data.extras.GEXT[pos] & 0x80) === 0x80,
       };
     });
     if (data.user) {
@@ -43,6 +39,9 @@ class XwdPuzzle {
     if (data.direction) {
       this.grid.direction = data.direction;
     }
+    // TODO grid should deserialize itself
+    this.grid.autonumbering = data.autonumbering;
+    this.grid.symmetry = data.symmetry;
   }
 
   get isSolved() {
@@ -63,10 +62,10 @@ class XwdPuzzle {
     this.currentClue = {};
     if (grid.word) {
       const number = grid.cell(...grid.word[0]).number,
-        dir = this.directionIs(ACROSS) ? "A" : "D",
+        dir = this.directionIs(ACROSS) ? 'A' : 'D',
         clue = _.find(
           puz.clues,
-          clue => clue.number === number && this.directionIs(clue.direction)
+          (clue) => clue.number === number && this.directionIs(clue.direction)
         );
       this.currentClue = clue ? { number: number + dir, text: clue.clue } : {};
     }
@@ -75,9 +74,9 @@ class XwdPuzzle {
 
   // TODO lose this named word thing and store clues as {number, direction}
   calculateRelatedClues() {
-    this.relatedClues = parseRelatedClues(this.currentClue.text || "");
+    this.relatedClues = parseRelatedClues(this.currentClue.text || '');
     this.relatedCells = this.relatedClues
-      .map(wordLocator => this.grid.getCellsInWord(wordLocator))
+      .map((wordLocator) => this.grid.getCellsInWord(wordLocator))
       .flat();
   }
 
@@ -97,7 +96,7 @@ class XwdPuzzle {
   static fromFileData(arrayBuffer) {
     console.debug('XwdPuzzle.fromFileData');
     const data = puzzleFromFileData(arrayBuffer);
-    console.debug('got data', data);
+    console.debug('got data', JSON.stringify(data));
     return data ? new XwdPuzzle(data) : null;
   }
 
@@ -108,7 +107,7 @@ class XwdPuzzle {
 }
 
 decorate(XwdPuzzle, {
-  _initialize: action
+  _initialize: action,
 });
 
 export default XwdPuzzle;

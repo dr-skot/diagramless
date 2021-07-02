@@ -1,13 +1,6 @@
-import _ from "lodash";
-import {
-  vectorAdd,
-  vectorSubtract,
-  vectorMod,
-  vectorFits,
-  getElement
-} from "./common/utils";
-
-//const { TextDecoder } = require("util");
+import _ from 'lodash';
+import { vectorAdd, vectorSubtract, vectorMod, vectorFits, getElement } from './common/utils';
+// var TextDecoder = TextDecoder || require('text-encoding').TextDecoder;
 
 var puzzle;
 
@@ -17,9 +10,9 @@ export const LEFT = [0, -1],
   DOWN = [1, 0],
   ACROSS = RIGHT;
 
-export const STOP = "STOP",
-  WRAP_AROUND = "WRAP_AROUND",
-  NEXT_LINE = "NEXT_LINE";
+export const STOP = 'STOP',
+  WRAP_AROUND = 'WRAP_AROUND',
+  NEXT_LINE = 'NEXT_LINE';
 
 export function getWord(grid, cursor, direction) {
   const [row, col] = cursor;
@@ -49,20 +42,12 @@ export function getWord(grid, cursor, direction) {
   let pos,
     word = [];
   // trace backward from cursor until black or off
-  for (
-    pos = cursor;
-    !off(...pos) && !black(...pos);
-    pos = subtract(pos, direction)
-  ) {
+  for (pos = cursor; !off(...pos) && !black(...pos); pos = subtract(pos, direction)) {
     word.unshift(pos);
   }
 
   // trace forward from cursor until black or off
-  for (
-    pos = add(cursor, direction);
-    !off(...pos) && !black(...pos);
-    pos = add(pos, direction)
-  ) {
+  for (pos = add(cursor, direction); !off(...pos) && !black(...pos); pos = add(pos, direction)) {
     word.push(pos);
   }
 
@@ -74,20 +59,16 @@ export function puzzleFromFileData(data) {
   // using file descriptions at
   // http://acrossdown.net/specification.htmvar
   // https://code.google.com/archive/p/puz/wikis/FileFormat.wiki
-  var decoder = new TextDecoder("ascii"),
+  var decoder = new TextDecoder('ascii'),
     dv = new DataView(data),
     label = decoder.decode(data.slice(2, 13)),
     width = dv.getUint8(0x2c),
     height = dv.getUint8(0x2d),
     size = width * height,
-    solution = decoder.decode(data.slice(0x34, 0x34 + size)).split(""),
-    guesses = decoder
-      .decode(data.slice(0x34 + size, 0x34 + size * 2))
-      .split(""),
+    solution = decoder.decode(data.slice(0x34, 0x34 + size)).split(''),
+    guesses = decoder.decode(data.slice(0x34 + size, 0x34 + size * 2)).split(''),
     clueCount = numClues(solution, width),
-    info = decoder
-      .decode(data.slice(0x34 + size * 2))
-      .split("\0", clueCount + 4),
+    info = decoder.decode(data.slice(0x34 + size * 2)).split('\0', clueCount + 4),
     title = info[0],
     author = info[1],
     copyright = info[2],
@@ -98,7 +79,7 @@ export function puzzleFromFileData(data) {
     extras = {};
 
   // process extras as binary data
-  var index = 0x34 + size * 2 + (info.join("").length + info.length); // length of strings plus their null terminators
+  var index = 0x34 + size * 2 + (info.join('').length + info.length); // length of strings plus their null terminators
   var code, len, content;
   while (index < data.byteLength) {
     code = decoder.decode(data.slice(index, index + 4)); // section title
@@ -128,10 +109,10 @@ export function puzzleFromFileData(data) {
     decoder
       .decode(extras.RTBL)
       .trim()
-      .replace(/;$/, "")
+      .replace(/;$/, '')
       .split(/; */)
-      .forEach(function(item) {
-        var kv = item.split(":");
+      .forEach(function (item) {
+        var kv = item.split(':');
         table[parseInt(kv[0])] = kv[1];
       });
     extras.RTBL = table;
@@ -170,14 +151,14 @@ export function puzzleFromFileData(data) {
     title,
     copyright,
     note,
-    extras
+    extras,
   };
 
   // TODO: do this right. It's just to remove : from guesses in diagramless
   // The situation seems to be: in solution, ':' means a black square, and puzzle is meant to be diagramless
   // in guesses, ':' means user has not filled this square, but square is black in solution
   // '.' I guess would mean user has marked the square black
-  puzzle.guesses = _.repeat("-", puzzle.guesses.length).split("");
+  puzzle.guesses = _.repeat('-', puzzle.guesses.length).split('');
   return puzzle;
 }
 
@@ -186,14 +167,14 @@ function numberGrid(grid, width, clueList) {
   var numbers = [];
   var clues = clueList ? [] : null;
 
-  _.range(0, grid.length).forEach(k => {
-    [ACROSS, DOWN].forEach(dir => {
+  _.range(0, grid.length).forEach((k) => {
+    [ACROSS, DOWN].forEach((dir) => {
       if (isStartCell(grid, width, k, dir)) {
         if (clues)
           clues.push({
-            number: number + "",
+            number: number + '',
             direction: dir,
-            clue: clueList[clues.length]
+            clue: clueList[clues.length],
           });
         numbers[k] = number;
       }
@@ -205,8 +186,8 @@ function numberGrid(grid, width, clueList) {
 
 function numClues(grid, width) {
   var count = 0;
-  _.range(0, grid.length).forEach(k => {
-    [ACROSS, DOWN].forEach(function(dir) {
+  _.range(0, grid.length).forEach((k) => {
+    [ACROSS, DOWN].forEach(function (dir) {
       if (isStartCell(grid, width, k, dir)) count++;
     });
   });
@@ -217,8 +198,7 @@ function isStartCell(grid, width, k, direction) {
   var one = direction === ACROSS ? 1 : width,
     place = direction === ACROSS ? k % width : Math.floor(k / width),
     startsLine = place === 0,
-    endsLine =
-      direction === ACROSS ? place === width - 1 : k + width >= grid.length;
+    endsLine = direction === ACROSS ? place === width - 1 : k + width >= grid.length;
   return (
     !isBlack(grid, k) &&
     (startsLine || isBlack(grid, k - one)) &&
@@ -227,7 +207,7 @@ function isStartCell(grid, width, k, direction) {
 }
 
 function isBlack(grid, k) {
-  return grid[k] === ":" || grid[k] === ".";
+  return grid[k] === ':' || grid[k] === '.';
 }
 
 // returns new cursor position after moving one cell in direction
@@ -244,13 +224,13 @@ export function moveOnGrid(start, direction, gridSize, options = {}) {
   if (until) {
     return moveOnGridUntil(options.until, start, direction, gridSize, {
       atLineEnd,
-      onPuzzleWrap
+      onPuzzleWrap,
     });
   }
 
   const vector = direction; // TODO make direction a string & look up vector
-  const onGrid = position => vectorFits(position, gridSize);
-  const wrap = position => vectorMod(position, gridSize);
+  const onGrid = (position) => vectorFits(position, gridSize);
+  const wrap = (position) => vectorMod(position, gridSize);
 
   const unwrapped = vectorAdd(start, vector);
   if (onGrid(unwrapped)) return unwrapped;
@@ -332,7 +312,7 @@ export function isWordStart(cursor, direction, grid) {
   const vector = direction; // TODO make direction a string & look up vector
   const oneBack = vectorSubtract(cursor, vector),
     oneForward = vectorAdd(cursor, vector),
-    white = pos => isWhiteCell(grid, pos);
+    white = (pos) => isWhiteCell(grid, pos);
   return white(cursor) && !white(oneBack) && white(oneForward);
 }
 
@@ -340,10 +320,10 @@ export function parseRelatedClues(clue) {
   const regex = /(\d+-(,|,? and|,? or) )*\d+-(Across|Down)/gi;
   const matches = clue.match(regex) || [];
   return matches
-    .map(match => {
+    .map((match) => {
       const numbers = match.match(/\d+/g);
       const direction = match.match(/across/i) ? ACROSS : DOWN;
-      return numbers.map(number => {
+      return numbers.map((number) => {
         return { number, direction };
       });
     })

@@ -10,6 +10,7 @@ export const DIAGONAL = "DIAGONAL",
 class XwdGrid {
   grid = [];
   symmetry = null;
+  autonumbering = false;
 
   constructor(height, width, data) {
     console.debug('XwdGrid.constructor');
@@ -207,9 +208,12 @@ class XwdGrid {
     });
   }
 
+  // TODO grid should deserialize itself
   serialize() {
     return {
-      cells: this.grid.flat()
+      cells: this.grid.flat(),
+      autonumbering: this.autonumbering,
+      symmetry: this.symmetry,
     };
   }
 

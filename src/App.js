@@ -4,13 +4,13 @@ import "./xword.css";
 import "./nyt.css";
 import "./nyt-fonts";
 import "./reactFileDropDemo.css";
-import Puzzle from "./components/puzzle";
+import PuzzleLoader from "./components/PuzzleLoader";
 import { configure } from "mobx";
 
 configure({ enforceActions: "always" });
 
 function App() {
-  return <Puzzle />;
+  return <PuzzleLoader />;
 }
 
 export default App;
