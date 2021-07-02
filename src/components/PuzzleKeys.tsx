@@ -9,7 +9,7 @@ import {
   CHANGE_NUMBER,
 } from '../services/puzzleActionTracker';
 import { XwdPuzzle } from '../model/puzzle';
-import { addToCursor, toggleDirection } from '../model/cursor';
+import { addToCursor, goToNextWord, toggleDirection } from '../model/cursor';
 import { XwdDirection } from '../model/grid';
 
 const arrowVectors: Record<string, number[]> = {
@@ -28,16 +28,6 @@ interface PuzzleKeysProps {
 
 export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
   /*
-  const handleTabKey = (event) => {
-    if (keyMatch(event, 9, [altKey])) {
-      this.handleTab({
-        eitherDirection: event.altKey,
-        backward: event.shiftKey,
-      });
-      return true;
-    }
-  };
-
   const handlePeriodKey = (event) => {
     if (keyMatch(event, 190) && this.puzzle && !this.puzzle.isSolved) {
       this.toggleBlack();
@@ -189,22 +179,31 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
 
   useEffect(() => {
     const handleArrowKey = (event: KeyboardEvent) => {
-      if (keyMatch(event, [37, 40])) {
-        const vector = arrowVectors[event.key];
-        if (vector) {
-          setPuzzle((prev) =>
-            isPerpendicular(prev.cursor.direction, vector)
-              ? { ...prev, cursor: toggleDirection(prev.cursor) }
-              : addToCursor(prev, vector[0], vector[1])
-          );
-        }
-        return true;
-      }
+      const vector = arrowVectors[event.key];
+      if (!vector) return false;
+      setPuzzle((prev) =>
+        isPerpendicular(prev.cursor.direction, vector)
+          ? { ...prev, cursor: toggleDirection(prev.cursor) }
+          : addToCursor(prev, vector[0], vector[1])
+      );
+      return true;
+    };
+
+    const handleTabKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return false;
+      setPuzzle((prev) =>
+        goToNextWord(prev, {
+          eitherDirection: event.altKey,
+          backward: event.shiftKey,
+          skipFilled: true,
+        })
+      );
+      return true;
     };
 
     const keyHandlers = [
       handleArrowKey,
-      //handleTabKey,
+      handleTabKey,
       //handleBackspaceKey,
       //handleAlphaKey,
       //handleDigitKey,
