@@ -51,6 +51,5 @@ export const numberWordStarts = (grid: XwdGrid) => {
   )(grid);
 };
 
-export const wordIncludes = (row: number, col: number, word: XwdWord) => {
-  word.some(([i, j]) => row === i && col === j);
-};
+export const wordIncludes = (row: number, col: number, word: XwdWord) =>
+  word.some(([i, j]) => i === row && j === col);
