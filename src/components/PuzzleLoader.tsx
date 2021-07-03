@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
-import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
+import { applyAutonumbering, puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../services/common/utils';
 import Clock from '../model/clock';
 import { gridIsSolved } from '../model/grid';
@@ -46,11 +46,12 @@ export default function PuzzleLoader() {
   const onDrop = handleDrop((contents) => {
     const newPuzzle = puzzleFromFile(contents);
     if (!newPuzzle) return;
-    // preserve settings
+    // preserve numbering / symmetry settings
     newPuzzle.isAutonumbered = puzzle.isAutonumbered;
     newPuzzle.symmetry = puzzle.symmetry;
+    // set clock
     clock.setTime(newPuzzle.time || 0);
-    setPuzzle(newPuzzle);
+    setPuzzle(applyAutonumbering(newPuzzle));
   });
 
   return <Puzzle puzzle={puzzle} setPuzzle={setPuzzle} clock={clock} onDrop={onDrop} />;
