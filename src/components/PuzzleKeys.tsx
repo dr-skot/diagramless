@@ -2,8 +2,8 @@ import { Dispatch, SetStateAction, useEffect } from 'react';
 import { DOWN, LEFT, RIGHT, UP } from '../services/xwdService';
 import { advanceCursorInWord, changeCurrentCell, XwdPuzzle } from '../model/puzzle';
 import { addToCursor, currentCell, goToNextWord, toggleDirection } from '../model/cursor';
-import { XwdDirection } from '../model/grid';
 import { setContent, toggleBlack } from '../model/cell';
+import { backVector, isPerpendicular, vector } from '../model/direction';
 
 // TODO change number[] to vector here
 const arrowVectors: Record<string, number[]> = {
@@ -13,19 +13,12 @@ const arrowVectors: Record<string, number[]> = {
   ArrowDown: DOWN,
 };
 
-type Vector = [number, number];
-const vector = (direction: XwdDirection): Vector => (direction === 'across' ? [0, 1] : [1, 0]);
-const backVector = (direction: XwdDirection): Vector =>
-  direction === 'across' ? [0, -1] : [-1, 0];
-
-const isPerpendicular = (direction: XwdDirection, vector: number[]) =>
-  (direction === 'across' && vector[0]) || (direction === 'down' && vector[1]);
-
 interface PuzzleKeysProps {
   setPuzzle: Dispatch<SetStateAction<XwdPuzzle>>;
+  onRebus: () => void;
 }
 
-export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
+export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
   useEffect(() => {
     let editingNumber: XwdPuzzle | null = null;
 
@@ -102,6 +95,7 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
     const handleDigitKey = (event: KeyboardEvent) => {
       if (!event.key.match(/^\d$/)) return false;
 
+      // adds digit if we were already editing, starts over if not; '0' becomes empty string
       function editNumber(number: string, digit: string, wasEditing: boolean) {
         const newNumber = (wasEditing ? number : '') + digit;
         return newNumber === '0' ? '' : newNumber;
@@ -111,14 +105,21 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
         const cell = currentCell(prev);
         if (prev.isAutonumbered || cell.isLocked) return prev;
         else {
-          editingNumber = changeCurrentCell((c) => ({
+          // editingNumber saves the puzzle state each time we edit
+          // so if editingNumber === prev, continue editing; otherwise start over
+          editingNumber = changeCurrentCell({
             isBlack: false,
-            number: editNumber(c.number, event.key, prev === editingNumber),
-          }))(prev);
+            number: editNumber(cell.number, event.key, prev === editingNumber),
+          })(prev);
           return editingNumber;
         }
       });
       return true;
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return false;
+      onRebus();
     };
 
     const keyHandlers = [
@@ -128,12 +129,17 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
       handleAlphaKey,
       handlePeriodKey,
       handleDigitKey,
+      handleEscapeKey,
     ];
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.metaKey) return;
+      // ignore command-key combinations
+      if (event.metaKey || event.ctrlKey) return;
+
+      // clear editingNumber on any key that doesn't edit the number
       if (!(event.key === 'Backspace' || event.key.match(/^\d$/))) editingNumber = null;
 
+      // try each handler; if one responds, prevent default
       keyHandlers.forEach((handler) => {
         if (handler(event)) event.preventDefault();
       });
@@ -143,6 +149,6 @@ export default function PuzzleKeys({ setPuzzle }: PuzzleKeysProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [setPuzzle]);
+  }, [onRebus, setPuzzle]);
   return null;
 }

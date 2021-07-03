@@ -67,10 +67,6 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle, onRebus }: Puz
     puzdata_to_pdf(puzzle);
   }
 
-  function handleRebusButton() {
-    alert('rebus!');
-  }
-
   return (
     <div className="Toolbar-wrapper--1S7nZ toolbar-wrapper">
       <ul className="Toolbar-tools--2qUqg">
@@ -79,7 +75,7 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle, onRebus }: Puz
         </li>
         <PuzzleClock clock={clock} disabled={gridIsSolved(puzzle.grid)} />
         <li className="Tool-button--39W4J Tool-tool--Fiz94 Tool-texty--2w4Br">
-          <button onClick={handleRebusButton}>rebus</button>
+          <button onClick={onRebus}>rebus</button>
         </li>
         <div className="Toolbar-expandedMenu--2s4M4">
           {Object.entries(menu).map(([title, items]) => (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, LegacyRef } from 'react';
+import React, { useState, useEffect, Ref } from 'react';
 import ClueBar from './ClueBar';
 import PuzzleGrid from './PuzzleGrid';
 import { currentClue, XwdPuzzle } from '../model/puzzle';
@@ -7,7 +7,7 @@ import { PuzzleDispatch } from './PuzzleLoader';
 interface ClueBarAndBoardProps {
   puzzle: XwdPuzzle;
   setPuzzle: PuzzleDispatch;
-  cursorRef: LegacyRef<HTMLDivElement>;
+  cursorRef: Ref<HTMLDivElement>;
 }
 export default function ClueBarAndBoard({ puzzle, setPuzzle, cursorRef }: ClueBarAndBoardProps) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);

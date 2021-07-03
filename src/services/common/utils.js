@@ -84,6 +84,7 @@ function objValueMap(obj, fn) {
 
 // fits one DOM element on top of another
 export function fitTo(anchor, el) {
+  if (!(anchor && el)) return;
   const rect = objValueMap(offsetRect(anchor), (v) => v + 'px');
   Object.assign(el.style, rect);
 }

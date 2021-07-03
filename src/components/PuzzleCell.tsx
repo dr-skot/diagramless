@@ -1,4 +1,4 @@
-import React, { useState, useEffect, LegacyRef, MouseEventHandler } from 'react';
+import React, { useEffect, LegacyRef, MouseEventHandler, useRef } from 'react';
 import { keysWithTrueValues } from '../services/common/utils';
 import { XwdCell } from '../model/cell';
 
@@ -49,21 +49,21 @@ interface PuzzleCellProps {
 }
 
 export default function PuzzleCell({ width, cell, cursor, cursorRef, onClick }: PuzzleCellProps) {
-  const [textSpan, setTextSpan] = useState<HTMLSpanElement | null>(null);
+  const span = useRef<HTMLSpanElement>(null);
 
   // fit text
   useEffect(() => {
-    if (!textSpan) return;
+    if (!span.current) return;
     const boxWidth = width - 2;
     const baseFontSize = getFontSize(width);
-    if (textSpan.offsetWidth > boxWidth) {
-      const newFontSize = baseFontSize * (boxWidth / textSpan.offsetWidth);
-      textSpan.style.fontSize = Math.min(newFontSize, baseFontSize) + 'px';
+    if (span.current.offsetWidth > boxWidth) {
+      const newFontSize = baseFontSize * (boxWidth / span.current.offsetWidth);
+      span.current.style.fontSize = Math.min(newFontSize, baseFontSize) + 'px';
     }
     return () => {
-      textSpan.style.fontSize = 'inherit';
+      if (span.current) span.current.style.fontSize = 'inherit';
     };
-  }, [width, textSpan]);
+  }, [width, cell.content]);
 
   const { content, number, isBlack, circle } = cell;
   // TODO implement cell click
@@ -75,7 +75,7 @@ export default function PuzzleCell({ width, cell, cursor, cursorRef, onClick }: 
       onClick={onClick}
     >
       <div className="content">
-        <span ref={setTextSpan}>{isBlack ? '' : content}</span>
+        <span ref={span}>{isBlack ? '' : content}</span>
       </div>
       <div className="label">{isBlack ? '' : number}</div>
       {circle ? <div className="circle" /> : ''}
