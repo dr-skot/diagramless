@@ -84,7 +84,7 @@ function PuzzleView(props: PuzzleViewProps) {
     <>
       <PuzzleToolbar clock={clock} puzzle={puzzle} setPuzzle={setPuzzle} onRebus={toggleRebus} />
       <PuzzleHeader title={puzzle.title} author={puzzle.author} />
-      <div className="layout-puzzle" onDrop={onDrop}>
+      <div className="layout-puzzle" onDrop={onDrop} onDragOver={(e) => e.preventDefault()}>
         <ClueBarAndBoard puzzle={puzzle} setPuzzle={setPuzzle} cursorRef={cursorRef} />
         <ClueLists puzzle={puzzle} setPuzzle={setPuzzle} />
       </div>
