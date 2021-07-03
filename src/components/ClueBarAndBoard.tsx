@@ -17,7 +17,7 @@ export default function ClueBarAndBoard({ puzzle, setPuzzle, cursorRef }: ClueBa
     const updateWindowWidth = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', updateWindowWidth);
     return () => window.removeEventListener('resize', updateWindowWidth);
-  });
+  }, []);
 
   function computeWidths() {
     if (!container) return null;
