@@ -1,4 +1,4 @@
-import React, { useState, useEffect, DragEventHandler, LegacyRef } from 'react';
+import React, { useState, useEffect, DragEventHandler } from 'react';
 import PuzzleHeader from './PuzzleHeader';
 import ClueBarAndBoard from './ClueBarAndBoard';
 import ClueLists from './ClueLists';
@@ -8,6 +8,8 @@ import Clock from '../model/clock';
 import { XwdPuzzle } from '../model/puzzle';
 import PuzzleKeys from './PuzzleKeys';
 import { PuzzleDispatch } from './PuzzleLoader';
+import { XwdDirection } from '../model/grid';
+import { goToWord } from '../model/cursor';
 
 const noOp = () => {};
 
@@ -38,18 +40,7 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop }: PuzzleProps
     <>
       <PuzzleKeys setPuzzle={setPuzzle} />
       <div className={showModal === PAUSED ? 'app-obscured--26XpG' : ''}>
-        <PuzzleView
-          puzzle={puzzle}
-          setPuzzle={setPuzzle}
-          clock={clock}
-          cursorRef={noOp}
-          rebus={false}
-          rebusDivRef={noOp}
-          rebusInputRef={noOp}
-          onMenuSelect={noOp}
-          onClueSelect={noOp}
-          onDrop={onDrop}
-        />
+        <PuzzleView puzzle={puzzle} setPuzzle={setPuzzle} clock={clock} onDrop={onDrop} />
       </div>
       <PuzzleModal
         reason={showModal}
@@ -66,31 +57,24 @@ interface PuzzleViewProps {
   puzzle: XwdPuzzle;
   setPuzzle: PuzzleDispatch;
   clock: Clock;
-  cursorRef: LegacyRef<HTMLDivElement>;
-  rebus: boolean;
-  rebusDivRef: LegacyRef<HTMLDivElement>;
-  rebusInputRef: LegacyRef<HTMLInputElement>;
   onDrop: DragEventHandler;
-  onClueSelect: () => void;
-  onMenuSelect: () => void;
 }
 
 function PuzzleView(props: PuzzleViewProps) {
-  const {
-    puzzle,
-    setPuzzle,
-    clock,
-    cursorRef,
-    rebus,
-    rebusDivRef,
-    rebusInputRef,
-    onDrop,
-    onClueSelect,
-  } = props;
+  const { puzzle, setPuzzle, clock, onDrop } = props;
+
+  const cursorRef = noOp;
+  const rebusDivRef = noOp;
+  const rebusInputRef = noOp;
+  const rebus = false;
+
+  function onClueSelect(number: string, direction: XwdDirection) {
+    setPuzzle(goToWord(number, direction));
+  }
 
   return (
     <>
-      <PuzzleToolbar clock={clock} puzzle={puzzle} setPuzzle={setPuzzle} />
+      <PuzzleToolbar clock={clock} puzzle={puzzle} setPuzzle={setPuzzle} onRebus={noOp} />
       <PuzzleHeader title={puzzle.title} author={puzzle.author} />
       <div className="layout-puzzle" onDrop={onDrop} onDragOver={(e) => e.preventDefault()}>
         <ClueBarAndBoard puzzle={puzzle} setPuzzle={setPuzzle} cursorRef={cursorRef} />

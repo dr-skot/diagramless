@@ -59,8 +59,8 @@ export const toggleBlack = (cell: XwdCell) =>
 
 // Checking and revealing
 
-export const cellIsCorrect = (cell: XwdCell) =>
-  blackIsCorrect(cell) && (cell.isBlack || contentIsCorrect(cell));
+export const cellIsCorrect = (cell: XwdCell): boolean =>
+  blackIsCorrect(cell) && (!!cell.isBlack || contentIsCorrect(cell));
 
 export const blackIsCorrect = (cell: XwdCell) => !!cell.isBlack === !!cell.solution.isBlack;
 
@@ -68,7 +68,7 @@ export const contentIsCorrect = (cell: XwdCell) => cell.content === cell.solutio
 
 export const cellIsEmpty = (cell: XwdCell) => !cell.isBlack && !cell.content;
 
-export const checkCell = (cell: XwdCell) =>
+export const checkCell = (cell: XwdCell): XwdCell =>
   cellIsEmpty(cell)
     ? cell
     : { ...cell, isMarkedWrong: !cellIsCorrect(cell), isLocked: cellIsCorrect(cell) };

@@ -4,7 +4,7 @@ import { enforceSymmetry, getSisterCell, XwdSymmetry } from './symmetry';
 import { ACROSS, parseRelatedClues, puzzleFromFileData } from '../services/xwdService';
 import { getCellsInWord, numberWordStarts, wordIncludes, wordNumber } from './word';
 import { XwdCell } from './cell';
-import { arraySet, nextOrLast, wrapFindIndex } from '../services/common/utils';
+import { nextOrLast, wrapFindIndex } from '../services/common/utils';
 
 export interface XwdClue {
   number: string;
@@ -15,11 +15,6 @@ export interface XwdClue {
 export interface XwdWordLoc {
   number: string;
   direction: XwdDirection;
-}
-
-export interface XwdData {
-  title?: string;
-  author?: string;
 }
 
 export interface XwdPuzzle {

@@ -1,10 +1,11 @@
 import React from 'react';
 import ClueList from './ClueList';
 import { XwdPuzzle } from '../model/puzzle';
+import { XwdDirection } from '../model/grid';
 
 interface ClueListsProps {
   puzzle: XwdPuzzle;
-  onClueSelect: (clue: any) => void;
+  onClueSelect: (number: string, direction: XwdDirection) => void;
 }
 
 // TODO simplify: just pass the puzzle to these fools

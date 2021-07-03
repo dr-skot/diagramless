@@ -8,68 +8,25 @@ import {
   changeCurrentCell,
   setSymmetry,
   toggleAutonumbering,
+  XwdPuzzle,
 } from '../model/puzzle';
 import { puzdata_to_pdf } from '../services/puzzlePdf';
-import { gridIsSolved, mapCells, revealCircles, revealDiagram } from '../model/grid';
+import { gridIsSolved } from '../model/grid';
 import { checkCell, clearCell, revealCell, revealCircle, revealMeta } from '../model/cell';
+import Clock from '../model/clock';
+import { PuzzleDispatch } from './PuzzleLoader';
 
-// TODO all these state changes should register their actions (ugh)
-const handleMenuSelect = (title, item, puzzle, clock) => {
-  const grid = puzzle.grid,
-    cellFinder = {
-      square: () => [grid.currentCell],
-      word: () => grid.word.map((location) => grid.cell(...location)),
-      puzzle: () => grid.grid.flat(),
-      'puzzle & timer': () => grid.grid.flat(),
-      'white squares': () => grid.grid.flat().filter((cell) => !cell.isBlack),
-      // TODO support incomplete
-    }[item],
-    cells = cellFinder ? cellFinder() : [];
-  if (title === 'print') {
-    // this.print();
-  }
-  if (title === 'rebus') {
-    // this.handleRebusButton();
-  }
-  if (title === 'check') {
-    cells.forEach((cell) => cell.check());
-  }
-  if (title === 'reveal') {
-    if (item === 'diagram') {
-      grid.revealDiagram();
-    } else if (item === 'circles') {
-      grid.revealCircles();
-    } else {
-      cells.forEach((cell) => cell.reveal());
-    }
-  }
-  if (title === 'clear') {
-    if (cells.length < 1) return;
-    cells.forEach((cell) => {
-      cell.clear({ numbers: item.match(/^puzzle/) });
-    });
-    if (item === 'puzzle & timer') {
-      this.clock.reset();
-    }
-    this.clock.start();
-  }
-  if (title === 'symmetry') {
-    const symmetryType = item;
-    grid.setSymmetry(symmetryType);
-  }
-  if (title === 'number') {
-    if (item === 'continuously') {
-      grid.toggleAutonumbering();
-    } else {
-      grid.numberWordStarts();
-    }
-  }
-};
+interface PuzzleToolbarProps {
+  clock: Clock;
+  puzzle: XwdPuzzle;
+  setPuzzle: PuzzleDispatch;
+  onRebus: () => void;
+}
 
-export default function PuzzleToolbar({ clock, puzzle, setPuzzle }) {
-  const checked = {
-    symmetry: puzzle.symmetry,
-    number: puzzle.isAutonumbered ? 'continuously' : null,
+export default function PuzzleToolbar({ clock, puzzle, setPuzzle, onRebus }: PuzzleToolbarProps) {
+  const checked: Record<string, string> = {
+    symmetry: puzzle.symmetry as string,
+    number: puzzle.isAutonumbered ? 'continuously' : '',
   };
 
   // TODO support clear incomplete
@@ -106,24 +63,23 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle }) {
     },
   };
 
-  function onMenuSelect(title, item) {
-    handleMenuSelect(title, item, puzzle, clock);
-    // onChange(puzzle);
-  }
-
   function print() {
     puzdata_to_pdf(puzzle);
+  }
+
+  function handleRebusButton() {
+    alert('rebus!');
   }
 
   return (
     <div className="Toolbar-wrapper--1S7nZ toolbar-wrapper">
       <ul className="Toolbar-tools--2qUqg">
-        <li className="Tool-button--39W4J Tool-tool--Fiz94">
+        <li className="Tool-button--39W4J Tool-tool--Fiz94 Tool-texty--2w4Br">
           <button onClick={print}>Print</button>
         </li>
         <PuzzleClock clock={clock} disabled={gridIsSolved(puzzle.grid)} />
         <li className="Tool-button--39W4J Tool-tool--Fiz94 Tool-texty--2w4Br">
-          <button onClick={() => onMenuSelect('rebus', '')}>rebus</button>
+          <button onClick={handleRebusButton}>rebus</button>
         </li>
         <div className="Toolbar-expandedMenu--2s4M4">
           {Object.entries(menu).map(([title, items]) => (

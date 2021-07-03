@@ -58,17 +58,19 @@ export const clueNumber = (puzzle: XwdPuzzle, direction: XwdDirection) => {
   return wordNumber(grid, word);
 };
 
-export const goToWord = (puzzle: XwdPuzzle, number: string, direction: XwdDirection) => {
-  const { grid } = puzzle;
-  for (let row = 0; row < grid.length; row++) {
-    for (let col = 0; col < grid[0].length; col++) {
-      if (grid[row][col].number === number) {
-        return { ...puzzle, cursor: { row, col, direction } };
+export const goToWord =
+  (number: string, direction: XwdDirection) =>
+  (puzzle: XwdPuzzle): XwdPuzzle => {
+    const { grid } = puzzle;
+    for (let row = 0; row < grid.length; row++) {
+      for (let col = 0; col < grid[0].length; col++) {
+        if (grid[row][col].number === number) {
+          return { ...puzzle, cursor: { row, col, direction } };
+        }
       }
     }
-  }
-  return puzzle;
-};
+    return puzzle;
+  };
 
 export interface NextWordOptions {
   backward?: boolean;
