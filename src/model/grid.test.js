@@ -4,7 +4,7 @@ import {
   gridHeight,
   gridWidth,
   setContents,
-  isFilled,
+  gridIsFilled,
   gridIsSolved,
   mapCells,
 } from './grid';
@@ -40,13 +40,13 @@ it('can read puzzle contents', () => {
 it("knows when it's filled", () => {
   const data = 'abc:defghi:jkl'.split('');
   const xwd = setContents(data)(newGrid(2, 7));
-  expect(isFilled(xwd)).toBe(true);
+  expect(gridIsFilled(xwd)).toBe(true);
 });
 
 it("knows when it's not filled", () => {
   const data = 'abc:defghi: kl'.split('').map((s) => s.trim());
   const xwd = setContents(data)(newGrid(2, 7));
-  expect(isFilled(xwd)).toBe(false);
+  expect(gridIsFilled(xwd)).toBe(false);
 });
 
 it("knows when it's not solved", () => {

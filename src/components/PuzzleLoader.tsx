@@ -3,7 +3,7 @@ import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
 import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../services/common/utils';
 import Clock from '../model/clock';
-import { gridIsSolved } from '../model/grid';
+import { gridIsFilled, gridIsSolved } from '../model/grid';
 import Puzzle from './Puzzle';
 
 const loadPuzzle = () => tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE);
@@ -34,8 +34,6 @@ export type PuzzleDispatch = Dispatch<SetStateAction<XwdPuzzle>>;
 export default function PuzzleLoader() {
   const [puzzle, setPuzzle] = useState<XwdPuzzle>(loadPuzzle());
   const [clock] = useState(new Clock(puzzle.time));
-
-  // TODO fix gridIsSolved
 
   useEffect(() => {
     const savePuzzle = () => storePuzzle({ ...puzzle, time: clock.getTime() });

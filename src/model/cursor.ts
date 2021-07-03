@@ -1,4 +1,4 @@
-import { gridHeight, gridWidth, isFilled, XwdDirection } from './grid';
+import { gridHeight, gridWidth, gridIsFilled, XwdDirection } from './grid';
 import { getWord, LEFT, moveOnGrid, NEXT_LINE, RIGHT } from '../services/xwdService';
 import { includesEqual, mod } from '../services/common/utils';
 import { findWord, wordNumber, wordStartsAt } from './word';
@@ -101,7 +101,7 @@ export const goToNextWord = (puzzle: XwdPuzzle, options: NextWordOptions = {}): 
   //console.log({ newWord, emptyCell, newPos });
   const newCursor = { row: newPos[0], col: newPos[1], direction };
   const newPuzzle = { ...puzzle, cursor: newCursor };
-  return !emptyCell && options.skipFilled && !isFilled(grid)
+  return !emptyCell && options.skipFilled && !gridIsFilled(grid)
     ? goToNextWord(newPuzzle, options)
     : newPuzzle;
 };
