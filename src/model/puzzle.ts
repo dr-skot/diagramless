@@ -1,8 +1,8 @@
-import { findCell, mapCells, newGrid, XwdDirection, XwdGrid } from './grid';
+import { findCell, mapCells, newGrid, XwdCellCallback, XwdDirection, XwdGrid } from './grid';
 import { currentCell, currentWord, XwdCursor } from './cursor';
 import { enforceSymmetry, getSisterCell, XwdSymmetry } from './symmetry';
 import { ACROSS, parseRelatedClues, puzzleFromFileData } from '../services/xwdService';
-import { getCellsInWord, numberWordStarts, wordNumber } from './word';
+import { getCellsInWord, numberWordStarts, wordIncludes, wordNumber } from './word';
 import { XwdCell } from './cell';
 import { arraySet, nextOrLast, wrapFindIndex } from '../services/common/utils';
 
@@ -135,46 +135,55 @@ export const wordCells = (grid: XwdGrid, locations: XwdWordLoc[]) => {
 export const currentSisterCell = ({ grid, cursor, symmetry }: XwdPuzzle) =>
   getSisterCell(grid, cursor.row, cursor.col, symmetry);
 
+export type XwdCellChange = Partial<XwdCell> | ((cell: XwdCell) => Partial<XwdCell>);
+export const changeCell = (cell: XwdCell, change: XwdCellChange): XwdCell => {
+  const changes = typeof change === 'function' ? change(cell) : change;
+  return { ...cell, ...changes };
+};
+
+export const gridReplaceCell =
+  (row: number, col: number, newCell: XwdCell, symmetry: XwdSymmetry = null) =>
+  (grid: XwdGrid): XwdGrid => {
+    const sister = getSisterCell(grid, row, col, symmetry);
+    const newSister =
+      !sister || !sister.isBlack === !newCell.isBlack
+        ? sister
+        : { ...sister, isBlack: newCell.isBlack && symmetry };
+    return mapCells((cell, index) =>
+      index.row === row && index.col === col ? newCell : cell === sister ? newSister : cell
+    )(grid);
+  };
+
+export const changeCells =
+  (change: XwdCellChange) =>
+  (filter: XwdCellCallback = () => true) =>
+  (puzzle: XwdPuzzle): XwdPuzzle => {
+    let grid = puzzle.grid;
+    let pos = 0;
+    for (let row = 0; row < puzzle.height; row++) {
+      for (let col = 0; col < puzzle.width; col++) {
+        const cell = grid[row][col];
+        if (filter(cell, { row, col, pos })) {
+          grid = gridReplaceCell(row, col, changeCell(cell, change), puzzle.symmetry)(grid);
+        }
+        pos++;
+      }
+    }
+    return applyAutonumbering({ ...puzzle, grid });
+  };
+
 export const changeCurrentCell =
   (change: Partial<XwdCell> | ((cell: XwdCell) => Partial<XwdCell>)) =>
   (puzzle: XwdPuzzle): XwdPuzzle => {
-    const oldCell = currentCell(puzzle);
-    const changes = typeof change === 'function' ? change(oldCell) : change;
-    if (changes === oldCell) return puzzle;
-    const newCell = { ...oldCell, ...changes };
-    const [i, j] = [puzzle.cursor.row, puzzle.cursor.col];
-    let newPuzzle = {
-      ...puzzle,
-      grid: arraySet(i, arraySet(j, newCell)(puzzle.grid[i]))(puzzle.grid),
-    };
-    if (newCell.isBlack !== oldCell.isBlack && puzzle.symmetry) {
-      if (puzzle.symmetry) {
-        const sister = currentSisterCell(newPuzzle);
-        if (sister && !!sister.isBlack !== !!newCell.isBlack) {
-          newPuzzle = {
-            ...newPuzzle,
-            grid: mapCells((c) =>
-              c === sister ? { ...c, isBlack: newCell.isBlack && puzzle.symmetry } : c
-            )(newPuzzle.grid),
-          };
-        }
-      }
-      newPuzzle = applyAutonumbering(newPuzzle);
-    }
-    return newPuzzle;
+    const current = currentCell(puzzle);
+    return changeCells(change)((cell) => cell === current)(puzzle);
   };
 
 export const changeCellsInWord =
   (change: (cell: XwdCell) => Partial<XwdCell>) =>
   (puzzle: XwdPuzzle): XwdPuzzle => {
     const word = currentWord(puzzle);
-    if (!word?.length) return puzzle;
-    return {
-      ...puzzle,
-      grid: mapCells((cell, { row, col }) =>
-        word.some(([i, j]) => i === row && j === col) ? change(cell) : cell
-      )(puzzle.grid),
-    };
+    return changeCells(change)((_, { row, col }) => wordIncludes(row, col, word))(puzzle);
   };
 
 export function advanceCursorInWord(puzzle: XwdPuzzle, findEmpty: boolean) {

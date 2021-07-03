@@ -49,3 +49,7 @@ export const numberWordStarts = (grid: XwdGrid) => {
     wordStartsAt(grid, row, col) ? { ...cell, number: `${++counter}` } : cell
   )(grid);
 };
+
+export const wordIncludes = (row: number, col: number, word: XwdWord) => {
+  word.some(([i, j]) => row === i && col === j);
+};

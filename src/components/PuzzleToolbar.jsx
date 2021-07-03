@@ -3,6 +3,7 @@ import DropMenu from './DropMenu';
 import PuzzleClock from './PuzzleClock';
 import {
   autonumber,
+  changeCells,
   changeCellsInWord,
   changeCurrentCell,
   setSymmetry,
@@ -10,7 +11,7 @@ import {
 } from '../model/puzzle';
 import { puzdata_to_pdf } from '../services/puzzlePdf';
 import { gridIsSolved, mapCells, revealCircles, revealDiagram } from '../model/grid';
-import { checkCell, clearCell, revealCell } from '../model/cell';
+import { checkCell, clearCell, revealCell, revealCircle, revealMeta } from '../model/cell';
 
 // TODO all these state changes should register their actions (ugh)
 const handleMenuSelect = (title, item, puzzle, clock) => {
@@ -73,7 +74,6 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle }) {
 
   // TODO support clear incomplete
   // TODO support autocheck
-  // TODO write convenience functions changePuzzleCells
   const menu = {
     number: {
       now: () => setPuzzle(autonumber),
@@ -85,29 +85,24 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle }) {
     },
     clear: {
       word: () => setPuzzle(changeCellsInWord(clearCell)),
-      'white squares': () =>
-        setPuzzle((prev) => ({
-          ...prev,
-          grid: mapCells((c) => (c.isBlack ? c : clearCell(c)))(prev.grid),
-        })),
-      puzzle: () =>
-        setPuzzle((prev) => ({ ...prev, grid: mapCells((cell) => clearCell(cell))(prev.grid) })),
+      'white squares': () => setPuzzle(changeCells(clearCell)((cell) => cell.isBlack)),
+      puzzle: () => setPuzzle(changeCells(clearCell)()),
       'puzzle & timer': () => {
-        setPuzzle((prev) => ({ ...prev, grid: mapCells((cell) => clearCell(cell))(prev.grid) }));
+        setPuzzle(changeCells(clearCell)());
         clock.reset();
       },
     },
     reveal: {
       square: () => setPuzzle(changeCurrentCell(revealCell)),
       word: () => setPuzzle(changeCellsInWord(revealCell)),
-      puzzle: () => setPuzzle((prev) => ({ ...prev, grid: mapCells(revealCell)(prev.grid) })),
-      diagram: () => setPuzzle((prev) => ({ ...prev, grid: revealDiagram(prev.grid) })),
-      circles: () => setPuzzle((prev) => ({ ...prev, grid: revealCircles(prev.grid) })),
+      puzzle: () => setPuzzle(changeCells(revealCell)()),
+      diagram: () => setPuzzle(changeCells(revealMeta)()),
+      circles: () => setPuzzle(changeCells(revealCircle)()),
     },
     check: {
       square: () => setPuzzle(changeCurrentCell(checkCell)),
       word: () => setPuzzle(changeCellsInWord(checkCell)),
-      puzzle: () => setPuzzle((prev) => ({ ...prev, grid: mapCells(checkCell)(prev.grid) })),
+      puzzle: () => setPuzzle(changeCells(checkCell)()),
     },
   };
 

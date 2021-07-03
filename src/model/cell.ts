@@ -100,3 +100,8 @@ export const revealMeta = (cell: XwdCell) => ({
   number: cell.solution.number,
   circle: cell.solution.circle,
 });
+
+export const revealCircle = (cell: XwdCell) => ({
+  ...cell,
+  circle: cell.solution.circle,
+});

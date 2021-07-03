@@ -61,8 +61,3 @@ export const setNumbers = (data: string[]) =>
 
 export const setBlacks = (data: string[]) =>
   mapCells((cell, { pos }) => ({ ...cell, isBlack: data[pos] || false }));
-
-/*
-export const gridToString = (grid: XwdGrid) =>
-  grid.map((row) => row.map((cell) => cell.content[0] || ' ').join('')).join('\n');
-*/
