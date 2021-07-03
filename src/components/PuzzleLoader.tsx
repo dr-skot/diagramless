@@ -3,7 +3,7 @@ import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
 import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../services/common/utils';
 import Clock from '../model/clock';
-import { gridIsFilled, gridIsSolved } from '../model/grid';
+import { gridIsSolved } from '../model/grid';
 import Puzzle from './Puzzle';
 
 const loadPuzzle = () => tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE);
