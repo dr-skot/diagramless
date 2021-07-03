@@ -49,24 +49,24 @@ interface PuzzleCellProps {
 }
 
 export default function PuzzleCell({ width, cell, cursor, cursorRef, onClick }: PuzzleCellProps) {
-  const span = useRef<HTMLSpanElement>(null);
+  const spanRef = useRef<HTMLSpanElement>(null);
 
   // fit text
   useEffect(() => {
-    if (!span.current) return;
+    const span = spanRef.current;
+    if (!span) return;
     const boxWidth = width - 2;
     const baseFontSize = getFontSize(width);
-    if (span.current.offsetWidth > boxWidth) {
-      const newFontSize = baseFontSize * (boxWidth / span.current.offsetWidth);
-      span.current.style.fontSize = Math.min(newFontSize, baseFontSize) + 'px';
+    if (span.offsetWidth > boxWidth) {
+      const newFontSize = baseFontSize * (boxWidth / span.offsetWidth);
+      span.style.fontSize = Math.min(newFontSize, baseFontSize) + 'px';
     }
     return () => {
-      if (span.current) span.current.style.fontSize = 'inherit';
+      span.style.fontSize = 'inherit';
     };
   }, [width, cell.content]);
 
   const { content, number, isBlack, circle } = cell;
-  // TODO implement cell click
   return (
     <div
       className={getClasses(cell, cursor)}
@@ -75,7 +75,7 @@ export default function PuzzleCell({ width, cell, cursor, cursorRef, onClick }: 
       onClick={onClick}
     >
       <div className="content">
-        <span ref={span}>{isBlack ? '' : content}</span>
+        <span ref={spanRef}>{isBlack ? '' : content}</span>
       </div>
       <div className="label">{isBlack ? '' : number}</div>
       {circle ? <div className="circle" /> : ''}
