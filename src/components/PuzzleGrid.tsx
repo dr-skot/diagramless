@@ -3,7 +3,7 @@ import { range } from 'lodash';
 import PuzzleCell, { CursorSettings } from './PuzzleCell';
 import { XwdGrid } from '../model/grid';
 import { wordStartsAt } from '../model/word';
-import { XwdPuzzle } from '../model/puzzle';
+import { relatedCells, XwdPuzzle } from '../model/puzzle';
 import { currentCell, currentWord, cursorShadowFallsOn, toggleDirection } from '../model/cursor';
 import { PuzzleDispatch } from './PuzzleLoader';
 
@@ -31,7 +31,7 @@ export default function PuzzleGrid({ puzzle, setPuzzle, cellWidth, cursorRef }: 
   const cursorSettings = (row: number, col: number): CursorSettings => ({
     cell: puzzle.cursor.row === row && puzzle.cursor.col === col,
     word: cellFoundInList(row, col, currentWord(puzzle) || []),
-    related: cellFoundInList(row, col, []), // TODO implement related
+    related: cellFoundInList(row, col, relatedCells(puzzle)),
     shadow: !!currentCell(puzzle).isBlack && cursorShadowFallsOn(puzzle.cursor, row, col),
   });
 

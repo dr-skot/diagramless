@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { currentClue, XwdClue, XwdPuzzle } from '../model/puzzle';
+import { currentClue, XwdClue, XwdPuzzle, getRelatedClues } from '../model/puzzle';
 import { XwdDirection } from '../model/grid';
 
 interface ClueListProps {
@@ -13,7 +13,7 @@ export default function ClueList({ puzzle, direction, onSelect }: ClueListProps)
   const clues = puzzle.clues.filter((clue) => clue.direction === direction);
   const current = currentClue(puzzle, direction);
   const active = puzzle.cursor.direction === direction;
-  const relatedClues: XwdClue[] = []; // TODO implement
+  const relatedClues = getRelatedClues(puzzle);
 
   const scrollerRef = useRef<HTMLOListElement>(null);
   const firstClueRef = useRef<HTMLLIElement>(null);

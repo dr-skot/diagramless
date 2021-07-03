@@ -2,7 +2,7 @@ import { findCell, mapCells, newGrid, XwdCellCallback, XwdDirection, XwdGrid } f
 import { currentCell, currentWord, XwdCursor } from './cursor';
 import { enforceSymmetry, getSisterCell, XwdSymmetry } from './symmetry';
 import { ACROSS, parseRelatedClues, puzzleFromFileData } from '../services/xwdService';
-import { getCellsInWord, numberWordStarts, wordIncludes, wordNumber } from './word';
+import { getCellsInWord, numberWordStarts, wordIncludes, wordNumber, XwdLoc } from './word';
 import { XwdCell } from './cell';
 import { nextOrLast, wrapFindIndex } from '../services/common/utils';
 
@@ -114,15 +114,6 @@ export const currentClue = (puzzle: XwdPuzzle, direction = puzzle.cursor.directi
   return puzzle.clues.find((clue) => clue.number === number && clue.direction === direction);
 };
 
-// TODO normalize direction constants
-export const relatedClues = (puzzle: XwdPuzzle): XwdWordLoc =>
-  parseRelatedClues(currentClue(puzzle)?.text || '').map(
-    (loc: { number: string; direction: [number, number] }) => ({
-      number: loc.number,
-      direction: loc.direction === ACROSS ? 'across' : 'down',
-    })
-  );
-
 export const wordCells = (grid: XwdGrid, locations: XwdWordLoc[]) => {
   locations.map((loc) => getCellsInWord(grid, loc)).flat();
 };
@@ -220,3 +211,18 @@ export const autonumber = (puzzle: XwdPuzzle) => ({
   ...puzzle,
   grid: numberWordStarts(puzzle.grid),
 });
+
+/* related */
+// TODO normalize direction constants
+export const getRelatedClues = (puzzle: XwdPuzzle): XwdWordLoc[] =>
+  parseRelatedClues(currentClue(puzzle)?.text || '').map(
+    (loc: { number: string; direction: [number, number] }) => ({
+      number: loc.number,
+      direction: loc.direction === ACROSS ? 'across' : 'down',
+    })
+  );
+
+export const relatedCells = (puzzle: XwdPuzzle): XwdLoc[] =>
+  getRelatedClues(puzzle)
+    .map((locator) => getCellsInWord(puzzle.grid, locator))
+    .flat();

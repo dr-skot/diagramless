@@ -26,6 +26,7 @@ export const wordStartsAt = (
   direction
     ? isWordStart([row, col], direction === 'across' ? ACROSS : DOWN, grid)
     : wordStartsAt(grid, row, col, 'across') || wordStartsAt(grid, row, col, 'down');
+
 export const getWordStarts = (grid: XwdGrid, number: string, direction: XwdDirection) => {
   const wordStarts: number[][] = [];
   mapCells((cell, { row, col }) => {

@@ -29,7 +29,6 @@ export default function ClueBarAndBoard({ puzzle, setPuzzle, cursorRef }: ClueBa
   }
   const widths = computeWidths();
 
-  // TODO implement relatedCells
   return (
     <div className="layout-cluebar-and-board" ref={setContainer}>
       {widths && (
