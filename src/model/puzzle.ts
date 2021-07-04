@@ -2,17 +2,10 @@ import { findCell, mapCells, newGrid, XwdCellCallback, XwdDirection, XwdGrid } f
 import { currentCell, currentWord, XwdCursor } from './cursor';
 import { enforceSymmetry, getSisterCell, XwdSymmetry } from './symmetry';
 import { ACROSS, parseRelatedClues, puzzleFromFileData } from '../services/xwdService';
-import {
-  getCellsInWord,
-  numberFromBothEnds,
-  numberFromBottom,
-  numberWordStarts,
-  wordIncludes,
-  wordNumber,
-  XwdLoc,
-} from './word';
+import { getCellsInWord, wordIncludes, wordNumber, XwdLoc } from './word';
 import { XwdCell } from './cell';
 import { nextOrLast, wrapFindIndex } from '../services/common/utils';
+import { numberPuzzle } from './numbering';
 
 export interface XwdClue {
   number: string;
@@ -42,7 +35,7 @@ export interface XwdPuzzle {
   note: string;
 }
 
-const emptyPuzzle: XwdPuzzle = {
+export const emptyPuzzle: XwdPuzzle = {
   width: 0,
   height: 0,
   grid: newGrid(0, 0),
@@ -165,7 +158,7 @@ export const changeCells =
         pos++;
       }
     }
-    return autonumber({ ...puzzle, grid });
+    return numberPuzzle({ ...puzzle, grid });
   };
 
 export const changeCurrentCell =
@@ -211,16 +204,11 @@ export const applySymmetry = (puzzle: XwdPuzzle, symmetryType = puzzle.symmetry)
 export const setSymmetry = (symmetryType: XwdSymmetry) => (puzzle: XwdPuzzle) =>
   applySymmetry({ ...puzzle, symmetry: symmetryType });
 
-export const autonumber = (puzzle: XwdPuzzle) => {
-  const lastClueNumber = parseInt(puzzle.clues.slice(-1)[0]?.number) || 0;
-  const grid = {
-    'from top': () => numberWordStarts(puzzle.grid),
-    'from bottom': () => numberFromBottom(lastClueNumber)(puzzle.grid),
-    'from both ends': () => numberFromBothEnds(lastClueNumber)(puzzle.grid),
-    off: () => puzzle.grid,
-  }[puzzle.autonumber]();
-  return { ...puzzle, grid };
-};
+export const setAutonumber = (value: XwdNumbering) => (p: XwdPuzzle) =>
+  numberPuzzle({
+    ...p,
+    autonumber: value,
+  });
 
 /* related */
 // TODO normalize direction constants
@@ -236,9 +224,3 @@ export const relatedCells = (puzzle: XwdPuzzle): XwdLoc[] =>
   getRelatedClues(puzzle)
     .map((locator) => getCellsInWord(puzzle.grid, locator))
     .flat();
-
-export const setAutonumber = (value: XwdNumbering) => (p: XwdPuzzle) =>
-  autonumber({
-    ...p,
-    autonumber: value,
-  });

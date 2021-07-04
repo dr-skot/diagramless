@@ -1,11 +1,12 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
-import { autonumber, puzzleFromFile, XwdPuzzle } from '../model/puzzle';
+import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../services/common/utils';
 import Clock from '../model/clock';
 import { gridIsSolved } from '../model/grid';
 import Puzzle from './Puzzle';
 import { handleDroppedFile } from '../services/common/utils2';
+import { numberPuzzle } from '../model/numbering';
 
 const loadPuzzle = () => tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE);
 
@@ -35,7 +36,7 @@ export default function PuzzleLoader() {
     newPuzzle.symmetry = puzzle.symmetry;
     // set clock
     clock.setTime(newPuzzle.time || 0);
-    setPuzzle(autonumber(newPuzzle));
+    setPuzzle(numberPuzzle(newPuzzle));
   });
 
   return <Puzzle puzzle={puzzle} setPuzzle={setPuzzle} clock={clock} onDrop={onDrop} />;

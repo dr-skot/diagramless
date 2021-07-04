@@ -1,7 +1,7 @@
 import { puzzleData as plainData } from '../../tests/assets/Jun2521.data';
 import { puzzleData as dataWithNote } from '../../tests/assets/note-Jul0121.data';
 import { puzzleData as dataWithCircles } from '../../tests/assets/circles-Jun2221.data';
-import { autonumber, changeCurrentCell, puzzleFromData, setSymmetry } from './puzzle';
+import { changeCurrentCell, puzzleFromData, setSymmetry } from './puzzle';
 import { currentCell } from './cursor';
 import { emptyCell } from './cell';
 
@@ -81,12 +81,5 @@ describe('when symmetry is set', () => {
     puzzle = changeCurrentCell({ isBlack: false })(puzzle);
     expect(puzzle.grid[0][0].isBlack).toBeFalsy();
     expect(puzzle.grid[14][14].isBlack).toBeFalsy();
-  });
-});
-
-describe('autonumber', () => {
-  it('numbers from 1', () => {
-    let puzzle = autonumber(puzzleFromData(plainData));
-    expect(currentCell(puzzle).number).toBe('1');
   });
 });

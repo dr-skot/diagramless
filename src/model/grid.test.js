@@ -8,7 +8,6 @@ import {
   gridIsSolved,
   mapCells,
 } from './grid';
-import { countWordStarts, numberFromBottom, numberWordStarts } from './word';
 
 describe('not', () => {
   it('returns the negative of a function', () => {
@@ -64,60 +63,6 @@ it("knows when it's solved", () => {
   }))(setContents(data)(newGrid(2, 7)));
 
   expect(gridIsSolved(grid)).toBe(true);
-});
-
-describe('numberWordStarts', () => {
-  it('can number the whole grid', () => {
-    const data = 'abc:defghi:jkl'.split('');
-    let xwd = setContents(data)(newGrid(2, 7));
-    xwd = numberWordStarts(xwd);
-    const numbers = xwd
-      .flat()
-      .map((cell) => cell.number)
-      .join(',');
-    expect(numbers).toBe('1,2,3,,4,5,6,7,,,,8,,');
-  });
-  it('can start at a number other than 0', () => {
-    const data = 'abc:defghi:jkl'.split('');
-    let xwd = setContents(data)(newGrid(2, 7));
-    xwd = numberWordStarts(xwd, { startFrom: 11 });
-    const numbers = xwd
-      .flat()
-      .map((cell) => cell.number)
-      .join(',');
-    expect(numbers).toBe('11,12,13,,14,15,16,17,,,,18,,');
-  });
-  it('accepts a stopAt parameter', () => {
-    const data = 'abc:defghi:jkl'.split('');
-    let xwd = setContents(data)(newGrid(2, 7));
-    xwd = numberWordStarts(xwd, { startFrom: 21, stopAt: 25 });
-    const numbers = xwd
-      .flat()
-      .map((cell) => cell.number)
-      .join(',');
-    expect(numbers).toBe('21,22,23,,24,25,,,,,,,,');
-  });
-});
-
-describe('countWordStarts', () => {
-  it('counts the word starts', () => {
-    const data = 'abc:defghi:jkl'.split('');
-    const xwd = setContents(data)(newGrid(2, 7));
-    expect(countWordStarts(xwd)).toBe(8);
-  });
-});
-
-describe('numberFromBottom', () => {
-  it('numbers from the bottom', () => {
-    const data = 'abc:defghi:jkl'.split('');
-    let xwd = setContents(data)(newGrid(2, 7));
-    xwd = numberFromBottom(60)(xwd);
-    const numbers = xwd
-      .flat()
-      .map((cell) => cell.number)
-      .join(',');
-    expect(numbers).toBe('53,54,55,,56,57,58,59,,,,60,,');
-  });
 });
 
 /*

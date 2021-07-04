@@ -1,0 +1,46 @@
+import { range } from 'lodash';
+import { mapCells, XwdGrid } from './grid';
+import { XwdNumbering, XwdPuzzle } from './puzzle';
+import { wordStartsAt } from './word';
+
+export const countWordStarts = (grid: XwdGrid) => {
+  let count = 0;
+  mapCells((cell, { row, col }) => {
+    if (wordStartsAt(grid, row, col)) count++;
+  })(grid);
+  return count;
+};
+
+export const numberWordStarts = (grid: XwdGrid, numbers?: number[]) => {
+  let i = 0;
+  return mapCells((cell, { row, col }) =>
+    wordStartsAt(grid, row, col)
+      ? { ...cell, number: `${numbers ? numbers[i++] || '' : ++i}` }
+      : cell
+  )(grid);
+};
+
+export const getNumbers = (
+  wordCount: number,
+  clueCount: number,
+  numbering: XwdNumbering
+): number[] | undefined => {
+  switch (numbering) {
+    case 'off':
+      return [];
+    case 'from top':
+      return range(1, wordCount + 1);
+    case 'from bottom':
+      return range(clueCount + 1 - wordCount, clueCount + 1);
+    case 'from both ends':
+      const midpoint = Math.round(wordCount / 2);
+      return range(1, midpoint + 1).concat(range(clueCount + 1 - midpoint, clueCount + 1));
+  }
+};
+
+export const numberPuzzle = (puzzle: XwdPuzzle) => {
+  const wordCount = countWordStarts(puzzle.grid);
+  const clueCount = parseInt(puzzle.clues.slice(-1)?.[0]?.number || '0');
+  const grid = numberWordStarts(puzzle.grid, getNumbers(wordCount, clueCount, puzzle.autonumber));
+  return { ...puzzle, grid };
+};
