@@ -1,11 +1,8 @@
 import React from 'react';
 import 'normalize.css';
-import './App.css';
-import './xword.css';
-import './from-nyt.css';
-// import './nyt.css';
-import './nyt-fonts';
-import './reactFileDropDemo.css';
+import './styles/xword.css';
+import './styles/from-nyt.css';
+import './styles/nyt-fonts';
 import PuzzleLoader from './components/PuzzleLoader';
 
 function App() {
