@@ -2,7 +2,15 @@ import { findCell, mapCells, newGrid, XwdCellCallback, XwdDirection, XwdGrid } f
 import { currentCell, currentWord, XwdCursor } from './cursor';
 import { enforceSymmetry, getSisterCell, XwdSymmetry } from './symmetry';
 import { ACROSS, parseRelatedClues, puzzleFromFileData } from '../services/xwdService';
-import { getCellsInWord, numberWordStarts, wordIncludes, wordNumber, XwdLoc } from './word';
+import {
+  getCellsInWord,
+  numberFromBothEnds,
+  numberFromBottom,
+  numberWordStarts,
+  wordIncludes,
+  wordNumber,
+  XwdLoc,
+} from './word';
 import { XwdCell } from './cell';
 import { nextOrLast, wrapFindIndex } from '../services/common/utils';
 
@@ -17,6 +25,8 @@ export interface XwdWordLoc {
   direction: XwdDirection;
 }
 
+export type XwdNumbering = 'from bottom' | 'from top' | 'from both ends' | 'off';
+
 export interface XwdPuzzle {
   width: number;
   height: number;
@@ -25,7 +35,7 @@ export interface XwdPuzzle {
   clues: XwdClue[];
   time: number;
   symmetry: XwdSymmetry;
-  isAutonumbered: boolean;
+  autonumber: XwdNumbering;
   title: string;
   author: string;
   copyright: string;
@@ -40,7 +50,7 @@ const emptyPuzzle: XwdPuzzle = {
   time: 0,
   clues: [],
   symmetry: null,
-  isAutonumbered: false,
+  autonumber: 'from both ends',
   title: '',
   author: '',
   copyright: '',
@@ -155,7 +165,7 @@ export const changeCells =
         pos++;
       }
     }
-    return applyAutonumbering({ ...puzzle, grid });
+    return autonumber({ ...puzzle, grid });
   };
 
 export const changeCurrentCell =
@@ -198,19 +208,19 @@ export function advanceCursorInWord(puzzle: XwdPuzzle, findEmpty: boolean) {
 export const applySymmetry = (puzzle: XwdPuzzle, symmetryType = puzzle.symmetry) =>
   symmetryType ? { ...puzzle, grid: enforceSymmetry(puzzle.grid, symmetryType) } : puzzle;
 
-export const applyAutonumbering = (puzzle: XwdPuzzle) =>
-  puzzle.isAutonumbered ? autonumber(puzzle) : puzzle;
-
 export const setSymmetry = (symmetryType: XwdSymmetry) => (puzzle: XwdPuzzle) =>
   applySymmetry({ ...puzzle, symmetry: symmetryType });
 
-export const toggleAutonumbering = (puzzle: XwdPuzzle) =>
-  applyAutonumbering({ ...puzzle, isAutonumbered: !puzzle.isAutonumbered });
-
-export const autonumber = (puzzle: XwdPuzzle) => ({
-  ...puzzle,
-  grid: numberWordStarts(puzzle.grid),
-});
+export const autonumber = (puzzle: XwdPuzzle) => {
+  const lastClueNumber = parseInt(puzzle.clues.slice(-1)[0]?.number) || 0;
+  const grid = {
+    'from top': () => numberWordStarts(puzzle.grid),
+    'from bottom': () => numberFromBottom(lastClueNumber)(puzzle.grid),
+    'from both ends': () => numberFromBothEnds(lastClueNumber)(puzzle.grid),
+    off: () => puzzle.grid,
+  }[puzzle.autonumber]();
+  return { ...puzzle, grid };
+};
 
 /* related */
 // TODO normalize direction constants
@@ -226,3 +236,9 @@ export const relatedCells = (puzzle: XwdPuzzle): XwdLoc[] =>
   getRelatedClues(puzzle)
     .map((locator) => getCellsInWord(puzzle.grid, locator))
     .flat();
+
+export const setAutonumber = (value: XwdNumbering) => (p: XwdPuzzle) =>
+  autonumber({
+    ...p,
+    autonumber: value,
+  });

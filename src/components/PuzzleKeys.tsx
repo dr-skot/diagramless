@@ -121,7 +121,7 @@ export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
 
       setPuzzle((prev) => {
         const cell = currentCell(prev);
-        if (prev.isAutonumbered || cell.isLocked) return prev;
+        if (prev.autonumber !== 'off' || cell.isLocked) return prev;
         else {
           // editingNumber saves the puzzle cursor each time we edit
           // so if prev.cursor === editingNumber, continue editing; otherwise start over

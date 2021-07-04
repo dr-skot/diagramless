@@ -2,12 +2,11 @@ import React from 'react';
 import DropMenu from './DropMenu';
 import PuzzleClock from './PuzzleClock';
 import {
-  autonumber,
   changeCells,
   changeCellsInWord,
   changeCurrentCell,
+  setAutonumber,
   setSymmetry,
-  toggleAutonumbering,
   XwdPuzzle,
 } from '../model/puzzle';
 import { puzdata_to_pdf } from '../services/puzzlePdf';
@@ -26,15 +25,17 @@ interface PuzzleToolbarProps {
 export default function PuzzleToolbar({ clock, puzzle, setPuzzle, onRebus }: PuzzleToolbarProps) {
   const checked: Record<string, string> = {
     symmetry: puzzle.symmetry as string,
-    number: puzzle.isAutonumbered ? 'continuously' : '',
+    autonumber: puzzle.autonumber as string,
   };
 
   // TODO support clear incomplete
   // TODO support autocheck
   const menu = {
-    number: {
-      now: () => setPuzzle(autonumber),
-      continuously: () => setPuzzle(toggleAutonumbering),
+    autonumber: {
+      off: () => setPuzzle(setAutonumber('off')),
+      'from top': () => setPuzzle(setAutonumber('from top')),
+      'from bottom': () => setPuzzle(setAutonumber('from bottom')),
+      'from both ends': () => setPuzzle(setAutonumber('from both ends')),
     },
     symmetry: {
       diagonal: () => setPuzzle(setSymmetry('diagonal')),
