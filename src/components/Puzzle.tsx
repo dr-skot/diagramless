@@ -13,6 +13,8 @@ import { setContent } from '../model/cell';
 import { RebusInput } from './RebusInput';
 import { gridIsSolved, gridIsFilled, XwdGrid } from '../model/grid';
 
+const BLUR_INTERVAL = 10000;
+
 interface PuzzleProps {
   puzzle: XwdPuzzle;
   setPuzzle: PuzzleDispatch;
@@ -55,6 +57,21 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop }: PuzzleProps
       clock.off('stop', handlePause);
     };
   }, [grid, clock]);
+
+  // pause clock on blur
+  useEffect(() => {
+    let blurTimeout = 0;
+    const handleBlur = () => {
+      if (!gridIsSolved(puzzle.grid)) blurTimeout = window.setTimeout(clock.stop, BLUR_INTERVAL);
+    };
+    const handleFocus = () => window.clearTimeout(blurTimeout);
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
+    };
+  });
 
   const closeModal = (reason: ModalReason) => {
     setShowModal(null);
