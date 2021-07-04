@@ -62,7 +62,7 @@ export const toggleBlack = (cell: XwdCell) =>
 export const cellIsCorrect = (cell: XwdCell): boolean =>
   blackIsCorrect(cell) && (!!cell.isBlack || contentIsCorrect(cell));
 
-export const blackIsCorrect = (cell: XwdCell) => !!cell.isBlack === !!cell.solution.isBlack;
+export const blackIsCorrect = (cell: XwdCell) => !!cell.isBlack === cell.solution.isBlack;
 
 export const contentIsCorrect = (cell: XwdCell) => cell.content === cell.solution.content;
 

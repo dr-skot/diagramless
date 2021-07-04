@@ -11,7 +11,7 @@ import {
 
 describe('not', () => {
   it('returns the negative of a function', () => {
-    const isEven = (n) => n % 2 === 0;
+    const isEven = (n: number) => n % 2 === 0;
     expect(isEven(2)).toBe(true);
     expect(not(isEven)(2)).toBe(false);
     expect(not(not(isEven))(2)).toBe(true);
@@ -57,7 +57,7 @@ it("knows when it's not solved", () => {
 
 it("knows when it's solved", () => {
   const data = 'abc:defghi: kl'.split('').map((s) => s.trim());
-  const grid = mapCells((cell, { pos }) => ({
+  const grid = mapCells((cell) => ({
     ...cell,
     solution: { ...cell.solution, content: cell.content, isBlack: cell.isBlack },
   }))(setContents(data)(newGrid(2, 7)));

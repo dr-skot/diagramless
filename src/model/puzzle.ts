@@ -5,7 +5,7 @@ import { ACROSS, parseRelatedClues, puzzleFromFileData } from '../services/xwdSe
 import { getCellsInWord, wordIncludes, wordNumber, XwdLoc } from './word';
 import { XwdCell } from './cell';
 import { nextOrLast, wrapFindIndex } from '../services/common/utils';
-import { numberPuzzle } from './numbering';
+import { numberPuzzle, XwdNumbering } from './numbering';
 
 export interface XwdClue {
   number: string;
@@ -17,8 +17,6 @@ export interface XwdWordLoc {
   number: string;
   direction: XwdDirection;
 }
-
-export type XwdNumbering = 'from bottom' | 'from top' | 'from both ends' | 'off';
 
 export interface XwdPuzzle {
   width: number;
@@ -71,6 +69,8 @@ interface PuzzleData {
 export const puzzleFromData = (data?: PuzzleData): XwdPuzzle | null => {
   if (!data) return null;
 
+  // console.log(JSON.stringify(data));
+
   const grid = mapCells((cell, { pos }) => {
     const answer = data.solution[pos];
     const isBlack = [':', '.'].includes(answer);
@@ -116,13 +116,6 @@ export const currentClue = (puzzle: XwdPuzzle, direction = puzzle.cursor.directi
   if (!number) return null;
   return puzzle.clues.find((clue) => clue.number === number && clue.direction === direction);
 };
-
-export const wordCells = (grid: XwdGrid, locations: XwdWordLoc[]) => {
-  locations.map((loc) => getCellsInWord(grid, loc)).flat();
-};
-
-export const currentSisterCell = ({ grid, cursor, symmetry }: XwdPuzzle) =>
-  getSisterCell(grid, cursor.row, cursor.col, symmetry);
 
 export type XwdCellChange = Partial<XwdCell> | ((cell: XwdCell) => Partial<XwdCell>);
 export const changeCell = (cell: XwdCell, change: XwdCellChange): XwdCell => {

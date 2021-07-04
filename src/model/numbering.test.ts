@@ -1,6 +1,6 @@
 import { newGrid, setContents } from './grid';
 import { countWordStarts, numberPuzzle, numberWordStarts } from './numbering';
-import { emptyPuzzle } from './puzzle';
+import { emptyPuzzle, XwdPuzzle } from './puzzle';
 
 describe('numberWordStarts', () => {
   it('can number the whole grid', () => {
@@ -47,7 +47,7 @@ describe('numberPuzzle', () => {
   it('numbers from top', () => {
     const data = 'abc:defghi:jkl'.split('');
     const grid = setContents(data)(newGrid(2, 7));
-    let puzzle = { ...emptyPuzzle, grid, autonumber: 'from top' };
+    let puzzle: XwdPuzzle = { ...emptyPuzzle, grid, autonumber: 'from top' };
     puzzle = numberPuzzle(puzzle);
     const numbers = puzzle.grid
       .flat()
@@ -58,7 +58,12 @@ describe('numberPuzzle', () => {
   it('numbers from top', () => {
     const data = 'abc:defghi:jkl'.split('');
     const grid = setContents(data)(newGrid(2, 7));
-    let puzzle = { ...emptyPuzzle, grid, autonumber: 'from bottom', clues: [{ number: '60' }] };
+    let puzzle: XwdPuzzle = {
+      ...emptyPuzzle,
+      grid,
+      autonumber: 'from bottom',
+      clues: [{ direction: 'across', text: '', number: '60' }],
+    };
     puzzle = numberPuzzle(puzzle);
     const numbers = puzzle.grid
       .flat()
@@ -69,7 +74,12 @@ describe('numberPuzzle', () => {
   it('numbers from both ends', () => {
     const data = 'abc:defghi:jkl'.split('');
     const grid = setContents(data)(newGrid(2, 7));
-    let puzzle = { ...emptyPuzzle, grid, autonumber: 'from both ends', clues: [{ number: '60' }] };
+    let puzzle: XwdPuzzle = {
+      ...emptyPuzzle,
+      grid,
+      autonumber: 'from both ends',
+      clues: [{ direction: 'across', text: '', number: '60' }],
+    };
     puzzle = numberPuzzle(puzzle);
     const numbers = puzzle.grid
       .flat()
@@ -80,7 +90,12 @@ describe('numberPuzzle', () => {
   it('doesnt number if autonumber is off', () => {
     const data = 'abc:defghi:jkl'.split('');
     const grid = setContents(data)(newGrid(2, 7));
-    let puzzle = { ...emptyPuzzle, grid, autonumber: 'off', clues: [{ number: '60' }] };
+    let puzzle: XwdPuzzle = {
+      ...emptyPuzzle,
+      grid,
+      autonumber: 'off',
+      clues: [{ direction: 'across', text: '', number: '60' }],
+    };
     puzzle = numberPuzzle(puzzle);
     const numbers = puzzle.grid
       .flat()

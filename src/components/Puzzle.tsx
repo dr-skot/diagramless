@@ -2,7 +2,7 @@ import React, { DragEventHandler, useEffect, useRef, useState } from 'react';
 import PuzzleHeader from './PuzzleHeader';
 import ClueBarAndBoard from './ClueBarAndBoard';
 import ClueLists from './ClueLists';
-import PuzzleModal, { FILLED, PAUSED, SOLVED } from './puzzleModal';
+import PuzzleModal, { ModalReason } from './PuzzleModal';
 import PuzzleToolbar from './PuzzleToolbar';
 import Clock from '../model/clock';
 import { changeCurrentCell, XwdPuzzle } from '../model/puzzle';
@@ -26,17 +26,18 @@ const getFillState = (grid: XwdGrid): XwdFillState =>
   gridIsFilled(grid) ? (gridIsSolved(grid) ? 'solved' : 'filled') : 'incomplete';
 
 export default function Puzzle({ puzzle, setPuzzle, clock, onDrop }: PuzzleProps) {
-  const [showModal, setShowModal] = useState('');
+  const [showModal, setShowModal] = useState<ModalReason | null>(null);
   const [fillState, setFillState] = useState<XwdFillState>(getFillState(puzzle.grid));
-
-  console.log('render puzzle');
   const { grid } = puzzle;
 
+  // console.log('render puzzle');
+
+  // show modal when puzzle is filled
   useEffect(() => {
     const newFillState = getFillState(grid);
     if (newFillState !== fillState) {
       setFillState(newFillState);
-      if (newFillState === 'filled') setShowModal(FILLED);
+      if (newFillState === 'filled') setShowModal('FILLED');
     }
   }, [grid, fillState]);
 
@@ -45,8 +46,7 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop }: PuzzleProps
     if (!grid) return;
 
     const handlePause = () => {
-      const reason = gridIsSolved(grid) ? SOLVED : PAUSED;
-      console.log('handle pause reason', reason);
+      const reason = gridIsSolved(grid) ? 'SOLVED' : 'PAUSED';
       setShowModal(reason);
     };
 
@@ -56,20 +56,19 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop }: PuzzleProps
     };
   }, [grid, clock]);
 
+  const closeModal = (reason: ModalReason) => {
+    setShowModal(null);
+    if (reason === 'PAUSED') clock.start();
+  };
+
   if (!puzzle) return null;
 
   return (
     <>
-      <div className={showModal === PAUSED ? 'app-obscured' : ''}>
+      <div className={showModal === 'PAUSED' ? 'app-obscured' : ''}>
         <PuzzleView puzzle={puzzle} setPuzzle={setPuzzle} clock={clock} onDrop={onDrop} />
       </div>
-      <PuzzleModal
-        reason={showModal}
-        onClose={(reason: string) => {
-          setShowModal('');
-          if (reason === PAUSED) clock.start();
-        }}
-      />
+      {showModal && <PuzzleModal reason={showModal} onClose={closeModal} />}
     </>
   );
 }

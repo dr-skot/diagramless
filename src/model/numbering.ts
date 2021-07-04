@@ -1,7 +1,9 @@
 import { range } from 'lodash';
 import { mapCells, XwdGrid } from './grid';
-import { XwdNumbering, XwdPuzzle } from './puzzle';
+import { XwdPuzzle } from './puzzle';
 import { wordStartsAt } from './word';
+
+export type XwdNumbering = 'from bottom' | 'from top' | 'from both ends' | 'off';
 
 export const countWordStarts = (grid: XwdGrid) => {
   let count = 0;
