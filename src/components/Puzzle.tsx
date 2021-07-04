@@ -60,7 +60,7 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop }: PuzzleProps
 
   return (
     <>
-      <div className={showModal === PAUSED ? 'app-obscured--26XpG' : ''}>
+      <div className={showModal === PAUSED ? 'app-obscured' : ''}>
         <PuzzleView puzzle={puzzle} setPuzzle={setPuzzle} clock={clock} onDrop={onDrop} />
       </div>
       <PuzzleModal

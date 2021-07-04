@@ -1,7 +1,7 @@
-import _ from 'lodash';
+import { isEqual, pickBy, inRange } from 'lodash';
 
 export function includesEqual(array, item) {
-  return !!_.find(array, (x) => _.isEqual(x, item));
+  return !!array.find((x) => isEqual(x, item));
 }
 
 // modulo that returns always positive results
@@ -17,7 +17,7 @@ export function mod(m, n) {
 //    obj = {a: true, b: false, c: "false", d: ""}
 //    keysWithTrueValues(obj) === ["a", "c"];
 export function keysWithTrueValues(object) {
-  return _.keys(_.pickBy(object));
+  return Object.keys(pickBy(object));
 }
 
 export function vectorAdd(v1, v2) {
@@ -33,7 +33,7 @@ export function vectorMod(vector, mods) {
 }
 
 export function vectorFits(vector, limits) {
-  const fn = (result, element, i) => result && _.inRange(element, 0, limits[i]);
+  const fn = (result, element, i) => result && inRange(element, 0, limits[i]);
   return vector.reduce(fn, true);
 }
 
@@ -87,22 +87,6 @@ export function fitTo(anchor, el) {
   if (!(anchor && el)) return;
   const rect = objValueMap(offsetRect(anchor), (v) => v + 'px');
   Object.assign(el.style, rect);
-}
-
-function matchOrInRange(x, singleOrRange) {
-  const range = singleOrRange.length ? singleOrRange : [singleOrRange, singleOrRange];
-  return _.inRange(x, range[0], range[1] + 1);
-}
-
-// TODO move to separate module?
-export const altKey = 'altKey';
-export const ctrlKey = 'ctrlKey';
-export function keyMatch(event, keyCodes, modifiers = []) {
-  return (
-    matchOrInRange(event.keyCode, keyCodes) &&
-    (!event.ctrlKey || modifiers.indexOf(ctrlKey) > -1) &&
-    (!event.altKey || modifiers.indexOf(altKey) > -1)
-  );
 }
 
 // don't break on parse errors

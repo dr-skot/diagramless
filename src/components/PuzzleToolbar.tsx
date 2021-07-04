@@ -25,13 +25,13 @@ interface PuzzleToolbarProps {
 export default function PuzzleToolbar({ clock, puzzle, setPuzzle, onRebus }: PuzzleToolbarProps) {
   const checked: Record<string, string> = {
     symmetry: puzzle.symmetry as string,
-    autonumber: puzzle.autonumber as string,
+    numbering: puzzle.autonumber as string,
   };
 
   // TODO support clear incomplete
   // TODO support autocheck
   const menu = {
-    autonumber: {
+    numbering: {
       off: () => setPuzzle(setAutonumber('off')),
       'from top': () => setPuzzle(setAutonumber('from top')),
       'from bottom': () => setPuzzle(setAutonumber('from bottom')),
@@ -69,16 +69,16 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle, onRebus }: Puz
   }
 
   return (
-    <div className="Toolbar-wrapper--1S7nZ toolbar-wrapper">
-      <ul className="Toolbar-tools--2qUqg">
-        <li className="Tool-button--39W4J Tool-tool--Fiz94 Tool-texty--2w4Br">
+    <div className="Toolbar-wrapper toolbar-wrapper">
+      <ul className="Toolbar-tools">
+        <li className="Tool-button Tool-tool Tool-texty">
           <button onClick={print}>Print</button>
         </li>
         <PuzzleClock clock={clock} disabled={gridIsSolved(puzzle.grid)} />
-        <li className="Tool-button--39W4J Tool-tool--Fiz94 Tool-texty--2w4Br">
+        <li className="Tool-button Tool-tool Tool-texty">
           <button onClick={onRebus}>rebus</button>
         </li>
-        <div className="Toolbar-expandedMenu--2s4M4">
+        <div className="Toolbar-expandedMenu">
           {Object.entries(menu).map(([title, items]) => (
             <DropMenu key={title} title={title} items={items} checked={[checked[title]]} />
           ))}

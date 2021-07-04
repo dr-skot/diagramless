@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 // formats the clock string
 function clockString(ms) {
@@ -6,8 +6,8 @@ function clockString(ms) {
     secs = totalSeconds % 60,
     mins = Math.floor(totalSeconds / 60) % 60,
     hrs = Math.floor(totalSeconds / 3600),
-    nn = n => (n < 10 ? "0" : "") + n;
-  return [hrs, ...[mins, secs].map(nn)].join(":");
+    nn = (n) => (n < 10 ? '0' : '') + n;
+  return [hrs, ...[mins, secs].map(nn)].join(':');
 }
 
 export default function PuzzleClock({ clock, disabled }) {
@@ -19,11 +19,11 @@ export default function PuzzleClock({ clock, disabled }) {
   }, [clock]);
 
   return (
-      <li className="Timer-button--Jg5pv Tool-tool--Fiz94">
-        <button onClick={clock.toggle} disabled={disabled}>
-          <div className="timer-count">{ clockString(time) }</div>
-          { clock.isRunning && <i className="Icon-pause--1dqCf Icon-icon--1RAWC" /> }
-        </button>
-      </li>
-    );
+    <li className="Timer-button Tool-tool">
+      <button onClick={clock.toggle} disabled={disabled}>
+        <div className="timer-count">{clockString(time)}</div>
+        {clock.isRunning && <i className="Icon-pause Icon-icon" />}
+      </button>
+    </li>
+  );
 }

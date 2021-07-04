@@ -17,7 +17,7 @@ export default function ClueLists({ puzzle, setPuzzle }: ClueListsProps) {
   }
 
   return (
-    <section className="Layout-clueLists--10_Xl">
+    <section className="Layout-clueLists">
       <ClueList direction={'across'} puzzle={puzzle} onSelect={onClueSelect} />
       <ClueList direction={'down'} puzzle={puzzle} onSelect={onClueSelect} />
     </section>

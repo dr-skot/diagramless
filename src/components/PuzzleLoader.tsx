@@ -5,28 +5,12 @@ import { tryToParse } from '../services/common/utils';
 import Clock from '../model/clock';
 import { gridIsSolved } from '../model/grid';
 import Puzzle from './Puzzle';
+import { handleDroppedFile } from '../services/common/utils2';
 
 const loadPuzzle = () => tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE);
 
 const storePuzzle = (puzzle: XwdPuzzle) => {
   localStorage.setItem('xword2', JSON.stringify(puzzle));
-};
-
-const handleDrop = (callback: (buf: ArrayBuffer) => void) => (event: any) => {
-  event.preventDefault();
-  const transfer = event.dataTransfer;
-  const file =
-    transfer?.items?.[0].kind === 'file' ? transfer.items[0].getAsFile() : transfer?.files?.[0];
-
-  if (!file) {
-    console.error('No file found');
-  } else {
-    const reader = new FileReader();
-    reader.onabort = () => console.error('File reading was aborted');
-    reader.onerror = () => console.error('File reading has failed');
-    reader.onload = () => callback(reader.result as ArrayBuffer);
-    reader.readAsArrayBuffer(file);
-  }
 };
 
 export type PuzzleDispatch = Dispatch<SetStateAction<XwdPuzzle>>;
@@ -43,7 +27,7 @@ export default function PuzzleLoader() {
     return () => window.removeEventListener('beforeunload', savePuzzle);
   }, [puzzle, clock]);
 
-  const onDrop = handleDrop((contents) => {
+  const onDrop = handleDroppedFile((contents) => {
     const newPuzzle = puzzleFromFile(contents);
     if (!newPuzzle) return;
     // preserve numbering / symmetry settings

@@ -36,9 +36,9 @@ export default function ClueList({ puzzle, direction, onSelect }: ClueListProps)
   // specifies the appropriate highlighting if any
   function getClasses(clue: XwdClue) {
     return (
-      'Clue-li--1JoPu' +
-      (clueIsLit(clue) ? (active ? ' Clue-selected--1ta_-' : ' Clue-highlighted--3H3do') : '') +
-      (clueIsRelated(clue) ? ' Clue-related--3Qr8i' : '')
+      'Clue-li' +
+      (clueIsLit(clue) ? (active ? ' Clue-selected' : ' Clue-highlighted') : '') +
+      (clueIsRelated(clue) ? ' Clue-related' : '')
     );
   }
 
@@ -56,9 +56,9 @@ export default function ClueList({ puzzle, direction, onSelect }: ClueListProps)
   });
 
   return (
-    <div className="ClueList-wrapper--3m-kd cluelist-wrapper">
-      <h3 className="ClueList-title--1-3oW">{label}</h3>
-      <ol className="ClueList-list--2dD5-" ref={scrollerRef}>
+    <div className="ClueList-wrapper cluelist-wrapper">
+      <h3 className="ClueList-title">{label}</h3>
+      <ol className="ClueList-list" ref={scrollerRef}>
         {clues.map((clue, index) => (
           <li
             key={`${clue.number}${direction}`}
@@ -66,8 +66,8 @@ export default function ClueList({ puzzle, direction, onSelect }: ClueListProps)
             className={getClasses(clue)}
             onClick={() => onSelect(clue.number, direction)}
           >
-            <span className="Clue-label--2IdMY">{clue.number}</span>
-            <span className="Clue-text--3lZl7">{clue.text}</span>
+            <span className="Clue-label">{clue.number}</span>
+            <span className="Clue-text">{clue.text}</span>
           </li>
         ))}
       </ol>

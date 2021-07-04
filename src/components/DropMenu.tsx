@@ -19,22 +19,14 @@ export default function DropMenu({ title, items, checked }: DropMenuProps) {
     setShowing(true);
   };
 
-  const getClasses = (label: string) => {
-    return `HelpMenu-item--1xl0_${checked.includes(label) ? ' HelpMenu-checked--38XRQ' : ''}`;
-  };
-
   return (
-    <li className="Tool-button--39W4J Tool-tool--Fiz94 Tool-texty--2w4Br">
+    <li className="Tool-button Tool-tool Tool-texty">
       <button onClick={showing ? hide : show}>{title}</button>
-      <ul
-        className="HelpMenu-menu--1Z_OA"
-        style={{ visibility: showing ? 'visible' : 'hidden' }} // TODO do it with className
-      >
+      <ul className={`HelpMenu-menu${showing ? ' visible' : ''}`}>
         {Object.entries(items).map(([label, action]) => (
           <li
             key={['drop-menu', title, label].join(' ')}
-            className={getClasses(label)}
-            style={{ display: 'list-item', textTransform: 'capitalize' }} // TODO move this to css
+            className={`HelpMenu-item${checked.includes(label) ? ' HelpMenu-checked' : ''}`}
           >
             <button onClick={action}>{label}</button>
           </li>

@@ -23,14 +23,14 @@ export default function PuzzleHeader({ title, author }: PuzzleHeaderProps) {
       : 'The Daily Crossword';
 
   return (
-    <header className="PuzzleHeader-wrapper--3FN32">
-      <div className="PuzzleHeader-row--3-nAI">
-        <div className="PuzzleHeader-puzzleDetailsContainer--2L2k5">
-          <div className="PuzzleDetails-details--1WqAl">
-            <div className="PuzzleDetails-date--1HNzj">
+    <header className="PuzzleHeader-wrapper">
+      <div className="PuzzleHeader-row">
+        <div className="PuzzleHeader-puzzleDetailsContainer">
+          <div className="PuzzleDetails-details">
+            <div className="PuzzleDetails-date">
               <span>{dayOfWeek}</span> {monthDayYear}
             </div>
-            <div className="PuzzleDetails-byline--16J5w">
+            <div className="PuzzleDetails-byline">
               {actualTitle}
               <span>By {maker}</span>
               <span>Edited by {editor}</span>

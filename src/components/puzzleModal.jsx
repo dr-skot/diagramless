@@ -52,26 +52,18 @@ class PuzzleModal extends Component {
       ? 'display-block'
       : 'modal-dimmer display-block';
 
-    if (sounds[reason]) {
-      sounds[reason].play();
-    }
+    sounds[reason]?.play();
+
     return (
-      <div
-        className={showHideClassName + ' ModalWrapper-wrapper--1GgyB ModalWrapper-stretch--19Bif'}
-      >
-        <div
-          id="modalWrapper-overlay"
-          className={
-            reason === PAUSED ? '' : ' ModalWrapper-overlay--3D0UT ModalWrapper-stretch--19Bif'
-          }
-        />
-        <div className="ModalBody-body--3PkKz" tabIndex="-1">
-          <article className="ModalBody-content--QYNuF">
-            <div id="content-pauseModalBody">{message[reason]}</div>
-            <div className="buttons-modalButtonContainer--35RTh">
+      <div className={showHideClassName + ' ModalWrapper-wrapper ModalWrapper-stretch'}>
+        <div className={reason === PAUSED ? '' : ' ModalWrapper-overlay ModalWrapper-stretch'} />
+        <div className="ModalBody-body" tabIndex="-1">
+          <article className="ModalBody-content">
+            <div>{message[reason]}</div>
+            <div className="buttons-modalButtonContainer">
               <button
                 ref={(el) => (this.button = el)}
-                className="buttons-modalButton--1REsR"
+                className="buttons-modalButton"
                 onClick={() => onClose(reason)}
               >
                 <div>
