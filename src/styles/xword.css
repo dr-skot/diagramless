@@ -176,6 +176,11 @@ table {
   width: 100%;
   text-align: center;
 }
+
+.content > span {
+  white-space: pre;
+}
+
 .puzzle-cell.fixed > .content {
   color: rgb(37, 96, 213);
 }
@@ -367,16 +372,18 @@ div.circle {
   border: 1px solid #999;
 }
 
-#rebus {
+.puzzle-cell.rebus {
   position: absolute;
+  width: unset;
+  min-width: inherit;
+  border: 3px solid #fbd428;
+  text-align: center;
+  padding: .33em .1em 0 .1em;
+  text-transform: uppercase;
 }
 
-#rebus input {
-  width: 32px;
-  height: 32px;
-  text-transform: uppercase;
-  font-family: franklin;
-  font-size: inherit;
+.puzzle-cell.rebus:focus {
+  outline: none;
 }
 
 .empty-dropzone {

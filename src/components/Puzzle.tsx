@@ -101,16 +101,22 @@ function PuzzleView(props: PuzzleViewProps) {
   const { puzzle, setPuzzle, clock, onDrop } = props;
 
   const [isEditingRebus, setEditingRebus] = useState(false);
-  const [rebusValue, setRebusValue] = useState('');
+  const rebusValue = useRef('');
   const cursorRef = useRef<HTMLDivElement>(null);
 
+  // cancel rebus on any puzzle change
+  useEffect(() => {
+    if (isEditingRebus) finishRebus(false);
+  }, [puzzle]);
+
   function finishRebus(submit: boolean) {
-    if (submit) setPuzzle(changeCurrentCell((cell) => setContent(cell, rebusValue)));
+    if (submit) setPuzzle(changeCurrentCell((cell) => setContent(cell, rebusValue.current)));
     setEditingRebus(false);
   }
 
   function startRebus() {
-    setRebusValue(currentCell(puzzle).content);
+    console.log('starting rebus');
+    rebusValue.current = currentCell(puzzle).content;
     setEditingRebus(true);
   }
 
@@ -128,12 +134,7 @@ function PuzzleView(props: PuzzleViewProps) {
         <ClueLists puzzle={puzzle} setPuzzle={setPuzzle} />
       </div>
       {isEditingRebus ? (
-        <RebusInput
-          value={rebusValue}
-          setValue={setRebusValue}
-          alignWith={cursorRef}
-          onFinish={finishRebus}
-        />
+        <RebusInput value={rebusValue} alignWith={cursorRef} onFinish={finishRebus} />
       ) : (
         <PuzzleKeys setPuzzle={setPuzzle} onRebus={startRebus} />
       )}

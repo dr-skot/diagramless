@@ -1,40 +1,63 @@
-import React, { useEffect, useRef } from 'react';
-import { fitTo } from '../services/common/utils';
+import React, { useEffect, useRef, useState } from 'react';
+import { offsetRect } from '../services/common/utils';
 
 interface RebusInputProps {
-  value: string;
-  setValue: React.Dispatch<React.SetStateAction<string>>;
+  value: React.MutableRefObject<string>;
   alignWith: React.RefObject<HTMLDivElement>;
   onFinish: (submit: boolean) => void;
 }
 
-// TODO resize rebus to fit value
-// TODO resize input instead of container div
+export function RebusInput({ value, alignWith, onFinish }: RebusInputProps) {
+  const [, rerender] = useState(Date.now());
+  const ref = useRef<HTMLDivElement>(null);
 
-export function RebusInput({ value, setValue, alignWith, onFinish }: RebusInputProps) {
-  const element = useRef<HTMLDivElement>(null);
+  console.log('render rebus input');
 
+  useEffect(() => {
+    if (ref.current) placeCaretAtEnd(ref.current);
+  }, []);
+
+  // finish on escape or enter
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (!event.key.match(/^(Esc|Enter)/)) return;
     event.preventDefault();
+    if (event.key === 'Enter') value.current = ref.current?.innerText.toUpperCase() || '';
     onFinish(event.key === 'Enter');
   }
 
+  // rerender on resize to realign with current cell
   useEffect(() => {
-    const fitToCell = () => fitTo(alignWith.current, element.current);
-    fitToCell();
-    window.addEventListener('resize', fitToCell);
-    return () => window.removeEventListener('resize', fitToCell);
-  }, [alignWith]);
+    const forceRender = () => rerender(Date.now());
+    window.addEventListener('resize', forceRender);
+    return () => window.removeEventListener('resize', forceRender);
+  }, []);
 
   return (
-    <div id="rebus" ref={element}>
-      <input
-        value={value}
-        onChange={(e) => setValue(e.target.value.toUpperCase())}
-        onKeyDown={handleKeyDown}
-        autoFocus={true}
-      />
+    <div
+      ref={ref}
+      contentEditable
+      className="puzzle-cell rebus"
+      style={fitTo(alignWith.current)}
+      onKeyDown={handleKeyDown}
+    >
+      {value.current}
     </div>
   );
+}
+
+export function fitTo(anchor: HTMLElement | null) {
+  if (!anchor) return {};
+  const rect = offsetRect(anchor);
+  return { ...rect, width: '', minWidth: rect.width, fontSize: anchor.style.fontSize };
+}
+
+//stackoverflow.com/questions/4233265/contenteditable-set-caret-at-the-end-of-the-text-cross-browser
+function placeCaretAtEnd(node: HTMLElement) {
+  node.focus();
+  const range = document.createRange();
+  range.selectNodeContents(node);
+  range.collapse(false);
+  const sel = window.getSelection();
+  sel!.removeAllRanges();
+  sel!.addRange(range);
 }
