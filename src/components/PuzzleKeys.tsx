@@ -54,7 +54,7 @@ export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
       if (event.key !== 'Tab') return false;
       setPuzzle((prev) =>
         goToNextWord(prev, {
-          eitherDirection: event.altKey,
+          // eitherDirection: event.altKey, // TODO support this (it's tricker than it looks)
           backward: event.shiftKey,
           skipFilled: true,
         })

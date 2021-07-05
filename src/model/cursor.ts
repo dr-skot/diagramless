@@ -94,8 +94,8 @@ export const goToNextWord = (puzzle: XwdPuzzle, options: NextWordOptions = {}): 
     until: ([row, col]: number[]) =>
       wordStartsAt(grid, row, col, eitherDirection ? undefined : direction),
   });
-  // TODO DRY this out there's similar in puzzle.jsx moveInWord(grid, policy, word)
-  const newWord = getWord(grid, startOfWord, direction === 'across' ? ACROSS : DOWN);
+  let vector = cursor.direction === 'across' ? ACROSS : DOWN;
+  const newWord = getWord(grid, startOfWord, vector);
   if (!newWord) return puzzle;
   const emptyCell = newWord?.find(([i, j]: number[]) => cellIsEmpty(grid[i][j]));
   console.log('new word', newWord, 'has empty cell?', emptyCell);
