@@ -51,6 +51,8 @@ export function getWord(grid, cursor, direction) {
     word.push(pos);
   }
 
+  // console.log('getWord', { grid, cursor, direction, word });
+
   return word;
 }
 

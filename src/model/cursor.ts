@@ -1,9 +1,10 @@
 import { gridHeight, gridWidth, gridIsFilled, XwdDirection } from './grid';
-import { getWord, LEFT, moveOnGrid, NEXT_LINE, RIGHT } from '../services/xwdService';
+import { ACROSS, DOWN, getWord, LEFT, moveOnGrid, NEXT_LINE, RIGHT } from '../services/xwdService';
 import { includesEqual, mod } from '../services/common/utils';
 import { findWord, wordNumber, wordStartsAt } from './word';
 import { cellIsEmpty } from './cell';
 import { XwdPuzzle } from './puzzle';
+import { backVector } from './direction';
 
 export interface XwdCursor {
   row: number;
@@ -94,9 +95,10 @@ export const goToNextWord = (puzzle: XwdPuzzle, options: NextWordOptions = {}): 
       wordStartsAt(grid, row, col, eitherDirection ? undefined : direction),
   });
   // TODO DRY this out there's similar in puzzle.jsx moveInWord(grid, policy, word)
-  const newWord = getWord(grid, startOfWord, direction);
+  const newWord = getWord(grid, startOfWord, direction === 'across' ? ACROSS : DOWN);
   if (!newWord) return puzzle;
   const emptyCell = newWord?.find(([i, j]: number[]) => cellIsEmpty(grid[i][j]));
+  console.log('new word', newWord, 'has empty cell?', emptyCell);
   const newPos = emptyCell || newWord[0];
   //console.log({ newWord, emptyCell, newPos });
   const newCursor = { row: newPos[0], col: newPos[1], direction };
