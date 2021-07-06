@@ -4,6 +4,7 @@ import { includesEqual, mod } from '../utils/utils';
 import { findWord, wordNumber, wordStartsAt } from './word';
 import { cellIsEmpty } from './cell';
 import { XwdPuzzle } from './puzzle';
+import { Vector } from './direction';
 
 export interface XwdCursor {
   row: number;
@@ -82,8 +83,8 @@ export const goToNextWord = (puzzle: XwdPuzzle, options: NextWordOptions = {}): 
   const backward = !!options.backward,
     eitherDirection = !!options.eitherDirection,
     word = currentWord(puzzle),
-    start = eitherDirection || !word ? [cursor.row, cursor.col] : word[0],
-    gridSize = [gridHeight(grid), gridWidth(grid)];
+    start: Vector = eitherDirection || !word ? [cursor.row, cursor.col] : word[0],
+    gridSize: Vector = [gridHeight(grid), gridWidth(grid)];
   let direction = cursor.direction;
   const startOfWord = moveOnGrid(start, backward ? LEFT : RIGHT, gridSize, {
     atLineEnd: NEXT_LINE,

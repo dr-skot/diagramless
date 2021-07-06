@@ -37,7 +37,7 @@ export function keysWithTrueValues(object: Record<any, any>) {
   return Object.keys(pickBy(object));
 }
 
-export function getElement(array: any[], indices: number[]) {
+export function getElement(array: any[], indices: number[]): any {
   return indices.reduce((subarray, index) => (subarray ? subarray[index] : undefined), array);
 }
 

@@ -126,6 +126,7 @@ export function puzzleToPdf(puzzle: XwdPuzzle, _options: any = {}) {
     let line_x = margin;
     let line_y = margin + maxTitleAuthorSize + options.underTitleSpacing + clueSize + cluePadding;
     let columnNumber = 0;
+    // eslint-disable-next-line no-loop-func
     [acrossClues, downClues].forEach((clues) => {
       clues.forEach((clue, i) => {
         // check to see if we need to wrap

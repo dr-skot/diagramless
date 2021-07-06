@@ -1,68 +1,66 @@
-import _ from 'lodash';
-import { getElement } from '../utils/utils';
+import { range, inRange, repeat, isEqual } from 'lodash';
 import { vectorAdd, vectorSubtract, vectorMod, vectorFits } from '../utils/vector';
+import { XwdGrid } from '../model/grid';
+import { Vector } from '../model/direction';
+import { getElement } from '../utils/utils';
 // var TextDecoder = TextDecoder || require('text-encoding').TextDecoder;
 
-var puzzle;
+interface Clue {
+  number: string;
+  direction: Vector;
+  clue: string;
+}
 
-export const LEFT = [0, -1],
-  RIGHT = [0, 1],
-  UP = [-1, 0],
-  DOWN = [1, 0],
+let puzzle;
+
+export const LEFT: Vector = [0, -1],
+  RIGHT: Vector = [0, 1],
+  UP: Vector = [-1, 0],
+  DOWN: Vector = [1, 0],
   ACROSS = RIGHT;
 
 export const STOP = 'STOP',
   WRAP_AROUND = 'WRAP_AROUND',
   NEXT_LINE = 'NEXT_LINE';
 
-export function getWord(grid, cursor, direction) {
+export function getWord(grid: XwdGrid, cursor: Vector, direction: Vector) {
   const [row, col] = cursor;
   const height = grid.length;
   if (height === 0) return [];
   const width = grid[0].length;
 
-  function off(row, col) {
-    return !_.inRange(row, 0, height) || !_.inRange(col, 0, width);
-  }
-
-  function black(row, col) {
-    return grid[row][col].isBlack;
-  }
-
-  function add(a, b) {
-    return [a[0] + b[0], a[1] + b[1]];
-  }
-
-  function subtract(a, b) {
-    return [a[0] - b[0], a[1] - b[1]];
-  }
+  const off = (row: number, col: number) => !inRange(row, 0, height) || !inRange(col, 0, width);
+  const black = (row: number, col: number) => grid[row][col].isBlack;
+  const add = (v1: Vector, v2: Vector): Vector => vectorAdd(v1, v2) as Vector;
+  const subtract = (v1: Vector, v2: Vector): Vector => vectorSubtract(v1, v2) as Vector;
 
   // no word if black square
   if (black(row, col)) return null;
 
-  let pos,
-    word = [];
+  let word = [];
   // trace backward from cursor until black or off
-  for (pos = cursor; !off(...pos) && !black(...pos); pos = subtract(pos, direction)) {
+  for (let pos = cursor; !off(...pos) && !black(...pos); pos = subtract(pos, direction)) {
     word.unshift(pos);
   }
 
   // trace forward from cursor until black or off
-  for (pos = add(cursor, direction); !off(...pos) && !black(...pos); pos = add(pos, direction)) {
+  for (
+    let pos = add(cursor, direction);
+    !off(...pos) && !black(...pos);
+    pos = add(pos, direction)
+  ) {
     word.push(pos);
   }
-
-  // console.log('getWord', { grid, cursor, direction, word });
 
   return word;
 }
 
-export function puzzleFromFileData(data) {
+export function puzzleFromFileData(data: ArrayBuffer) {
   if (!data) return;
   // using file descriptions at
   // http://acrossdown.net/specification.htmvar
   // https://code.google.com/archive/p/puz/wikis/FileFormat.wiki
-  var decoder = new TextDecoder('ascii'),
+  let decoder = new TextDecoder('ascii'),
     dv = new DataView(data),
     label = decoder.decode(data.slice(2, 13)),
     width = dv.getUint8(0x2c),
@@ -75,15 +73,18 @@ export function puzzleFromFileData(data) {
     title = info[0],
     author = info[1],
     copyright = info[2],
-    numbersAndClues = numberGrid(solution, width, info.slice(3)),
+    numbersAndClues = numberGrid(solution, width, info.slice(3)) as {
+      numbers: number[];
+      clues: Clue[];
+    },
     numbers = numbersAndClues.numbers,
     clues = numbersAndClues.clues,
     note = info[3 + clues.length],
-    extras = {};
+    extras: Record<string, any> = {};
 
   // process extras as binary data
-  var index = 0x34 + size * 2 + (info.join('').length + info.length); // length of strings plus their null terminators
-  var code, len, content;
+  let index = 0x34 + size * 2 + (info.join('').length + info.length); // length of strings plus their null terminators
+  let code: string, len: number, content;
   while (index < data.byteLength) {
     code = decoder.decode(data.slice(index, index + 4)); // section title
     index += 4;
@@ -108,18 +109,18 @@ export function puzzleFromFileData(data) {
   //    " 0:HEART; 1:DIAMOND;17:CLUB;23:SPADE;"
   if (extras.GRBS) extras.GRBS = new Uint8Array(extras.GRBS);
   if (extras.GRBS && extras.RTBL) {
-    var table = [];
+    let table: string[] = [];
     decoder
       .decode(extras.RTBL)
       .trim()
       .replace(/;$/, '')
       .split(/; */)
       .forEach(function (item) {
-        var kv = item.split(':');
+        const kv = item.split(':');
         table[parseInt(kv[0])] = kv[1];
       });
     extras.RTBL = table;
-    for (var k = 0; k < size; k++) {
+    for (let k = 0; k < size; k++) {
       if (extras.GRBS[k]) {
         solution[k] = table[extras.GRBS[k] - 1];
       }
@@ -161,16 +162,16 @@ export function puzzleFromFileData(data) {
   // The situation seems to be: in solution, ':' means a black square, and puzzle is meant to be diagramless
   // in guesses, ':' means user has not filled this square, but square is black in solution
   // '.' I guess would mean user has marked the square black
-  puzzle.guesses = _.repeat('-', puzzle.guesses.length).split('');
+  puzzle.guesses = repeat('-', puzzle.guesses.length).split('');
   return puzzle;
 }
 
-function numberGrid(grid, width, clueList) {
-  var number = 1;
-  var numbers = [];
-  var clues = clueList ? [] : null;
+function numberGrid(grid: string[], width: number, clueList: string[]) {
+  let number = 1;
+  let numbers: number[] = [];
+  let clues: Clue[] | null = clueList ? [] : null;
 
-  _.range(0, grid.length).forEach((k) => {
+  range(0, grid.length).forEach((k) => {
     [ACROSS, DOWN].forEach((dir) => {
       if (isStartCell(grid, width, k, dir)) {
         if (clues)
@@ -187,18 +188,18 @@ function numberGrid(grid, width, clueList) {
   return clues ? { numbers: numbers, clues: clues } : numbers;
 }
 
-function numClues(grid, width) {
-  var count = 0;
-  _.range(0, grid.length).forEach((k) => {
-    [ACROSS, DOWN].forEach(function (dir) {
+function numClues(grid: string[], width: number) {
+  let count = 0;
+  range(0, grid.length).forEach((k) => {
+    [ACROSS, DOWN].forEach((dir) => {
       if (isStartCell(grid, width, k, dir)) count++;
     });
   });
   return count;
 }
 
-function isStartCell(grid, width, k, direction) {
-  var one = direction === ACROSS ? 1 : width,
+function isStartCell(grid: string[], width: number, k: number, direction: Vector) {
+  const one = direction === ACROSS ? 1 : width,
     place = direction === ACROSS ? k % width : Math.floor(k / width),
     startsLine = place === 0,
     endsLine = direction === ACROSS ? place === width - 1 : k + width >= grid.length;
@@ -209,7 +210,7 @@ function isStartCell(grid, width, k, direction) {
   );
 }
 
-function isBlack(grid, k) {
+function isBlack(grid: string[], k: number) {
   return grid[k] === ':' || grid[k] === '.';
 }
 
@@ -221,37 +222,54 @@ function isBlack(grid, k) {
 //    options:
 //       atLineEnd: STOP | WRAP_AROUND | NEXT_LINE (default WRAP_AROUND)
 //       onPuzzleWrap: a callback triggered when wrapping past the end of the puzzle
-export function moveOnGrid(start, direction, gridSize, options = {}) {
+interface MoveOnGridOptions {
+  atLineEnd: 'STOP' | 'WRAP_AROUND' | 'NEXT_LINE';
+  onPuzzleWrap: () => void;
+  until: (pos: Vector) => boolean;
+}
+
+export function moveOnGrid(
+  start: Vector,
+  direction: Vector,
+  gridSize: Vector,
+  options: Partial<MoveOnGridOptions> = {}
+): Vector {
   const { atLineEnd, onPuzzleWrap, until } = options;
 
   if (until) {
-    return moveOnGridUntil(options.until, start, direction, gridSize, {
+    return moveOnGridUntil(until, start, direction, gridSize, {
       atLineEnd,
       onPuzzleWrap,
     });
   }
 
   const vector = direction; // TODO make direction a string & look up vector
-  const onGrid = (position) => vectorFits(position, gridSize);
-  const wrap = (position) => vectorMod(position, gridSize);
+  const onGrid = (position: Vector) => vectorFits(position, gridSize);
+  const wrap = (position: Vector) => vectorMod(position, gridSize);
 
-  const unwrapped = vectorAdd(start, vector);
+  const unwrapped = vectorAdd(start, vector) as Vector;
   if (onGrid(unwrapped)) return unwrapped;
   if (atLineEnd === STOP) return start;
 
-  const wrapped = wrap(unwrapped);
+  const wrapped = wrap(unwrapped) as Vector;
   if (atLineEnd !== NEXT_LINE) return wrapped;
 
   const crossVector = vector.slice().reverse();
-  const lineAdvanced = vectorAdd(wrapped, crossVector);
+  const lineAdvanced = vectorAdd(wrapped, crossVector) as Vector;
   if (onGrid(lineAdvanced)) return lineAdvanced;
 
   const puzzleWrapped = wrap(lineAdvanced);
   if (onPuzzleWrap) onPuzzleWrap();
-  return puzzleWrapped;
+  return puzzleWrapped as Vector;
 }
 
-export function moveOnGridUntil(found, start, direction, gridSize, options) {
+export function moveOnGridUntil(
+  found: (pos: Vector) => boolean,
+  start: Vector,
+  direction: Vector,
+  gridSize: Vector,
+  options: Partial<MoveOnGridOptions>
+) {
   let position = start,
     lastPosition;
   do {
@@ -259,74 +277,35 @@ export function moveOnGridUntil(found, start, direction, gridSize, options) {
     position = moveOnGrid(position, direction, gridSize, options);
   } while (
     !found(position) && // haven't fulfilled condition
-    !_.isEqual(position, lastPosition) && // still moving
-    !_.isEqual(position, start) // not back where we started
+    !isEqual(position, lastPosition) && // still moving
+    !isEqual(position, start) // not back where we started
   );
   return position;
 }
 
-/*
-export function mog2(grid, policy, cursor) {
-  const perpendicular = dir => (dir === ACROSS ? DOWN : ACROSS),
-    advance = vectorAdd(cursor.direction),
-    nextLine = vectorAdd(perpendicular(cursor.direction)),
-    wrap = vectorMod(gridSize);
-
-  const moves = {
-    STOP: R.identical,
-    WRAP_AROUND: advance,
-    NEXT_LINE: R.pipe(
-      advance,
-      nextLine
-    )
-  };
-
-  const whichMove =
-      policy.atLineEnd && isLineEnd(grid, cursor)
-        ? policy.atLineEnd
-        : WRAP_AROUND,
-    move = moves[whichMove],
-    puzzleWrap = whichMove === NEXT_LINE && isPuzzleEnd(grid, cursor),
-    dirChange =
-      policy.onPuzzleWrap === CHANGE_DIRECTION ? perpendicular : R.identical,
-    newCursor = R.evolve({
-      location: R.pipe(
-        move,
-        wrap
-      ),
-      direction: dirChange
-    })(cursor);
-
-  // TODO check for back where we started
-  return policy.until && !policy.until(newCursor)
-    ? mog2(grid, policy, newCursor)
-    : newCursor;
-}
-*/
-
-function isWhiteCell(grid, position) {
-  const cell = getElement(grid, position);
+function isWhiteCell(grid: XwdGrid, pos: Vector) {
+  const cell = getElement(grid, pos);
   return cell && !cell.isBlack;
 }
 
 // returns true if cell at cursor starts a word in direction
 //    grid: a two d array of cells, where black cells have a true property isBlack
-export function isWordStart(cursor, direction, grid) {
+export function isWordStart(cursor: Vector, direction: Vector, grid: XwdGrid) {
   const vector = direction; // TODO make direction a string & look up vector
-  const oneBack = vectorSubtract(cursor, vector),
-    oneForward = vectorAdd(cursor, vector),
-    white = (pos) => isWhiteCell(grid, pos);
+  const oneBack = vectorSubtract(cursor, vector) as Vector,
+    oneForward = vectorAdd(cursor, vector) as Vector,
+    white = (pos: Vector) => isWhiteCell(grid, pos);
   return white(cursor) && !white(oneBack) && white(oneForward);
 }
 
-export function parseRelatedClues(clue) {
+export function parseRelatedClues(clue: string) {
   const regex = /(\d+-(,|,? and|,? or) )*\d+-(Across|Down)/gi;
   const matches = clue.match(regex) || [];
   return matches
     .map((match) => {
       const numbers = match.match(/\d+/g);
       const direction = match.match(/across/i) ? ACROSS : DOWN;
-      return numbers.map((number) => {
+      return numbers!.map((number) => {
         return { number, direction };
       });
     })
