@@ -106,7 +106,7 @@ function PuzzleView(props: PuzzleViewProps) {
 
   // cancel rebus on any puzzle change
   useEffect(() => {
-    if (isEditingRebus) finishRebus(false);
+    setEditingRebus(false);
   }, [puzzle]);
 
   function finishRebus(submit: boolean) {
@@ -115,7 +115,6 @@ function PuzzleView(props: PuzzleViewProps) {
   }
 
   function startRebus() {
-    console.log('starting rebus');
     rebusValue.current = currentCell(puzzle).content;
     setEditingRebus(true);
   }

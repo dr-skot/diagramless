@@ -11,11 +11,11 @@ export function RebusInput({ value, alignWith, onFinish }: RebusInputProps) {
   const [, rerender] = useState(Date.now());
   const ref = useRef<HTMLDivElement>(null);
 
-  console.log('render rebus input');
-
   useEffect(() => {
-    if (ref.current) placeCaretAtEnd(ref.current);
-  }, []);
+    if (!ref.current) return;
+    ref.current.innerText = value.current;
+    placeCaretAtEnd(ref.current);
+  }, [value]);
 
   // finish on escape or enter
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
@@ -39,9 +39,7 @@ export function RebusInput({ value, alignWith, onFinish }: RebusInputProps) {
       className="puzzle-cell rebus"
       style={fitTo(alignWith.current)}
       onKeyDown={handleKeyDown}
-    >
-      {value.current}
-    </div>
+    ></div>
   );
 }
 
