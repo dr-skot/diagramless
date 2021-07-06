@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { offsetRect } from '../services/common/utils';
+import { offsetRect } from '../utils/dom';
 
 interface RebusInputProps {
   value: React.MutableRefObject<string>;
@@ -11,6 +11,7 @@ export function RebusInput({ value, alignWith, onFinish }: RebusInputProps) {
   const [, rerender] = useState(Date.now());
   const ref = useRef<HTMLDivElement>(null);
 
+  // place caret at end of new incoming value
   useEffect(() => {
     if (!ref.current) return;
     ref.current.innerText = value.current;
@@ -42,6 +43,8 @@ export function RebusInput({ value, alignWith, onFinish }: RebusInputProps) {
     ></div>
   );
 }
+
+/* utils */
 
 export function fitTo(anchor: HTMLElement | null) {
   if (!anchor) return {};

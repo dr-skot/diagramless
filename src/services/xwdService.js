@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import { vectorAdd, vectorSubtract, vectorMod, vectorFits, getElement } from './common/utils';
+import { getElement } from '../utils/utils';
+import { vectorAdd, vectorSubtract, vectorMod, vectorFits } from '../utils/vector';
 // var TextDecoder = TextDecoder || require('text-encoding').TextDecoder;
 
 var puzzle;
@@ -331,49 +332,3 @@ export function parseRelatedClues(clue) {
     })
     .flat();
 }
-
-export function moveToNextWord(start, direction, grid) {
-  /*
-  const word = this.word;
-  if (!word) return;
-  const wordEdge = _.isEqual(this.direction, ACROSS)
-    ? word[word.length - 1]
-    : word[0];
-  const gridSize = [this.height, this.width];
-  let direction = this.direction;
-  newPos = moveOnGrid(wordEdge, LEFT, gridSize, {
-    atLineEnd: NEXT_LINE,
-    onPuzzleWrap: () => {
-      direction = direction.slice().reverse();
-    },
-    until: pos => isWordStart(pos, direction, grid)
-  });
-  this.setCursor(...newPos);
-  this.direction = direction;
-*/
-}
-
-/*
-function whichClue(grid, width, numbers, k, direction) {
-  if (isBlack(grid, k)) return null;
-  if (isStartCell(grid, width, k, direction)) return numbers[k];
-  var backOne = k - (direction === ACROSS ? 1 : width);
-  return whichClue(grid, width, numbers, backOne, direction);
-}
-
-function getClue(grid, width, numbers, clues, k, direction) {
-  var n = whichClue(grid, width, numbers, k, direction);
-  return _.find(clues, { number: n, direction: direction });
-}
-
-function isSolved(puzzle, checkBlacks) {
-  for (var k = 0; k < puzzle.solution.length; k++) {
-    if (isBlack(puzzle.solution, k)) {
-      if (checkBlacks && !isBlack(puzzle.guesses, k)) return false;
-    } else {
-      if (puzzle.guesses[k] !== puzzle.solution[k]) return false;
-    }
-  }
-  return true;
-}
-*/

@@ -14,3 +14,16 @@ export const handleDroppedFile = (callback: (buf: ArrayBuffer) => void) => (even
     reader.readAsArrayBuffer(file);
   }
 };
+
+// return the bounding rect of an element, relative to document
+export function offsetRect(el: HTMLElement) {
+  const rect = el.getBoundingClientRect(),
+    scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+    scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  return {
+    top: rect.top + scrollTop,
+    left: rect.left + scrollLeft,
+    height: rect.height,
+    width: rect.width,
+  };
+}

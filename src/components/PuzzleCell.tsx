@@ -1,5 +1,5 @@
 import React, { useEffect, LegacyRef, MouseEventHandler, useRef } from 'react';
-import { keysWithTrueValues } from '../services/common/utils';
+import { keysWithTrueValues } from '../utils/utils';
 import { XwdCell } from '../model/cell';
 
 function getClasses(cell: XwdCell, cursor: CursorSettings) {

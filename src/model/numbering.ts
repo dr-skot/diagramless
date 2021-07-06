@@ -14,7 +14,6 @@ export const countWordStarts = (grid: XwdGrid) => {
 };
 
 export const numberWordStarts = (grid: XwdGrid, numbers?: number[]) => {
-  if (!numbers) return grid;
   let i = 0;
   return mapCells((cell, { row, col }) =>
     wordStartsAt(grid, row, col)
@@ -44,6 +43,7 @@ export const getNumbers = (
 };
 
 export const numberPuzzle = (puzzle: XwdPuzzle) => {
+  if (puzzle.autonumber === 'off') return puzzle;
   const wordCount = countWordStarts(puzzle.grid);
   const clueCount = parseInt(puzzle.clues.slice(-1)?.[0]?.number || '0');
   const grid = numberWordStarts(puzzle.grid, getNumbers(wordCount, clueCount, puzzle.autonumber));

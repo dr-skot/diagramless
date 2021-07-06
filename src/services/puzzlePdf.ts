@@ -15,7 +15,7 @@ const PTS_PER_IN = 72;
 const DOC_WIDTH = 8.5 * PTS_PER_IN;
 const DOC_HEIGHT = 11 * PTS_PER_IN;
 
-function drawSquare(doc: any, cell: XwdCell, x: number, y: number, size: number, color = 0.4) {
+function drawSquare(doc: any, cell: XwdCell, x: number, y: number, size: number, color = 0.6) {
   const numberOffset = size / 20;
   const numberSize = size / 3.5;
   const contentOffset = size * (4 / 5);

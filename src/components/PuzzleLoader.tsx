@@ -1,11 +1,11 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
 import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
-import { tryToParse } from '../services/common/utils';
+import { tryToParse } from '../utils/utils';
 import Clock from '../model/clock';
 import { gridIsSolved } from '../model/grid';
 import Puzzle from './Puzzle';
-import { handleDroppedFile } from '../services/common/utils2';
+import { handleDroppedFile } from '../utils/dom';
 import { numberPuzzle } from '../model/numbering';
 
 const loadPuzzle = () => tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE);

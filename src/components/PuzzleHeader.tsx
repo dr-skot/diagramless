@@ -1,5 +1,5 @@
 import React from 'react';
-import { capitalize } from '../services/common/utils';
+import { capitalize } from '../utils/utils';
 
 interface PuzzleHeaderProps {
   title: string;
