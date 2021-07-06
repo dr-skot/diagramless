@@ -8,6 +8,12 @@ import { XwdClue, XwdPuzzle } from '../model/puzzle';
 import { XwdCell } from '../model/cell';
 const isAcrossClue = (clue: XwdClue) => clue.direction === 'across';
 const isDownClue = (clue: XwdClue) => clue.direction === 'down';
+const clueText = (clue: XwdClue) => `${clue.number}. ${clue.text}`;
+
+const DEFAULT_TITLE_SIZE = 12;
+const PTS_PER_IN = 72;
+const DOC_WIDTH = 8.5 * PTS_PER_IN;
+const DOC_HEIGHT = 11 * PTS_PER_IN;
 
 function drawSquare(doc: any, cell: XwdCell, x: number, y: number, size: number, color = 0.4) {
   const numberOffset = size / 20;
@@ -51,199 +57,161 @@ function drawGrid(doc: JsPDF, puzzle: XwdPuzzle, x0: number, y0: number, cellSiz
 /** Create a PDF (requires jsPDF) **/
 
 export function puzzleToPdf(puzzle: XwdPuzzle, _options: any = {}) {
-  let DEFAULT_OPTIONS = {
+  const DEFAULT_OPTIONS = {
     margin: 20,
-    title_pt: null,
-    author_pt: null,
-    copyright_pt: 8,
-    num_columns: null,
-    num_full_columns: null,
-    column_padding: 10,
+    titleSize: null,
+    authorSize: null,
+    copyrightSize: 8,
+    numColumns: null,
+    numFullColumns: null,
+    columnPadding: 10,
     gray: 0.55,
-    under_title_spacing: 20,
-    max_clue_pt: 14,
-    min_clue_pt: 5,
-    grid_padding: 5,
-    outfile: null,
+    underTitleSpacing: 20,
+    maxClueSize: 14,
+    minClueSize: 5,
+    gridPadding: 5,
+    outfile: 'puz.pdf',
   };
 
   const options = { ...DEFAULT_OPTIONS, ..._options };
 
-  // If there's no filename, just call it puz.pdf
-  if (!options.outfile) options.outfile = 'puz.pdf';
-
-  // If options.num_columns is null, we determine it ourselves
-  if (!options.num_columns || !options.num_full_columns) {
+  // If options.numColumns is null, we determine it ourselves
+  if (!options.numColumns || !options.numFullColumns) {
     if (puzzle.height >= 17) {
-      options.num_columns = 5;
-      options.num_full_columns = 2;
+      options.numColumns = 5;
+      options.numFullColumns = 2;
     } else if (puzzle.width >= 17) {
-      options.num_columns = 4;
-      options.num_full_columns = 1;
+      options.numColumns = 4;
+      options.numFullColumns = 1;
     } else {
-      options.num_columns = 3;
-      options.num_full_columns = 1;
+      options.numColumns = 3;
+      options.numFullColumns = 1;
     }
   }
 
   // The maximum font size of title and author
-  let max_title_author_pt = Math.max(options.title_pt, options.author_pt);
-
-  let PTS_PER_IN = 72;
-  let DOC_WIDTH = 8.5 * PTS_PER_IN;
-  let DOC_HEIGHT = 11 * PTS_PER_IN;
+  const maxTitleAuthorSize = Math.max(options.titleSize, options.authorSize);
 
   let margin = options.margin;
 
   let doc = new JsPDF('portrait', 'pt', 'letter');
 
   // create the clue strings and clue arrays
-  let across_clues = ['ACROSS'];
-  puzzle.clues.filter(isAcrossClue).forEach((clue) => {
-    across_clues.push(`${clue.number}. ${clue.text}`);
-  });
-
-  // For space between clue lists
-  across_clues.push('');
-
-  let down_clues = ['DOWN'];
-  // adapted to use diagramless puzzle data
-  puzzle.clues.filter(isDownClue).forEach((clue, i) => {
-    down_clues.push(`${clue.number}. ${clue.text}`);
-  });
+  const acrossClues = ['ACROSS', ...puzzle.clues.filter(isAcrossClue).map(clueText), ''];
+  const downClues = ['DOWN', ...puzzle.clues.filter(isDownClue).map(clueText)];
 
   // size of columns
-  let col_width =
-    (DOC_WIDTH - 2 * margin - (options.num_columns - 1) * options.column_padding) /
-    options.num_columns;
+  let colWidth =
+    (DOC_WIDTH - 2 * margin - (options.numColumns - 1) * options.columnPadding) /
+    options.numColumns;
 
   // The grid is under all but the first few columns
-  let grid_width =
-    DOC_WIDTH - 2 * margin - options.num_full_columns * (col_width + options.column_padding);
-  let grid_height = (grid_width / puzzle.width) * puzzle.height;
+  let gridWidth =
+    DOC_WIDTH - 2 * margin - options.numFullColumns * (colWidth + options.columnPadding);
+  let gridHeight = (gridWidth / puzzle.width) * puzzle.height;
   // x and y position of grid
-  let grid_xpos = DOC_WIDTH - margin - grid_width;
-  let grid_ypos = DOC_HEIGHT - margin - grid_height - options.copyright_pt;
+  let grid_x = DOC_WIDTH - margin - gridWidth;
+  let grid_y = DOC_HEIGHT - margin - gridHeight - options.copyrightSize;
 
-  // Loop through and write to PDF if we find a good fit
-  // Find an appropriate font size
-  let clue_pt = options.max_clue_pt;
-  let finding_font = true;
-  let done = false;
-  while (!done) {
-    let clue_padding = clue_pt / 3;
-    doc.setFontSize(clue_pt);
+  // try font sizes until the fit is good, then write to the pdf
+  let clueSize = options.maxClueSize;
+  let sizingFont = true;
+  let written = false;
+
+  while (!written) {
+    const cluePadding = clueSize / 3;
+    doc.setFontSize(clueSize);
 
     // Print the clues
-    let line_xpos = margin;
-    let line_ypos =
-      margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding;
-    let my_column = 0;
-    let clue_arrays = [across_clues, down_clues];
-    for (let k = 0; k < clue_arrays.length; k++) {
-      let clues = clue_arrays[k];
-      for (let i = 0; i < clues.length; i++) {
-        let clue = clues[i];
+    let line_x = margin;
+    let line_y = margin + maxTitleAuthorSize + options.underTitleSpacing + clueSize + cluePadding;
+    let columnNumber = 0;
+    [acrossClues, downClues].forEach((clues) => {
+      clues.forEach((clue, i) => {
         // check to see if we need to wrap
-        let max_line_ypos;
-        if (my_column < options.num_full_columns) {
-          max_line_ypos = DOC_HEIGHT - margin - options.copyright_pt;
-        } else {
-          max_line_ypos = grid_ypos - options.grid_padding;
-        }
+        const max_line_y =
+          columnNumber < options.numFullColumns
+            ? DOC_HEIGHT - margin - options.copyrightSize
+            : grid_y - options.gridPadding;
 
         // Split our clue
-        let lines = doc.splitTextToSize(clue, col_width);
+        const lines: string[] = doc.splitTextToSize(clue, colWidth);
 
-        if (line_ypos + (lines.length - 1) * (clue_pt + clue_padding) > max_line_ypos) {
+        if (line_y + (lines.length - 1) * (clueSize + cluePadding) > max_line_y) {
           // move to new column
-          my_column += 1;
-          line_xpos = margin + my_column * (col_width + options.column_padding);
-          line_ypos =
-            margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding;
+          columnNumber += 1;
+          line_x = margin + columnNumber * (colWidth + options.columnPadding);
+          line_y =
+            margin + maxTitleAuthorSize + options.under_title_spacing + clueSize + cluePadding;
         }
 
-        for (let j = 0; j < lines.length; j++) {
-          // Set the font to bold for the title
-          if (i === 0 && j === 0) {
-            doc.setFont('helvetica', 'bold');
-          } else {
-            doc.setFont('helvetica', 'normal');
+        lines.forEach((line, j) => {
+          if (!sizingFont) {
+            // bold the ACROSS or DOWN title
+            doc.setFont('helvetica', i + j === 0 ? 'bold' : 'normal');
+            // @ts-ignore
+            doc.text(line_x, line_y, line);
+            written = true;
           }
-          let line = lines[j];
-          // print the text
-          console.debug(`doc.text(${line_xpos}, ${line_ypos}, ${line})`);
-          if (!finding_font) doc.text(line_xpos, line_ypos, line);
-
           // set the y position for the next line
-          line_ypos += clue_pt + clue_padding;
-        }
-      }
-    }
+          line_y += clueSize + cluePadding;
+        });
+      });
+    });
 
-    if (!finding_font) done = true;
-
-    // let's not let the font get ridiculously tiny
-    if (clue_pt === options.min_clue_pt) {
-      finding_font = false;
-    } else if (my_column > options.num_columns - 1) {
-      clue_pt -= 0.1;
+    // reduce font size until the columns fit
+    if (clueSize >= options.minClueSize && columnNumber > options.numColumns - 1) {
+      clueSize -= 0.1;
     } else {
-      finding_font = false;
+      sizingFont = false;
     }
   }
 
-  console.log('found size', clue_pt);
-
-  /***********************/
-
-  // If title_pt or author_pt are null, we determine them
-  let DEFAULT_TITLE_PT = 12;
-  // let total_width = DOC_WIDTH - 2 * margin;
-  if (!options.author_pt) options.author_pt = options.title_pt;
-  if (!options.title_pt) {
-    options.title_pt = DEFAULT_TITLE_PT;
-    let finding_title_pt = true;
-    while (finding_title_pt) {
-      let title_author = puzzle.title + 'asdfasdf' + puzzle.author;
-      doc.setFontSize(options.title_pt).setFont('helvetica', 'bold');
-      let text_lines = doc.splitTextToSize(title_author, DOC_WIDTH); // should this be total_width?
-      if (text_lines.length === 1) {
-        finding_title_pt = false;
+  // size for title and author
+  const titleAuthor = puzzle.title + 'asdfasdf' + puzzle.author;
+  if (!options.authorSize) options.authorSize = options.titleSize;
+  if (!options.titleSize) {
+    options.titleSize = DEFAULT_TITLE_SIZE;
+    let sizingTitle = true;
+    while (sizingTitle) {
+      doc.setFontSize(options.titleSize).setFont('helvetica', 'bold');
+      let textLines = doc.splitTextToSize(titleAuthor, DOC_WIDTH); // should this be totalWidth?
+      if (textLines.length === 1) {
+        sizingTitle = false;
       } else {
-        options.title_pt -= 1;
+        options.titleSize -= 1;
       }
     }
-    options.author_pt = options.title_pt;
+    options.authorSize = options.titleSize;
   }
 
   /* Render title and author */
 
-  let title_xpos = margin;
-  let author_xpos = DOC_WIDTH - margin;
-  let title_author_ypos = margin + max_title_author_pt;
+  let title_x = margin;
+  let author_x = DOC_WIDTH - margin;
+  let titleAuthor_y = margin + maxTitleAuthorSize;
   //title
-  doc.setFontSize(options.title_pt);
+  doc.setFontSize(options.titleSize);
   doc.setFont('helvetica', 'bold');
   // @ts-ignore
-  doc.text(title_xpos, title_author_ypos, puzzle.title);
+  doc.text(title_x, titleAuthor_y, puzzle.title);
 
   //author
-  doc.setFontSize(options.author_pt);
+  doc.setFontSize(options.authorSize);
   // @ts-ignore
-  doc.text(author_xpos, title_author_ypos, puzzle.author, null, null, 'right');
+  doc.text(author_x, titleAuthor_y, puzzle.author, null, null, 'right');
   doc.setFont('helvetica', 'normal');
 
   /* Render copyright */
-  let copyright_xpos = DOC_WIDTH - margin;
-  let copyright_ypos = DOC_HEIGHT - margin;
-  doc.setFontSize(options.copyright_pt);
+  let copyright_x = DOC_WIDTH - margin;
+  let copyright_y = DOC_HEIGHT - margin;
+  doc.setFontSize(options.copyrightSize);
   // @ts-ignore
-  doc.text(copyright_xpos, copyright_ypos, puzzle.copyright, null, null, 'right');
+  doc.text(copyright_x, copyright_y, puzzle.copyright, null, null, 'right');
 
   /* Draw grid */
 
-  drawGrid(doc, puzzle, grid_xpos, grid_ypos, grid_width / puzzle.width);
+  drawGrid(doc, puzzle, grid_x, grid_y, gridWidth / puzzle.width);
 
   doc.save(options.outfile);
 }
