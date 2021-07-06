@@ -1,6 +1,17 @@
 import { newGrid, setContents } from './grid';
-import { countWordStarts, numberPuzzle, numberWordStarts } from './numbering';
+import { countWordStarts, getNumbers, numberPuzzle, numberWordStarts } from './numbering';
 import { emptyPuzzle, XwdPuzzle } from './puzzle';
+
+describe('getNumbers from both ends', () => {
+  it('works with odd word count', () => {
+    const numbers = getNumbers(5, 20, 'from both ends');
+    expect(numbers).toEqual([1, 2, 3, 19, 20]);
+  });
+  it('works with odd word count', () => {
+    const numbers = getNumbers(6, 20, 'from both ends');
+    expect(numbers).toEqual([1, 2, 3, 18, 19, 20]);
+  });
+});
 
 describe('numberWordStarts', () => {
   it('can number the whole grid', () => {

@@ -14,6 +14,7 @@ export const countWordStarts = (grid: XwdGrid) => {
 };
 
 export const numberWordStarts = (grid: XwdGrid, numbers?: number[]) => {
+  if (!numbers) return grid;
   let i = 0;
   return mapCells((cell, { row, col }) =>
     wordStartsAt(grid, row, col)
@@ -29,14 +30,16 @@ export const getNumbers = (
 ): number[] | undefined => {
   switch (numbering) {
     case 'off':
-      return [];
+      return undefined;
     case 'from top':
       return range(1, wordCount + 1);
     case 'from bottom':
       return range(clueCount + 1 - wordCount, clueCount + 1);
     case 'from both ends':
-      const midpoint = Math.round(wordCount / 2);
-      return range(1, midpoint + 1).concat(range(clueCount + 1 - midpoint, clueCount + 1));
+      const midpoint = Math.ceil(wordCount / 2);
+      return range(1, midpoint + 1).concat(
+        range(clueCount + 1 - (wordCount - midpoint), clueCount + 1)
+      );
   }
 };
 
