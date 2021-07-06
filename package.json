@@ -14,6 +14,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "coverage": "CI=true npm test -- --env=jsdom --coverage",
+    "coveralls": "npm run coverage && cat coverage/lcov.info | coveralls",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -37,6 +39,7 @@
     "@types/node": "15.14.0",
     "@types/react": "17.0.13",
     "@types/react-dom": "17.0.8",
+    "coveralls": "3.1.1",
     "prettier": "2.3.2",
     "react-scripts": "4.0.3",
     "text-encoding": "0.7.0",
