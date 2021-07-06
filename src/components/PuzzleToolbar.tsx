@@ -9,7 +9,7 @@ import {
   setSymmetry,
   XwdPuzzle,
 } from '../model/puzzle';
-import { puzdata_to_pdf } from '../services/puzzlePdf';
+import { puzzleToPdf } from '../services/puzzlePdf';
 import { gridIsSolved } from '../model/grid';
 import { checkCell, clearCell, revealCell, revealCircle, revealMeta } from '../model/cell';
 import Clock from '../model/clock';
@@ -65,7 +65,7 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle, onRebus }: Puz
   };
 
   function print() {
-    puzdata_to_pdf(puzzle);
+    puzzleToPdf(puzzle);
   }
 
   return (

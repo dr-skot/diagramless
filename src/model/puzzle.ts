@@ -6,6 +6,7 @@ import { getCellsInWord, wordIncludes, wordNumber, XwdLoc } from './word';
 import { XwdCell } from './cell';
 import { nextOrLast, wrapFindIndex } from '../services/common/utils';
 import { numberPuzzle, XwdNumbering } from './numbering';
+import JsPDF from 'jspdf';
 
 export interface XwdClue {
   number: string;
