@@ -4,7 +4,7 @@ Solve crosswords without knowing in advance where the black squares are.
 
 Running at https://diagramless.herokuapp.com (it sleeps when idle so you might have to wait a few seconds).
 
-## usage
+### usage
 
 `npm start`
 
