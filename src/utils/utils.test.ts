@@ -1,5 +1,36 @@
-import { includesEqual, keysWithTrueValues, getElement, wrapFindIndex, mod } from './utils';
+import {
+  includesEqual,
+  keysWithTrueValues,
+  getElement,
+  wrapFindIndex,
+  mod,
+  not,
+  tryToParse,
+  nextOrLast,
+  wrapFind,
+  capitalize,
+} from './utils';
 import { vectorAdd, vectorFits, vectorMod } from './vector';
+
+describe('try to parse', () => {
+  it('parses good json', () => {
+    const orig = { a: 1, b: [3, 4], c: 'c' };
+    const parsed = tryToParse(JSON.stringify(orig));
+    expect(parsed).toEqual(orig);
+  });
+  it('returns ifError parameter on error', () => {
+    expect(tryToParse('bad json', 'alt')).toBe('alt');
+  });
+});
+
+describe('not', () => {
+  it('returns the negative of a function', () => {
+    const isEven = (n: number) => n % 2 === 0;
+    expect(isEven(2)).toBe(true);
+    expect(not(isEven)(2)).toBe(false);
+    expect(not(not(isEven))(2)).toBe(true);
+  });
+});
 
 describe('includesEqual', () => {
   it('finds an array in a list of arrays', () => {
@@ -50,6 +81,15 @@ describe('keysWithTrueValues', () => {
   it('works', () => {
     const obj = { a: true, b: false, c: 'false', d: '' };
     expect(keysWithTrueValues(obj)).toEqual(['a', 'c']);
+  });
+});
+
+describe('nextOrLast', () => {
+  it('gives the next index', () => {
+    expect(nextOrLast([1, 2, 3, 4], 2)).toBe(3);
+  });
+  it("gives current index if it's last", () => {
+    expect(nextOrLast([1, 2, 3, 4], 3)).toBe(3);
   });
 });
 
@@ -117,8 +157,29 @@ describe('wrapFindIndex', () => {
     const result = wrapFindIndex([1, 2, 3, 4, 5], 2, () => true);
     expect(result).toBe(2);
   });
-  it('finds match just before index', () => {
-    const result = wrapFindIndex([1, 2, 3, 4, 5], 2, (e) => e === 2);
-    expect(result).toBe(1);
+});
+
+describe('wrapFind', () => {
+  it('returns undefined if no matches', () => {
+    const result = wrapFind([1, 2, 3, 4, 5], 2, () => false);
+    expect(result).toBeUndefined();
+  });
+  it('finds match in back half', () => {
+    const result = wrapFind(['1', '2', '3', '4', '5'], 2, (e) => e === '5');
+    expect(result).toBe('5');
+  });
+  it('finds match in first half', () => {
+    const result = wrapFind(['1', '2', '3', '4', '5'], 2, (e) => e === '2');
+    expect(result).toBe('2');
+  });
+  it('finds match at index', () => {
+    const result = wrapFind(['1', '2', '3', '4', '5'], 2, () => true);
+    expect(result).toBe('3');
+  });
+});
+
+describe('capitalize', () => {
+  it('capitalizes each word', () => {
+    expect(capitalize('mein Gott im Himmel')).toBe('Mein Gott Im Himmel');
   });
 });

@@ -9,7 +9,7 @@ import {
   XwdCursor,
 } from '../model/cursor';
 import { setContent, toggleBlack } from '../model/cell';
-import { backVector, isPerpendicular, vector } from '../model/direction';
+import { backVector, isPerpendicular, directionVector } from '../model/direction';
 
 // TODO change number[] to vector here
 const arrowVectors: Record<string, number[]> = {
@@ -104,7 +104,7 @@ export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
         else
           return addToCursor(
             changeCurrentCell(toggleBlack)(prev),
-            ...vector(prev.cursor.direction)
+            ...directionVector(prev.cursor.direction)
           );
       });
       return true;

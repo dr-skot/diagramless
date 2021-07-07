@@ -1,10 +1,6 @@
 import { times } from 'lodash';
 import { cellIsCorrect, cellIsEmpty, emptyCell, revealMeta, XwdCell } from './cell';
-
-export const not =
-  (f: (...args: any[]) => any) =>
-  (...args: any[]) =>
-    !f(...args);
+import { not } from '../utils/utils';
 
 export type XwdDirection = 'across' | 'down';
 

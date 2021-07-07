@@ -1,5 +1,4 @@
 import {
-  not,
   newGrid,
   gridHeight,
   gridWidth,
@@ -8,15 +7,6 @@ import {
   gridIsSolved,
   mapCells,
 } from './grid';
-
-describe('not', () => {
-  it('returns the negative of a function', () => {
-    const isEven = (n: number) => n % 2 === 0;
-    expect(isEven(2)).toBe(true);
-    expect(not(isEven)(2)).toBe(false);
-    expect(not(not(isEven))(2)).toBe(true);
-  });
-});
 
 it('creates a grid of the right size', () => {
   const xwd = newGrid(5, 10);

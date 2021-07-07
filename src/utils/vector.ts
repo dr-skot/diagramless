@@ -9,11 +9,6 @@ export function vectorSubtract(v1: number[], v2: number[]) {
   return v1.map((element, i) => element - v2[i]);
 }
 
-// modulo that returns always positive results
-// useful for wraparound with array indexes
-//   mod(6, 5) === 1
-//   mod(-2, 5) === 3;
-
 export function vectorMod(vector: number[], mods: number[]) {
   return vector.map((element, i) => mod(element, mods[i]));
 }

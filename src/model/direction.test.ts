@@ -1,12 +1,12 @@
-import { backVector, isPerpendicular, vector } from './direction';
+import { backVector, isPerpendicular, directionVector } from './direction';
 
 describe('vector/backVector', () => {
   it('returns [0, ±1] for across', () => {
-    expect(vector('across')).toEqual([0, 1]);
+    expect(directionVector('across')).toEqual([0, 1]);
     expect(backVector('across')).toEqual([0, -1]);
   });
   it('returns [±1, 0] for down', () => {
-    expect(vector('down')).toEqual([1, 0]);
+    expect(directionVector('down')).toEqual([1, 0]);
     expect(backVector('down')).toEqual([-1, 0]);
   });
 });

@@ -296,21 +296,8 @@ table {
   position: relative;
 }
 
-.layout-clue-lists {
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-justify-content: space-around;
-  -ms-flex-pack: distribute;
-  justify-content: space-around;
-  max-height: 625px;
-}
-
 .cluelist-wrapper {
   font: 14px franklin;
-}
-
-.clue-list-wrapper {
   width: 47%;
   height: 100%;
 }
@@ -449,13 +436,4 @@ div.circle {
   border: 1px dashed black;
   text-align: center;
   font-family: Arial;
-}
-
-@media print {
-  .cluebar, .toolbar-wrapper, .layout-clue-lists {
-    display: none;
-  }
-  .puzzle-board {
-    display: none;
-  }
 }

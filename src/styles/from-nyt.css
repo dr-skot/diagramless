@@ -473,7 +473,7 @@ html {
 
 /* clue lists */
 
-.Layout-clueLists--10_Xl {
+.Layout-clueLists {
     -webkit-flex-wrap: wrap;
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
@@ -484,7 +484,7 @@ html {
 }
 
 @media (max-width:960px) {
-    .Layout-clueLists--10_Xl {
+    .Layout-clueLists {
         -webkit-box-orient: vertical;
         -webkit-box-direction: normal;
         -webkit-flex-direction: column;

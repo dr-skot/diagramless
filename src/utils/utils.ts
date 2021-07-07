@@ -1,7 +1,7 @@
 import { isEqual, pickBy } from 'lodash';
 
 // don't break on parse errors
-export const tryToParse = (json: string, ifError: any) => {
+export const tryToParse = (json: string, ifError: any = undefined) => {
   try {
     return JSON.parse(json);
   } catch (e) {
