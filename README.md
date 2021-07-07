@@ -12,8 +12,8 @@ Running at https://diagramless.herokuapp.com (it sleeps when idle so you might h
 |.|toggle black|
 |0-9|edit cell number|
 |esc|enter rebus|
-|arrows|move or switch direction|
-|tab|next incomplete word (shift = backward)|
+|arrows|switch direction or move one cell|
+|tab|move next incomplete word (shift = backward)|
 |backspace|clear cell and move to previous|
 
 ### numbering
