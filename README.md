@@ -28,7 +28,7 @@ You can edit a cell's number manually (by typing digits) only if
 
 ### symmetry
 
-Set the symmetry to 'diagonal' or 'left-right' and symmetrical cells will toggle blackness in tandem with the current cell.
+Set the symmetry to diagonal or left-right, and symmetrical cells will toggle blackness in tandem with the current cell.
 
 ### load a new puzzle
 
