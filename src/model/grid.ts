@@ -55,9 +55,3 @@ export const setContents = (data: string[]) =>
       ? { ...cell, isBlack: true }
       : { ...cell, content: data[pos] || '' }
   );
-
-export const setNumbers = (data: string[]) =>
-  mapCells((cell, { pos }) => ({ ...cell, number: data[pos] || '' }));
-
-export const setBlacks = (data: string[]) =>
-  mapCells((cell, { pos }) => ({ ...cell, isBlack: data[pos] || false }));

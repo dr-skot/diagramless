@@ -2,6 +2,12 @@ import { newGrid, setContents } from './grid';
 import { countWordStarts, getNumbers, numberPuzzle, numberWordStarts } from './numbering';
 import { emptyPuzzle, XwdPuzzle } from './puzzle';
 
+describe('getNumbers', () => {
+  it('returns undefined when numbering is off', () => {
+    expect(getNumbers(10, 30, 'off')).toBeUndefined();
+  });
+});
+
 describe('getNumbers from both ends', () => {
   it('works with odd word count', () => {
     const numbers = getNumbers(5, 20, 'from both ends');
