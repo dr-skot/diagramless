@@ -29,7 +29,10 @@ export default function PuzzleModal({ reason, onClose }: PuzzleModalProps) {
 
   // play sound effect if any
   useEffect(() => {
-    if (reason !== 'PAUSED') new Audio(sounds[reason]).play().then();
+    if (reason === 'PAUSED') return;
+    const audio = new Audio(sounds[reason]);
+    audio.volume = 0.2;
+    audio.play().then();
   }, [reason]);
 
   // let enter key dismiss
