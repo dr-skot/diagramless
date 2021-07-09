@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import UIfx from 'uifx';
 
 export type ModalReason = 'SOLVED' | 'FILLED' | 'PAUSED';
 
@@ -15,8 +16,9 @@ const buttonText = {
 };
 
 const sounds = {
-  SOLVED: 'sounds/tada.mp3',
-  FILLED: 'sounds/doh.mp3',
+  SOLVED: new UIfx('sounds/tada.mp3', { volume: 0.2 }),
+  FILLED: new UIfx('sounds/doh.mp3', { volume: 0.2 }),
+  PAUSED: null,
 };
 
 interface PuzzleModalProps {
@@ -29,10 +31,7 @@ export default function PuzzleModal({ reason, onClose }: PuzzleModalProps) {
 
   // play sound effect if any
   useEffect(() => {
-    if (reason === 'PAUSED') return;
-    const audio = new Audio(sounds[reason]);
-    audio.volume = 0.2;
-    audio.play().then();
+    sounds[reason]?.play();
   }, [reason]);
 
   // let enter key dismiss

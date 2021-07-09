@@ -8,7 +8,8 @@
     "normalize.css": "8.0.1",
     "react": "16.14.0",
     "react-dom": "16.14.0",
-    "react-file-drop": "0.2.8"
+    "react-file-drop": "0.2.8",
+    "uifx": "2.0.7"
   },
   "scripts": {
     "start": "react-scripts start",
