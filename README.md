@@ -6,7 +6,7 @@ Here's a [working demo](https://diagramless.herokuapp.com) (it sleeps when idle 
 
 ### load a puzzle
 
-Drag a `.puz` file onto the puzzle grid. Download `.puz` files from the [New York Times](https://www.nytimes.com/crosswords), for example. 
+Drag any `.puz` file onto the puzzle grid. You can download such files from the [New York Times](https://www.nytimes.com/crosswords), for example. 
 
 ### keys
 
