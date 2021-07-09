@@ -2,11 +2,11 @@
 
 Solve crosswords without knowing in advance where the black squares are.
 
-Running at https://diagramless.herokuapp.com (it sleeps when idle so you might have to wait a few seconds).
+Here's a [working demo](https://diagramless.herokuapp.com) (it sleeps when idle so you might have to wait a few seconds for it to spin up).
 
-### usage
+### load a puzzle
 
-`npm start`
+Drag a `.puz` file onto the puzzle grid. Download `.puz` files from the [New York Times](https://www.nytimes.com/crosswords), for example. 
 
 ### keys
 
@@ -30,6 +30,3 @@ You can edit a cell's number manually (by typing digits) only if
 
 Set the symmetry to diagonal or left-right, and symmetrical cells will toggle blackness in tandem with the current cell.
 
-### load a new puzzle
-
-Drag a `.puz` file onto the puzzle grid.
