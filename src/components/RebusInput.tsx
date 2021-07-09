@@ -22,6 +22,7 @@ export function RebusInput({ value, alignWith, onFinish }: RebusInputProps) {
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (!event.key.match(/^(Esc|Enter)/)) return;
     event.preventDefault();
+    event.stopPropagation();
     if (event.key === 'Enter') value.current = ref.current?.innerText.toUpperCase() || '';
     onFinish(event.key === 'Enter');
   }

@@ -39,11 +39,11 @@ export default function PuzzleModal({ reason, onClose }: PuzzleModalProps) {
     // TODO would be nice to have button go into pressed state on keydown
     // but this seems nontrivial esp w/o jquery
     // https://teamtreehouse.com/community/how-to-add-enter-event-listener-aside-from-clicking-the-button
-    const handleKeyUp = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Enter') onClose(reason);
     };
-    window.addEventListener('keyup', handleKeyUp);
-    return () => window.removeEventListener('keyup', handleKeyUp);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [reason, onClose]);
 
   return (
