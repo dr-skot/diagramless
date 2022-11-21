@@ -163,6 +163,7 @@ export function puzzleFromFileData(data: ArrayBuffer) {
   // in guesses, ':' means user has not filled this square, but square is black in solution
   // '.' I guess would mean user has marked the square black
   puzzle.guesses = repeat('-', puzzle.guesses.length).split('');
+  console.log(puzzle);
   return puzzle;
 }
 
