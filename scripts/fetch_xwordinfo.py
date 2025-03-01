@@ -11,7 +11,6 @@ import os
 import json
 import argparse
 import requests
-import html
 from datetime import datetime
 
 def fetch_puzzle(date_str, output_file=None):
@@ -64,16 +63,8 @@ def fetch_puzzle(date_str, output_file=None):
                 print(f"XWordInfo API error: {puzzle_data['error']}")
                 raise ValueError(f"XWordInfo API error: {puzzle_data['error']}")
             
-            # Decode HTML entities in clues
-            if 'clues' in puzzle_data:
-                if 'across' in puzzle_data['clues']:
-                    puzzle_data['clues']['across'] = [
-                        decode_clue(clue) for clue in puzzle_data['clues']['across']
-                    ]
-                if 'down' in puzzle_data['clues']:
-                    puzzle_data['clues']['down'] = [
-                        decode_clue(clue) for clue in puzzle_data['clues']['down']
-                    ]
+            # We no longer need to decode HTML entities in clues
+            # The browser will handle this with dangerouslySetInnerHTML
             
         except json.JSONDecodeError:
             print(f"Error: Received non-JSON response from XWordInfo.")
@@ -103,16 +94,17 @@ def fetch_puzzle(date_str, output_file=None):
 
 def decode_clue(clue):
     """
-    Decode HTML entities in a clue.
+    This function is kept for backward compatibility but no longer decodes HTML entities.
+    The browser will now handle HTML entities with dangerouslySetInnerHTML.
     
     Args:
         clue: Clue string possibly containing HTML entities
     
     Returns:
-        Decoded clue string
+        The original clue string unchanged
     """
-    # Decode HTML entities in the clue
-    return html.unescape(clue)
+    # No longer decode HTML entities
+    return clue
 
 def main():
     parser = argparse.ArgumentParser(description="Fetch puzzle data from XWordInfo for a given date")
