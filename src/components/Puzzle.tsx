@@ -20,6 +20,7 @@ interface PuzzleProps {
   setPuzzle: PuzzleDispatch;
   clock: Clock;
   onDrop: DragEventHandler;
+  onImportFromXWordInfo?: () => void;
 }
 
 type XwdFillState = 'filled' | 'solved' | 'incomplete';
@@ -27,7 +28,7 @@ type XwdFillState = 'filled' | 'solved' | 'incomplete';
 const getFillState = (grid: XwdGrid): XwdFillState =>
   gridIsFilled(grid) ? (gridIsSolved(grid) ? 'solved' : 'filled') : 'incomplete';
 
-export default function Puzzle({ puzzle, setPuzzle, clock, onDrop }: PuzzleProps) {
+export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onImportFromXWordInfo }: PuzzleProps) {
   const [showModal, setShowModal] = useState<ModalReason | null>(null);
   const [fillState, setFillState] = useState<XwdFillState>(getFillState(puzzle.grid));
   const { grid } = puzzle;
@@ -83,7 +84,13 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop }: PuzzleProps
   return (
     <>
       <div className={showModal === 'PAUSED' ? 'app-obscured' : ''}>
-        <PuzzleView puzzle={puzzle} setPuzzle={setPuzzle} clock={clock} onDrop={onDrop} />
+        <PuzzleView 
+          puzzle={puzzle} 
+          setPuzzle={setPuzzle} 
+          clock={clock} 
+          onDrop={onDrop} 
+          onImportFromXWordInfo={onImportFromXWordInfo} 
+        />
       </div>
       {showModal && <PuzzleModal reason={showModal} onClose={closeModal} />}
     </>
@@ -95,10 +102,11 @@ interface PuzzleViewProps {
   setPuzzle: PuzzleDispatch;
   clock: Clock;
   onDrop: DragEventHandler;
+  onImportFromXWordInfo?: () => void;
 }
 
 function PuzzleView(props: PuzzleViewProps) {
-  const { puzzle, setPuzzle, clock, onDrop } = props;
+  const { puzzle, setPuzzle, clock, onDrop, onImportFromXWordInfo } = props;
 
   const [isEditingRebus, setEditingRebus] = useState(false);
   const rebusValue = useRef('');
@@ -126,7 +134,13 @@ function PuzzleView(props: PuzzleViewProps) {
 
   return (
     <>
-      <PuzzleToolbar clock={clock} puzzle={puzzle} setPuzzle={setPuzzle} onRebus={toggleRebus} />
+      <PuzzleToolbar 
+        clock={clock} 
+        puzzle={puzzle} 
+        setPuzzle={setPuzzle} 
+        onRebus={toggleRebus} 
+        onImportFromXWordInfo={onImportFromXWordInfo} 
+      />
       <PuzzleHeader title={puzzle.title} author={puzzle.author} />
       <div className="layout-puzzle" onDrop={onDrop} onDragOver={(e) => e.preventDefault()}>
         <ClueBarAndBoard puzzle={puzzle} setPuzzle={setPuzzle} cursorRef={cursorRef} />

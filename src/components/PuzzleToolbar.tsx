@@ -20,9 +20,16 @@ interface PuzzleToolbarProps {
   puzzle: XwdPuzzle;
   setPuzzle: PuzzleDispatch;
   onRebus: () => void;
+  onImportFromXWordInfo?: () => void;
 }
 
-export default function PuzzleToolbar({ clock, puzzle, setPuzzle, onRebus }: PuzzleToolbarProps) {
+export default function PuzzleToolbar({ 
+  clock, 
+  puzzle, 
+  setPuzzle, 
+  onRebus, 
+  onImportFromXWordInfo 
+}: PuzzleToolbarProps) {
   const checked: Record<string, string> = {
     symmetry: puzzle.symmetry as string,
     numbering: puzzle.autonumber as string,
@@ -74,6 +81,11 @@ export default function PuzzleToolbar({ clock, puzzle, setPuzzle, onRebus }: Puz
         <li className="Tool-button Tool-tool Tool-texty">
           <button onClick={print}>Print</button>
         </li>
+        {onImportFromXWordInfo && (
+          <li className="Tool-button Tool-tool Tool-texty">
+            <button onClick={onImportFromXWordInfo}>Import from XWordInfo</button>
+          </li>
+        )}
         <PuzzleClock clock={clock} disabled={gridIsSolved(puzzle.grid)} />
         <li className="Tool-button Tool-tool Tool-texty">
           <button onClick={onRebus}>rebus</button>
