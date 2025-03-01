@@ -15,6 +15,7 @@ export const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onImport, 
   const [availablePuzzles, setAvailablePuzzles] = useState<{ date: string; filename: string }[]>([]);
   
   const dateInputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Fetch available puzzles when component mounts
   useEffect(() => {
@@ -40,6 +41,30 @@ export const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onImport, 
     }
   }, []);
 
+  // Handle click outside modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onCancel();
+      }
+    };
+
+    // Handle escape key
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onCancel();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscKey);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [onCancel]);
+
   const handleDateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -48,17 +73,12 @@ export const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onImport, 
       return;
     }
     
-    // Validate date format
-    const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
-    const match = date.match(dateRegex);
-    
-    if (!match) {
-      setError('Please enter a valid date in MM/DD/YYYY format');
-      return;
-    }
-    
-    const [_, month, day, year] = match;
-    const formattedDate = `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+    // Convert from YYYY-MM-DD to MM/DD/YYYY format for API
+    const dateObj = new Date(date);
+    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+    const day = dateObj.getDate().toString().padStart(2, '0');
+    const year = dateObj.getFullYear();
+    const formattedDate = `${month}/${day}/${year}`;
     
     setError(null);
     setLoading(true);
@@ -98,34 +118,28 @@ export const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onImport, 
   };
 
   return (
-    <div className="xwordinfo-importer" onKeyDown={handleKeyDown}>
-      <h2>Load</h2>
+    <div className="xwordinfo-importer" ref={modalRef} onKeyDown={handleKeyDown}>
+      <button className="close-button" onClick={onCancel} aria-label="Close">×</button>
       
       <form onSubmit={handleDateSubmit} className="date-form">
         <div className="form-group">
-          <label htmlFor="date">Date (MM/DD/YYYY):</label>
+          <label htmlFor="date">Puzzle date:</label>
           <input
-            type="text"
+            type="date"
             id="date"
             ref={dateInputRef}
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            placeholder="MM/DD/YYYY"
-            pattern="\d{2}/\d{2}/\d{4}"
             required
             onKeyDown={handleKeyDown}
           />
         </div>
         <button type="submit" disabled={loading} onKeyDown={handleKeyDown}>
-          {loading ? 'Loading...' : 'Load'}
+          {loading ? 'Loading...' : 'Load Puzzle'}
         </button>
       </form>
       
       {error && <div className="error-message">{error}</div>}
-      
-      <div className="button-row">
-        <button type="button" onClick={onCancel} onKeyDown={handleKeyDown}>Cancel</button>
-      </div>
     </div>
   );
 };

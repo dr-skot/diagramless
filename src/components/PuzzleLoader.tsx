@@ -75,7 +75,7 @@ export default function PuzzleLoader() {
   return (
     <div className="puzzle-loader">
       {showXWordInfoImporter && (
-        <div className="modal-overlay" onKeyDown={handleModalKeyDown}>
+        <div className="modal-overlay">
           <div className="modal-content" ref={modalContentRef} tabIndex={0}>
             <XWordInfoImporter 
               onImport={handleXWordInfoPuzzleLoaded} 
