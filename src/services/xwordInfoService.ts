@@ -1,5 +1,9 @@
 import { puzzleFromData } from '../model/puzzle';
 import { XwdPuzzle } from '../model/puzzle';
+import { Puzzle } from '../types';
+
+// API base URL
+const API_BASE_URL = 'http://localhost:5001/api';
 
 // XWordInfo JSON format interface
 interface XWordInfoPuzzle {
@@ -113,28 +117,72 @@ export const parseXWordInfoJson = (jsonString: string): XwdPuzzle | null => {
 };
 
 /**
- * Fetch a puzzle from XWordInfo by date
- * Note: This function is provided as a reference, but it won't work directly
- * because XWordInfo requires authentication to access their API.
- * Users will need to manually download puzzles from XWordInfo and import them.
- * 
- * @param date Date in MM/DD/YYYY format
- * @returns A promise that resolves to a puzzle in our application's format
+ * Fetch a list of available puzzles from the API
  */
-export const fetchPuzzleFromXWordInfo = async (date: string): Promise<XwdPuzzle | null> => {
+export async function fetchAvailablePuzzles(): Promise<{ date: string; filename: string }[]> {
   try {
-    // This URL is for reference only and won't work without proper authentication
-    const url = `https://www.xwordinfo.com/JSON/Data.ashx?date=${date}`;
-    
-    const response = await fetch(url);
+    const response = await fetch(`${API_BASE_URL}/puzzles`);
     if (!response.ok) {
+      throw new Error(`Failed to fetch puzzles: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.puzzles || [];
+  } catch (error) {
+    console.error('Error fetching available puzzles:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch a puzzle from XWordInfo by date
+ */
+export async function fetchPuzzleFromXWordInfo(date: string): Promise<XwdPuzzle | null> {
+  try {
+    // Ensure date is in MM/DD/YYYY format
+    let formattedDate = date;
+    if (date.includes('-')) {
+      // Convert YYYY-MM-DD to MM/DD/YYYY
+      const parts = date.split('-');
+      if (parts.length === 3) {
+        formattedDate = `${parts[1]}/${parts[2]}/${parts[0]}`;
+      }
+    }
+    
+    console.log(`Fetching puzzle for date: ${formattedDate}`);
+    const response = await fetch(`${API_BASE_URL}/puzzle?date=${encodeURIComponent(formattedDate)}`);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API error: ${response.status} ${response.statusText}`, errorText);
       throw new Error(`Failed to fetch puzzle: ${response.statusText}`);
     }
     
-    const data = await response.json() as XWordInfoPuzzle;
+    const data = await response.json();
     return puzzleFromXWordInfo(data);
   } catch (error) {
     console.error('Error fetching puzzle from XWordInfo:', error);
     return null;
   }
-};
+}
+
+/**
+ * Fetch a puzzle from XWordInfo by filename
+ */
+export async function fetchPuzzleByFilename(filename: string): Promise<XwdPuzzle | null> {
+  try {
+    console.log(`Fetching puzzle by filename: ${filename}`);
+    const response = await fetch(`${API_BASE_URL}/puzzle/file?filename=${encodeURIComponent(filename)}`);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API error: ${response.status} ${response.statusText}`, errorText);
+      throw new Error(`Failed to fetch puzzle: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return puzzleFromXWordInfo(data);
+  } catch (error) {
+    console.error('Error fetching puzzle by filename:', error);
+    return null;
+  }
+}

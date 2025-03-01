@@ -1,0 +1,183 @@
+.xwordinfo-importer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.xwordinfo-importer h2 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.import-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.import-tabs button {
+  padding: 10px 15px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.import-tabs button:hover {
+  color: #333;
+}
+
+.import-tabs button.active {
+  color: #0066cc;
+  border-bottom-color: #0066cc;
+}
+
+.date-form {
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+button {
+  padding: 8px 16px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #0055aa;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  padding: 40px 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  transition: all 0.2s;
+}
+
+.drop-zone.active {
+  border-color: #0066cc;
+  background-color: rgba(0, 102, 204, 0.05);
+}
+
+.drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-button {
+  margin-top: 10px;
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.file-button:hover {
+  background-color: #e5e5e5;
+}
+
+.error-message {
+  padding: 10px 15px;
+  background-color: #ffebee;
+  color: #c62828;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.info-section {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.info-section h3 {
+  margin-top: 0;
+  font-size: 16px;
+}
+
+.info-section p, .info-section ol {
+  font-size: 14px;
+  color: #555;
+}
+
+.info-section code {
+  background-color: #e5e5e5;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.button-row {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.puzzle-list {
+  list-style: none;
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.puzzle-list li {
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.puzzle-list li:last-child {
+  border-bottom: none;
+}
+
+.puzzle-list li:hover {
+  background-color: #f5f5f5;
+}
+
+.puzzle-list li.selected {
+  background-color: #e3f2fd;
+  color: #0066cc;
+}

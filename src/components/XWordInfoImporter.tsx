@@ -1,163 +1,292 @@
-import React, { useCallback } from 'react';
-import FileDrop from 'react-file-drop';
-import { parseXWordInfoJson } from '../services/xwordInfoService';
+import React, { useState, useRef, useEffect } from 'react';
+import { puzzleFromXWordInfo, fetchAvailablePuzzles, fetchPuzzleFromXWordInfo, fetchPuzzleByFilename } from '../services/xwordInfoService';
 import { XwdPuzzle } from '../model/puzzle';
+import './XWordInfoImporter.css';
 
 interface XWordInfoImporterProps {
-  onPuzzleLoaded: (puzzle: XwdPuzzle) => void;
+  onImport: (puzzle: XwdPuzzle) => void;
+  onCancel: () => void;
 }
 
-const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onPuzzleLoaded }) => {
-  const [error, setError] = React.useState<string | null>(null);
+export const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onImport, onCancel }) => {
+  const [dragActive, setDragActive] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [date, setDate] = useState('');
+  const [availablePuzzles, setAvailablePuzzles] = useState<{ date: string; filename: string }[]>([]);
+  const [apiMode, setApiMode] = useState<'date' | 'file' | 'manual'>('date');
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFiles = useCallback(
-    (files: FileList | null) => {
-      if (!files || files.length === 0) return;
+  // Fetch available puzzles when component mounts
+  useEffect(() => {
+    const loadPuzzles = async () => {
+      try {
+        const puzzles = await fetchAvailablePuzzles();
+        setAvailablePuzzles(puzzles);
+      } catch (error) {
+        console.error('Error loading available puzzles:', error);
+        setError('Failed to load available puzzles. The API server might not be running.');
+      }
+    };
+    
+    loadPuzzles();
+  }, []);
 
-      const file = files[0];
-      const reader = new FileReader();
+  // Focus the date input when the date tab is selected
+  useEffect(() => {
+    if (apiMode === 'date' && dateInputRef.current) {
+      setTimeout(() => {
+        dateInputRef.current?.focus();
+      }, 100);
+    }
+  }, [apiMode]);
 
-      reader.onload = (e) => {
-        try {
-          const jsonString = e.target?.result as string;
-          const puzzle = parseXWordInfoJson(jsonString);
-          
-          if (puzzle) {
-            onPuzzleLoaded(puzzle);
-          } else {
-            setError('Failed to parse the XWordInfo puzzle file. Please make sure it\'s in the correct format.');
-          }
-        } catch (error) {
-          console.error('Error reading file:', error);
-          setError('Error reading file. Please try again.');
-        }
-      };
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
 
-      reader.readAsText(file);
-    },
-    [onPuzzleLoaded]
-  );
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFiles(e.dataTransfer.files);
+    }
+  };
 
-  const handleDrop = useCallback(
-    (files: FileList | null) => {
-      handleFiles(files);
-    },
-    [handleFiles]
-  );
-
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
       handleFiles(e.target.files);
-    },
-    [handleFiles]
-  );
+    }
+  };
+
+  const handleFiles = (files: FileList) => {
+    setError(null);
+    setLoading(true);
+    
+    const file = files[0];
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const result = e.target?.result as string;
+        const data = JSON.parse(result);
+        const puzzle = puzzleFromXWordInfo(data);
+        onImport(puzzle);
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        setError('Failed to parse JSON file. Make sure it\'s a valid XWordInfo puzzle file.');
+        setLoading(false);
+      }
+    };
+    
+    reader.onerror = () => {
+      setError('Error reading file');
+      setLoading(false);
+    };
+    
+    reader.readAsText(file);
+  };
+
+  const handleDateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!date) {
+      setError('Please enter a date');
+      return;
+    }
+    
+    // Validate date format
+    const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+    const match = date.match(dateRegex);
+    
+    if (!match) {
+      setError('Please enter a valid date in MM/DD/YYYY format');
+      return;
+    }
+    
+    const [_, month, day, year] = match;
+    const formattedDate = `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+    
+    setError(null);
+    setLoading(true);
+    
+    try {
+      console.log(`Fetching puzzle for date: ${formattedDate}`);
+      const puzzle = await fetchPuzzleFromXWordInfo(formattedDate);
+      if (puzzle) {
+        onImport(puzzle);
+      } else {
+        setError('Failed to fetch puzzle for the given date. Please check the date and try again.');
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching puzzle:', error);
+      setError('Failed to fetch puzzle. Make sure the API server is running and the date is valid.');
+      setLoading(false);
+    }
+  };
+
+  const handleFileSelect = async (filename: string) => {
+    setSelectedFile(filename);
+    setError(null);
+    setLoading(true);
+    
+    try {
+      const puzzle = await fetchPuzzleByFilename(filename);
+      if (puzzle) {
+        onImport(puzzle);
+      } else {
+        setError('Failed to fetch puzzle file');
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching puzzle file:', error);
+      setError('Failed to fetch puzzle file. Make sure the API server is running.');
+      setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    e.stopPropagation();
+  };
 
   return (
-    <div className="xwordinfo-importer">
-      <h3>Import from XWordInfo</h3>
+    <div className="xwordinfo-importer" onKeyDown={handleKeyDown}>
+      <h2>Import from XWordInfo</h2>
       
-      <div className="file-upload-section">
-        <p>You can import puzzle data from XWordInfo in two ways:</p>
-        
-        <div className="method-section">
-          <h4>Option 1: Use the Python Script</h4>
-          <p>For easier downloading, use the included Python script:</p>
-          <ol>
-            <li>Navigate to the <code>scripts</code> folder in the project directory</li>
-            <li>Run <code>python fetch_xwordinfo.py MM/DD/YYYY</code> to download a puzzle for a specific date</li>
-            <li>Upload the generated JSON file below</li>
-          </ol>
-          <p className="note">See the README in the scripts folder for more details.</p>
-        </div>
-        
-        <div className="method-section">
-          <h4>Option 2: Manual Download</h4>
-          <p>You can also manually download puzzle data:</p>
-          <ol>
-            <li>Visit <a href="https://www.xwordinfo.com" target="_blank" rel="noopener noreferrer">XWordInfo.com</a></li>
-            <li>Navigate to the puzzle you want to import</li>
-            <li>Right-click on the page and select "View Page Source"</li>
-            <li>Look for a JSON object starting with <code>{"{"}"title":</code></li>
-            <li>Copy the entire JSON object (from <code>{"{"}</code> to <code>{"}"}</code>)</li>
-            <li>Save it to a file with a <code>.json</code> extension</li>
-          </ol>
-        </div>
-        
-        <div className="upload-section">
-          <h4>Upload JSON File</h4>
-          <FileDrop onDrop={handleDrop}>
-            <div className="file-drop-target">
-              <p>Drop XWordInfo JSON file here</p>
-              <p>or</p>
-              <input
-                type="file"
-                accept=".json"
-                onChange={handleChange}
-              />
-            </div>
-          </FileDrop>
-        </div>
+      <div className="import-tabs">
+        <button 
+          className={apiMode === 'date' ? 'active' : ''} 
+          onClick={() => setApiMode('date')}
+          onKeyDown={handleKeyDown}
+        >
+          Fetch by Date
+        </button>
+        <button 
+          className={apiMode === 'file' ? 'active' : ''} 
+          onClick={() => setApiMode('file')}
+          onKeyDown={handleKeyDown}
+        >
+          Select Cached Puzzle
+        </button>
+        <button 
+          className={apiMode === 'manual' ? 'active' : ''} 
+          onClick={() => setApiMode('manual')}
+          onKeyDown={handleKeyDown}
+        >
+          Upload JSON File
+        </button>
       </div>
       
-      {error && (
-        <div className="error-message">
-          {error}
+      {apiMode === 'date' && (
+        <form onSubmit={handleDateSubmit} className="date-form">
+          <div className="form-group">
+            <label htmlFor="date">Date (MM/DD/YYYY):</label>
+            <input
+              type="text"
+              id="date"
+              ref={dateInputRef}
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              placeholder="MM/DD/YYYY"
+              pattern="\d{2}/\d{2}/\d{4}"
+              required
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+          <button type="submit" disabled={loading} onKeyDown={handleKeyDown}>
+            {loading ? 'Fetching...' : 'Fetch Puzzle'}
+          </button>
+        </form>
+      )}
+      
+      {apiMode === 'file' && (
+        <div className="file-selector">
+          <h3>Select a Cached Puzzle</h3>
+          {availablePuzzles.length > 0 ? (
+            <ul className="puzzle-list">
+              {availablePuzzles.map((puzzle) => (
+                <li 
+                  key={puzzle.filename} 
+                  className={selectedFile === puzzle.filename ? 'selected' : ''}
+                  onClick={() => handleFileSelect(puzzle.filename)}
+                  onKeyDown={handleKeyDown}
+                >
+                  {puzzle.date}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No cached puzzles available. Fetch a puzzle by date first.</p>
+          )}
         </div>
       )}
       
-      <style jsx>{`
-        .xwordinfo-importer {
-          margin: 20px 0;
-          padding: 15px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-        }
-        
-        .method-section {
-          margin-bottom: 20px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid #eee;
-        }
-        
-        .upload-section {
-          margin-top: 20px;
-        }
-        
-        .note {
-          font-size: 0.9em;
-          color: #666;
-          font-style: italic;
-        }
-        
-        .file-drop-target {
-          padding: 20px;
-          border: 2px dashed #ccc;
-          border-radius: 4px;
-          text-align: center;
-          cursor: pointer;
-        }
-        
-        .file-drop-target:hover {
-          border-color: #999;
-        }
-        
-        .error-message {
-          margin-top: 15px;
-          padding: 10px;
-          background-color: #ffebee;
-          color: #c62828;
-          border-radius: 4px;
-        }
-        
-        code {
-          background-color: #f5f5f5;
-          padding: 2px 4px;
-          border-radius: 3px;
-          font-family: monospace;
-        }
-      `}</style>
+      {apiMode === 'manual' && (
+        <div 
+          className={`drop-zone ${dragActive ? 'active' : ''}`}
+          onDragEnter={handleDrag}
+          onDragOver={handleDrag}
+          onDragLeave={handleDrag}
+          onDrop={handleDrop}
+        >
+          <input 
+            ref={fileInputRef}
+            type="file" 
+            id="file-input"
+            accept=".json"
+            onChange={handleFileInput}
+            style={{ display: 'none' }}
+          />
+          
+          <div className="drop-content">
+            <p>Drag and drop a XWordInfo JSON file here</p>
+            <p>or</p>
+            <button 
+              type="button" 
+              className="file-button"
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={handleKeyDown}
+            >
+              Select File
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      <div className="info-section">
+        <h3>How to use this importer</h3>
+        <p>
+          This tool allows you to import puzzles from XWordInfo in three ways:
+        </p>
+        <ol>
+          <li>Fetch a puzzle by date (MM/DD/YYYY format) directly from the API server</li>
+          <li>Select from previously fetched puzzles that are cached on the server</li>
+          <li>Upload a JSON file that you've downloaded from XWordInfo</li>
+        </ol>
+        <p>
+          <strong>Note:</strong> The API server must be running to use the first two options.
+          Run <code>python scripts/xwordinfo_api.py</code> from the project root to start the server.
+        </p>
+      </div>
+      
+      <div className="button-row">
+        <button type="button" onClick={onCancel} onKeyDown={handleKeyDown}>Cancel</button>
+      </div>
     </div>
   );
 };
-
-export default XWordInfoImporter;

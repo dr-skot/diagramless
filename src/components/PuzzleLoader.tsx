@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState, useRef } from 'react';
 import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
 import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../utils/utils';
@@ -7,7 +7,8 @@ import { gridIsSolved } from '../model/grid';
 import Puzzle from './Puzzle';
 import { handleDroppedFile } from '../utils/dom';
 import { numberPuzzle } from '../model/numbering';
-import XWordInfoImporter from './XWordInfoImporter';
+import { XWordInfoImporter } from './XWordInfoImporter';
+import './PuzzleLoader.css';
 
 const loadPuzzle = () => tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE);
 
@@ -20,7 +21,8 @@ export type PuzzleDispatch = Dispatch<SetStateAction<XwdPuzzle>>;
 export default function PuzzleLoader() {
   const [puzzle, setPuzzle] = useState<XwdPuzzle>(loadPuzzle());
   const [clock] = useState(new Clock(puzzle.time));
-  const [showXWordImporter, setShowXWordImporter] = useState(false);
+  const [showXWordInfoImporter, setShowXWordInfoImporter] = useState(false);
+  const modalContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const savePuzzle = () => storePuzzle({ ...puzzle, time: clock.getTime() });
@@ -29,6 +31,12 @@ export default function PuzzleLoader() {
     window.addEventListener('beforeunload', savePuzzle);
     return () => window.removeEventListener('beforeunload', savePuzzle);
   }, [puzzle, clock]);
+
+  useEffect(() => {
+    if (showXWordInfoImporter && modalContentRef.current) {
+      modalContentRef.current.focus();
+    }
+  }, [showXWordInfoImporter]);
 
   const onDrop = handleDroppedFile((contents) => {
     const newPuzzle = puzzleFromFile(contents);
@@ -41,6 +49,10 @@ export default function PuzzleLoader() {
     setPuzzle(numberPuzzle(newPuzzle));
   });
 
+  const handleImportFromXWordInfo = () => {
+    setShowXWordInfoImporter(true);
+  };
+
   const handleXWordInfoPuzzleLoaded = (newPuzzle: XwdPuzzle) => {
     // preserve numbering / symmetry settings
     newPuzzle.autonumber = puzzle.autonumber;
@@ -48,66 +60,38 @@ export default function PuzzleLoader() {
     // set clock
     clock.setTime(newPuzzle.time || 0);
     setPuzzle(numberPuzzle(newPuzzle));
-    setShowXWordImporter(false);
+    setShowXWordInfoImporter(false);
+    storePuzzle(newPuzzle);
+  };
+
+  const handleXWordInfoImportCancel = () => {
+    setShowXWordInfoImporter(false);
+  };
+
+  const handleModalKeyDown = (e: React.KeyboardEvent) => {
+    e.stopPropagation();
   };
 
   return (
-    <div>
-      {showXWordImporter ? (
-        <div className="xwordinfo-modal">
-          <div className="xwordinfo-modal-content">
-            <button 
-              className="close-button" 
-              onClick={() => setShowXWordImporter(false)}
-            >
-              &times;
-            </button>
-            <XWordInfoImporter onPuzzleLoaded={handleXWordInfoPuzzleLoaded} />
+    <div className="puzzle-loader">
+      {showXWordInfoImporter && (
+        <div className="modal-overlay" onKeyDown={handleModalKeyDown}>
+          <div className="modal-content" ref={modalContentRef} tabIndex={0}>
+            <XWordInfoImporter 
+              onImport={handleXWordInfoPuzzleLoaded} 
+              onCancel={handleXWordInfoImportCancel} 
+            />
           </div>
-          <style jsx>{`
-            .xwordinfo-modal {
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background-color: rgba(0, 0, 0, 0.5);
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              z-index: 1000;
-            }
-            
-            .xwordinfo-modal-content {
-              background-color: white;
-              padding: 20px;
-              border-radius: 5px;
-              max-width: 80%;
-              max-height: 80%;
-              overflow-y: auto;
-              position: relative;
-            }
-            
-            .close-button {
-              position: absolute;
-              top: 10px;
-              right: 10px;
-              font-size: 24px;
-              background: none;
-              border: none;
-              cursor: pointer;
-            }
-          `}</style>
         </div>
-      ) : (
-        <Puzzle 
-          puzzle={puzzle} 
-          setPuzzle={setPuzzle} 
-          clock={clock} 
-          onDrop={onDrop} 
-          onImportFromXWordInfo={() => setShowXWordImporter(true)}
-        />
       )}
+      
+      <Puzzle 
+        puzzle={puzzle} 
+        setPuzzle={setPuzzle} 
+        clock={clock} 
+        onDrop={onDrop} 
+        onImportFromXWordInfo={handleImportFromXWordInfo}
+      />
     </div>
   );
 }

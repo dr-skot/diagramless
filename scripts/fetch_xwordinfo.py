@@ -27,11 +27,12 @@ def fetch_puzzle(date_str, output_file=None):
     """
     # Format the date for the URL
     try:
+        print(f"Parsing date: {date_str}")
         date_obj = datetime.strptime(date_str, "%m/%d/%Y")
         formatted_date = date_str  # XWordInfo uses MM/DD/YYYY format
-    except ValueError:
-        print(f"Error: Invalid date format. Please use MM/DD/YYYY format.")
-        sys.exit(1)
+    except ValueError as e:
+        print(f"Error parsing date: {e}")
+        raise ValueError(f"Invalid date format: {date_str}. Please use MM/DD/YYYY format.")
     
     # Set up the URL and headers to mimic a browser request
     url = f"https://www.xwordinfo.com/JSON/Data.ashx?date={formatted_date}"
@@ -41,15 +42,27 @@ def fetch_puzzle(date_str, output_file=None):
         "Referer": "https://www.xwordinfo.com/",
     }
     
-    print(f"Fetching puzzle for {date_str}...")
+    print(f"Fetching puzzle for {date_str} from URL: {url}")
     
     try:
         response = requests.get(url, headers=headers)
+        print(f"Response status code: {response.status_code}")
+        
+        # Check if the response is valid
+        if response.status_code != 200:
+            print(f"Error response: {response.text}")
+            raise ValueError(f"Failed to fetch puzzle: HTTP {response.status_code} - {response.reason}")
+            
         response.raise_for_status()  # Raise an exception for 4XX/5XX responses
         
         # Try to parse the response as JSON
         try:
             puzzle_data = response.json()
+            
+            # Check if the response contains an error message
+            if 'error' in puzzle_data:
+                print(f"XWordInfo API error: {puzzle_data['error']}")
+                raise ValueError(f"XWordInfo API error: {puzzle_data['error']}")
             
             # Decode HTML entities in clues
             if 'clues' in puzzle_data:

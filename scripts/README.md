@@ -1,34 +1,52 @@
 # XWordInfo Puzzle Fetcher
 
-This script fetches puzzle data from XWordInfo for a given date and saves it as a JSON file. It's designed to work around the CORS limitations when trying to fetch puzzles directly from the browser.
+This directory contains scripts for fetching puzzles from XWordInfo.
 
-## Requirements
+## Setup
 
-- Python 3.6 or higher
-- `requests` library (install with `pip install requests`)
+1. Create a virtual environment (recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
 ## Usage
 
-```bash
-# Basic usage (outputs to xwordinfo_YYYY-MM-DD.json)
-python fetch_xwordinfo.py MM/DD/YYYY
+### Command-line Script
 
-# Specify an output file
-python fetch_xwordinfo.py MM/DD/YYYY -o output_file.json
-```
-
-## Example
+To fetch a puzzle for a specific date:
 
 ```bash
-# Fetch puzzle for March 1, 2025
-python fetch_xwordinfo.py 03/01/2025
-
-# Fetch puzzle for January 15, 2024 and save to a specific file
-python fetch_xwordinfo.py 01/15/2024 -o nyt_puzzle_jan15.json
+python fetch_xwordinfo.py MM/DD/YYYY [output_file.json]
 ```
+
+Example:
+```bash
+python fetch_xwordinfo.py 03/05/1984
+```
+
+This will save the puzzle to a file named `xwordinfo_YYYY-MM-DD.json` in the current directory.
+
+### API Server
+
+To run the API server:
+
+```bash
+python xwordinfo_api.py
+```
+
+The server will start on http://localhost:5000 and provide the following endpoints:
+
+- `GET /api/puzzle/{date}` - Fetch a puzzle for the given date (MM/DD/YYYY format)
+- `GET /api/puzzles` - List all cached puzzles
+- `GET /api/puzzle/file/{filename}` - Get a puzzle by filename
 
 ## Notes
 
-- XWordInfo may require authentication to access their API. This script attempts to mimic a browser request, but it may not work if XWordInfo requires you to be logged in.
-- If you're a subscriber to XWordInfo, you might need to log in through their website first and then run this script in the same browser session.
-- The fetched JSON file can be imported into the Diagramless app using the "Import from XWordInfo" feature.
+- XWordInfo may require authentication to access their API. If you're a subscriber, you might need to log in through their website first and then run these scripts in the same browser session.
+- The scripts decode HTML entities in the clues to ensure they display correctly in the application.
