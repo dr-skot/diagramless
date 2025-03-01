@@ -86,7 +86,7 @@ export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle |
     guesses,
     clues,
     numbers: xwordInfoData.gridnums,
-    author: xwordInfoData.author,
+    author: xwordInfoData.editor ? `${xwordInfoData.author} / ${xwordInfoData.editor}` : xwordInfoData.author,
     title: xwordInfoData.title,
     copyright: xwordInfoData.copyright,
     note: xwordInfoData.notepad || '',

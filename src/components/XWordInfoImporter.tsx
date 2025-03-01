@@ -73,12 +73,13 @@ export const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onImport, 
       return;
     }
     
-    // Convert from YYYY-MM-DD to MM/DD/YYYY format for API
-    const dateObj = new Date(date);
-    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
-    const day = dateObj.getDate().toString().padStart(2, '0');
-    const year = dateObj.getFullYear();
-    const formattedDate = `${month}/${day}/${year}`;
+    // Parse the date string and adjust for timezone issues
+    // The date input returns YYYY-MM-DD format
+    const [year, month, day] = date.split('-').map(num => parseInt(num, 10));
+    
+    // Create date parts directly without timezone conversion issues
+    // Month is 0-indexed in JavaScript Date, so we use the parsed values directly
+    const formattedDate = `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`;
     
     setError(null);
     setLoading(true);
