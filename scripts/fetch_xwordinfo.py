@@ -11,6 +11,7 @@ import os
 import json
 import argparse
 import requests
+import html
 from datetime import datetime
 
 def fetch_puzzle(date_str, output_file=None):
@@ -49,6 +50,18 @@ def fetch_puzzle(date_str, output_file=None):
         # Try to parse the response as JSON
         try:
             puzzle_data = response.json()
+            
+            # Decode HTML entities in clues
+            if 'clues' in puzzle_data:
+                if 'across' in puzzle_data['clues']:
+                    puzzle_data['clues']['across'] = [
+                        decode_clue(clue) for clue in puzzle_data['clues']['across']
+                    ]
+                if 'down' in puzzle_data['clues']:
+                    puzzle_data['clues']['down'] = [
+                        decode_clue(clue) for clue in puzzle_data['clues']['down']
+                    ]
+            
         except json.JSONDecodeError:
             print(f"Error: Received non-JSON response from XWordInfo.")
             print("This might indicate that authentication is required or the puzzle is not available.")
@@ -74,6 +87,19 @@ def fetch_puzzle(date_str, output_file=None):
         print("If you're a subscriber, you might need to log in through their website first")
         print("and then run this script in the same browser session.")
         sys.exit(1)
+
+def decode_clue(clue):
+    """
+    Decode HTML entities in a clue.
+    
+    Args:
+        clue: Clue string possibly containing HTML entities
+    
+    Returns:
+        Decoded clue string
+    """
+    # Decode HTML entities in the clue
+    return html.unescape(clue)
 
 def main():
     parser = argparse.ArgumentParser(description="Fetch puzzle data from XWordInfo for a given date")
