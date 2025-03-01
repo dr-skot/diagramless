@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { currentClue, XwdClue, XwdPuzzle, getRelatedClues } from '../model/puzzle';
 import { XwdDirection } from '../model/grid';
+import { sanitizeHtml } from '../utils/sanitize';
 
 interface ClueListProps {
   puzzle: XwdPuzzle;
@@ -69,7 +70,7 @@ export default function ClueList({ puzzle, direction, onSelect }: ClueListProps)
             <span className="Clue-label">{clue.number}</span>
             <span 
               className="Clue-text" 
-              dangerouslySetInnerHTML={{ __html: clue.text }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(clue.text) }}
             ></span>
           </li>
         ))}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { XwdClue } from '../model/puzzle';
+import { sanitizeHtml } from '../utils/sanitize';
 
 interface ClueBarProps {
   clue?: XwdClue | null;
@@ -12,7 +13,7 @@ export default function ClueBar({ clue, width }: ClueBarProps) {
       <span className="cluebar-number">{clue?.number}</span>
       <span 
         className="cluebar-text" 
-        dangerouslySetInnerHTML={{ __html: clue?.text || '' }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(clue?.text) }}
       ></span>
     </div>
   );
