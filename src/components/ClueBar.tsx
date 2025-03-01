@@ -10,7 +10,10 @@ export default function ClueBar({ clue, width }: ClueBarProps) {
   return (
     <div className="cluebar" style={{ width }}>
       <span className="cluebar-number">{clue?.number}</span>
-      <span className="cluebar-text">{clue?.text}</span>
+      <span 
+        className="cluebar-text" 
+        dangerouslySetInnerHTML={{ __html: clue?.text || '' }}
+      ></span>
     </div>
   );
 }

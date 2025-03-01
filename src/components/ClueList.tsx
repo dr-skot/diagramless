@@ -67,7 +67,10 @@ export default function ClueList({ puzzle, direction, onSelect }: ClueListProps)
             onClick={() => onSelect(clue.number, direction)}
           >
             <span className="Clue-label">{clue.number}</span>
-            <span className="Clue-text">{clue.text}</span>
+            <span 
+              className="Clue-text" 
+              dangerouslySetInnerHTML={{ __html: clue.text }}
+            ></span>
           </li>
         ))}
       </ol>

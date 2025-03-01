@@ -437,3 +437,11 @@ div.circle {
   text-align: center;
   font-family: Arial;
 }
+
+.Clue-text em, .cluebar-text em { 
+  font-style: italic;
+}
+
+.Clue-text strong, .cluebar-text strong { 
+  font-weight: bold;
+}
