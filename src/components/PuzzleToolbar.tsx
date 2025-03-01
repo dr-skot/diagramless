@@ -83,7 +83,7 @@ export default function PuzzleToolbar({
         </li>
         {onImportFromXWordInfo && (
           <li className="Tool-button Tool-tool Tool-texty">
-            <button onClick={onImportFromXWordInfo}>Import from XWordInfo</button>
+            <button onClick={onImportFromXWordInfo}>Load</button>
           </li>
         )}
         <PuzzleClock clock={clock} disabled={gridIsSolved(puzzle.grid)} />
