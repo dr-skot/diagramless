@@ -1,6 +1,8 @@
-import { getWord, moveOnGrid, moveOnGridUntil, isWordStart, parseRelatedClues } from './xwdService';
+import {getWord, moveOnGrid, moveOnGridUntil, isWordStart, parseRelatedClues, MoveOnGridOptions} from './xwdService';
 import { UP, DOWN, LEFT, RIGHT, ACROSS } from './xwdService';
 import { STOP, NEXT_LINE } from './xwdService';
+import {XwdGrid} from "../model/grid";
+import {Vector} from "../model/direction";
 
 describe('getWord', () => {
   it('finds whole row if no blacks', () => {
@@ -8,9 +10,9 @@ describe('getWord', () => {
       [{}, {}, {}],
       [{}, {}, {}],
       [{}, {}, {}],
-    ];
-    const cursor = [1, 1];
-    const direction = [0, 1];
+    ] as XwdGrid;
+    const cursor: Vector = [1, 1];
+    const direction: Vector = [0, 1];
     expect(getWord(grid, cursor, direction)).toEqual([
       [1, 0],
       [1, 1],
@@ -23,9 +25,9 @@ describe('getWord', () => {
       [{}, {}, {}],
       [{}, {}, {}],
       [{}, {}, {}],
-    ];
-    const cursor = [1, 1];
-    const direction = [1, 0];
+    ] as XwdGrid;
+    const cursor: Vector = [1, 1];
+    const direction: Vector = [1, 0];
     expect(getWord(grid, cursor, direction)).toEqual([
       [0, 1],
       [1, 1],
@@ -39,9 +41,9 @@ describe('getWord', () => {
       [{}, { isBlack: true }, {}],
       [{}, {}, {}],
       [{}, {}, {}],
-    ];
-    const cursor = [2, 1];
-    const direction = [1, 0];
+    ] as XwdGrid;
+    const cursor = [2, 1] as Vector;
+    const direction = [1, 0] as Vector;
     expect(getWord(grid, cursor, direction)).toEqual([
       [2, 1],
       [3, 1],
@@ -56,6 +58,7 @@ describe('getWord', () => {
     ];
     const cursor = [1, 1];
     const direction = [0, 1];
+    // @ts-ignore
     expect(getWord(grid, cursor, direction)).toEqual([
       [1, 0],
       [1, 1],
@@ -66,6 +69,7 @@ describe('getWord', () => {
     const grid = [[{}, { isBlack: true }, {}, {}, {}, { isBlack: true }]];
     const cursor = [0, 3];
     const direction = [0, 1];
+    // @ts-ignore
     expect(getWord(grid, cursor, direction)).toEqual([
       [0, 2],
       [0, 3],
@@ -94,8 +98,8 @@ describe('moveCursor', () => {
   });
 
   it('stops at edge if you tell it to', () => {
-    const dim = [2, 7],
-      opts = { atLineEnd: STOP };
+    const dim = [2, 7] as Vector,
+      opts = { atLineEnd: STOP } as Partial<MoveOnGridOptions>;
     expect(moveOnGrid([0, 1], UP, dim, opts)).toEqual([0, 1]);
     expect(moveOnGrid([1, 1], DOWN, dim, opts)).toEqual([1, 1]);
     expect(moveOnGrid([1, 0], LEFT, dim, opts)).toEqual([1, 0]);
@@ -103,15 +107,15 @@ describe('moveCursor', () => {
   });
 
   it("doesn't mutate the direction when next-line wrapping", () => {
-    const dim = [2, 7],
-      opts = { atLineEnd: NEXT_LINE };
+    const dim = [2, 7] as Vector,
+      opts = { atLineEnd: NEXT_LINE } as Partial<MoveOnGridOptions>;
     moveOnGrid([0, 1], UP, dim, opts);
     expect(UP).toEqual([-1, 0]);
   });
 
   it('wraps to next line if you tell it to', () => {
-    const dim = [2, 7],
-      opts = { atLineEnd: NEXT_LINE };
+    const dim = [2, 7] as Vector,
+      opts = { atLineEnd: NEXT_LINE } as Partial<MoveOnGridOptions>;
     expect(moveOnGrid([0, 1], UP, dim, opts)).toEqual([1, 0]);
     expect(moveOnGrid([1, 1], DOWN, dim, opts)).toEqual([0, 2]);
     expect(moveOnGrid([1, 0], LEFT, dim, opts)).toEqual([0, 6]);
@@ -120,13 +124,13 @@ describe('moveCursor', () => {
 
   it('triggers callback upon puzzle wrap', () => {
     let triggered = false;
-    const dim = [2, 7],
+    const dim = [2, 7] as Vector,
       opts = {
         atLineEnd: NEXT_LINE,
         onPuzzleWrap: () => {
           triggered = true;
         },
-      };
+      } as Partial<MoveOnGridOptions>;
 
     moveOnGrid([1, 6], RIGHT, dim, opts);
     expect(triggered).toBe(true);
@@ -143,7 +147,7 @@ describe('isWordStart', () => {
       [{}, {}, {}],
       [{}, {}, {}],
       [{}, {}, {}],
-    ];
+    ] as XwdGrid;
     expect(isWordStart([0, 1], DOWN, grid)).toBe(true);
     expect(isWordStart([1, 0], ACROSS, grid)).toBe(true);
   });
@@ -153,7 +157,7 @@ describe('isWordStart', () => {
       [{ isBlack: true }, {}, {}],
       [{}, {}, {}],
       [{}, {}, {}],
-    ];
+    ] as XwdGrid;
     expect(isWordStart([0, 2], ACROSS, grid)).toBe(false);
     expect(isWordStart([2, 0], DOWN, grid)).toBe(false);
   });
@@ -163,7 +167,7 @@ describe('isWordStart', () => {
       [{ isBlack: true }, {}, {}],
       [{}, {}, {}],
       [{}, {}, {}],
-    ];
+    ] as XwdGrid;
     expect(isWordStart([0, 1], ACROSS, grid)).toBe(true);
     expect(isWordStart([1, 0], DOWN, grid)).toBe(true);
   });

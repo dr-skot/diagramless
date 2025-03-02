@@ -223,7 +223,7 @@ function isBlack(grid: string[], k: number) {
 //    options:
 //       atLineEnd: STOP | WRAP_AROUND | NEXT_LINE (default WRAP_AROUND)
 //       onPuzzleWrap: a callback triggered when wrapping past the end of the puzzle
-interface MoveOnGridOptions {
+export interface MoveOnGridOptions {
   atLineEnd: 'STOP' | 'WRAP_AROUND' | 'NEXT_LINE';
   onPuzzleWrap: () => void;
   until: (pos: Vector) => boolean;
@@ -269,7 +269,7 @@ export function moveOnGridUntil(
   start: Vector,
   direction: Vector,
   gridSize: Vector,
-  options: Partial<MoveOnGridOptions>
+  options: Partial<MoveOnGridOptions> = {}
 ) {
   let position = start,
     lastPosition;

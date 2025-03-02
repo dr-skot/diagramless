@@ -9,10 +9,10 @@ import {
   XwdCursor,
 } from '../model/cursor';
 import { setContent, toggleBlack } from '../model/cell';
-import { backVector, isPerpendicular, directionVector } from '../model/direction';
+import {backVector, isPerpendicular, directionVector, Vector} from '../model/direction';
 
 // TODO change number[] to vector here
-const arrowVectors: Record<string, number[]> = {
+const arrowVectors: Record<string, Vector> = {
   ArrowLeft: LEFT,
   ArrowUp: UP,
   ArrowRight: RIGHT,
