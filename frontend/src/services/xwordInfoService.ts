@@ -2,8 +2,9 @@ import { puzzleFromData } from '../model/puzzle';
 import { XwdPuzzle } from '../model/puzzle';
 
 // API base URL
-const API_HOST = process.env.REACT_APP_BACKEND_HOST || 'http://localhost:5001';
-const API_BASE_URL = API_HOST + '/api';
+const BACKEND_HOST = process.env.REACT_APP_BACKEND_HOST;
+const API_BASE_URL = BACKEND_HOST + '/api';
+console.log('Using API URL:', API_BASE_URL);
 
 // XWordInfo JSON format interface
 interface XWordInfoPuzzle {
@@ -42,13 +43,13 @@ export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle |
   // Convert grid format from XWordInfo (array of strings) to our format
   // In XWordInfo format, '.' represents black squares
   const solution = xwordInfoData.grid.join('').split('');
-  
+
   // Create empty guesses array
   const guesses = Array(solution.length).fill('-');
-  
+
   // Convert clues from XWordInfo format to our format
   const clues: { number: string; direction: [number, number]; clue: string }[] = [];
-  
+
   // Process across clues
   xwordInfoData.clues.across.forEach(clueText => {
     // XWordInfo format is "1. Clue text"
@@ -62,7 +63,7 @@ export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle |
       });
     }
   });
-  
+
   // Process down clues
   xwordInfoData.clues.down.forEach(clueText => {
     // XWordInfo format is "1. Clue text"
@@ -76,7 +77,7 @@ export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle |
       });
     }
   });
-  
+
   // Create puzzle data in our format
   const puzzleData = {
     label: 'XWordInfo',
@@ -92,12 +93,12 @@ export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle |
     note: xwordInfoData.notepad || '',
     extras: {
       // Add circles if they exist
-      GEXT: xwordInfoData.circles ? 
-        solution.map((_, i) => xwordInfoData.circles?.includes(i) ? 0x80 : 0) : 
+      GEXT: xwordInfoData.circles ?
+        solution.map((_, i) => xwordInfoData.circles?.includes(i) ? 0x80 : 0) :
         []
     }
   };
-  
+
   return puzzleFromData(puzzleData);
 };
 
@@ -147,16 +148,18 @@ export async function fetchPuzzleFromXWordInfo(date: string): Promise<XwdPuzzle 
         formattedDate = `${parts[1]}/${parts[2]}/${parts[0]}`;
       }
     }
-    
-    console.log(`Fetching puzzle for date: ${formattedDate}`);
-    const response = await fetch(`${API_BASE_URL}/puzzle?date=${encodeURIComponent(formattedDate)}`);
-    
+
+    const apiUrl = `${API_BASE_URL}/puzzle?date=${encodeURIComponent(formattedDate)}`;
+    console.log(`Fetching puzzle from URL: ${apiUrl}`);
+
+    const response = await fetch(apiUrl);
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`API error: ${response.status} ${response.statusText}`, errorText);
       throw new Error(`Failed to fetch puzzle: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
     return puzzleFromXWordInfo(data);
   } catch (error) {
@@ -172,13 +175,13 @@ export async function fetchPuzzleByFilename(filename: string): Promise<XwdPuzzle
   try {
     console.log(`Fetching puzzle by filename: ${filename}`);
     const response = await fetch(`${API_BASE_URL}/puzzle/file?filename=${encodeURIComponent(filename)}`);
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`API error: ${response.status} ${response.statusText}`, errorText);
       throw new Error(`Failed to fetch puzzle: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
     return puzzleFromXWordInfo(data);
   } catch (error) {
