@@ -118,23 +118,6 @@ export const parseXWordInfoJson = (jsonString: string): XwdPuzzle | null => {
 };
 
 /**
- * Fetch a list of available puzzles from the API
- */
-export async function fetchAvailablePuzzles(): Promise<{ date: string; filename: string }[]> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/puzzles`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch puzzles: ${response.statusText}`);
-    }
-    const data = await response.json();
-    return data.puzzles || [];
-  } catch (error) {
-    console.error('Error fetching available puzzles:', error);
-    return [];
-  }
-}
-
-/**
  * Fetch a puzzle from XWordInfo by date
  */
 export async function fetchPuzzleFromXWordInfo(date: string): Promise<XwdPuzzle | null> {
@@ -164,28 +147,6 @@ export async function fetchPuzzleFromXWordInfo(date: string): Promise<XwdPuzzle 
     return puzzleFromXWordInfo(data);
   } catch (error) {
     console.error('Error fetching puzzle from XWordInfo:', error);
-    return null;
-  }
-}
-
-/**
- * Fetch a puzzle from XWordInfo by filename
- */
-export async function fetchPuzzleByFilename(filename: string): Promise<XwdPuzzle | null> {
-  try {
-    console.log(`Fetching puzzle by filename: ${filename}`);
-    const response = await fetch(`${API_BASE_URL}/puzzle/file?filename=${encodeURIComponent(filename)}`);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`API error: ${response.status} ${response.statusText}`, errorText);
-      throw new Error(`Failed to fetch puzzle: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return puzzleFromXWordInfo(data);
-  } catch (error) {
-    console.error('Error fetching puzzle by filename:', error);
     return null;
   }
 }

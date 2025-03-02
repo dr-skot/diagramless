@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { fetchAvailablePuzzles, fetchPuzzleFromXWordInfo, fetchPuzzleByFilename } from '../services/xwordInfoService';
+import { fetchPuzzleFromXWordInfo } from '../services/xwordInfoService';
 import { XwdPuzzle } from '../model/puzzle';
 import './XWordInfoImporter.css';
 
@@ -12,25 +12,9 @@ export const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onImport, 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState('');
-  const [availablePuzzles, setAvailablePuzzles] = useState<{ date: string; filename: string }[]>([]);
   
   const dateInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-
-  // Fetch available puzzles when component mounts
-  useEffect(() => {
-    const loadPuzzles = async () => {
-      try {
-        const puzzles = await fetchAvailablePuzzles();
-        setAvailablePuzzles(puzzles);
-      } catch (error) {
-        console.error('Error loading available puzzles:', error);
-        setError('Failed to load available puzzles. The API server might not be running.');
-      }
-    };
-    
-    loadPuzzles();
-  }, []);
 
   // Focus the date input when the component mounts
   useEffect(() => {
@@ -85,20 +69,6 @@ export const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onImport, 
     setLoading(true);
     
     try {
-      // Check if we have a cached puzzle for this date
-      const cachedPuzzle = availablePuzzles.find(puzzle => puzzle.date === formattedDate);
-      
-      if (cachedPuzzle) {
-        // If we have a cached puzzle, use it
-        console.log(`Using cached puzzle for date: ${formattedDate}, filename: ${cachedPuzzle.filename}`);
-        const puzzle = await fetchPuzzleByFilename(cachedPuzzle.filename);
-        if (puzzle) {
-          onImport(puzzle);
-          return;
-        }
-      }
-      
-      // If no cached puzzle or failed to load it, fetch from XWordInfo
       console.log(`Fetching puzzle for date: ${formattedDate}`);
       const puzzle = await fetchPuzzleFromXWordInfo(formattedDate);
       if (puzzle) {
