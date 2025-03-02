@@ -5,12 +5,13 @@
   "dependencies": {
     "@types/dompurify": "3.2.0",
     "dompurify": "3.2.4",
-    "jspdf": "2.3.1",
+    "jspdf": "3.0.0",
     "lodash": "4.17.21",
     "normalize.css": "8.0.1",
     "react": "16.14.0",
     "react-dom": "16.14.0",
-    "react-file-drop": "0.2.8",
+    "react-file-drop": "3.1.6",
+    "shell-quote": "1.8.2",
     "uifx": "2.0.7"
   },
   "scripts": {
@@ -36,14 +37,14 @@
     ]
   },
   "devDependencies": {
-    "@types/jest": "26.0.23",
-    "@types/lodash": "4.14.170",
-    "@types/node": "15.14.0",
-    "@types/react": "16.14.10",
-    "@types/react-dom": "16.9.13",
-    "prettier": "2.3.2",
+    "@types/jest": "29.5.14",
+    "@types/lodash": "4.17.16",
+    "@types/node": "22.13.8",
+    "@types/react": "16.14.62",
+    "@types/react-dom": "16.9.25",
+    "prettier": "3.5.2",
     "react-scripts": "4.0.3",
     "text-encoding": "0.7.0",
-    "typescript": "4.3.5"
+    "typescript": "4.9.5"
   }
 }
