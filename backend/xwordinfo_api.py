@@ -12,7 +12,12 @@ from flask_cors import CORS
 from fetch_xwordinfo import fetch_puzzle
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+
+# Enable CORS
+allowed_origins = os.environ.get('ALLOWED_DOMAINS', '*')
+if allowed_origins != '*':
+    allowed_origins = allowed_origins.split(',')
+CORS(app, origins=allowed_origins)
 
 # Directory to store cached puzzles
 CACHE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -137,4 +142,7 @@ def get_puzzle_by_filename_legacy(filename):
     return redirect(url_for('get_puzzle_by_filename', filename=filename))
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    port = int(os.environ.get("PORT", 5001))
+    host = "0.0.0.0"  # Listen on all interfaces
+    debug = os.environ.get("FLASK_ENV") == "development"  # Enable debug mode in development
+    app.run(debug=debug, host=host, port=port)

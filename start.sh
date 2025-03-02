@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Set environment variables for local development
+export REACT_APP_BACKEND_HOST="http://localhost:5001"
+export ALLOWED_DOMAINS="*"
+export FLASK_ENV="development"
+
 # Start the API server
 echo "Starting API server on port 5001..."
 cd backend

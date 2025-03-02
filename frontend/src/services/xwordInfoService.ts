@@ -2,7 +2,8 @@ import { puzzleFromData } from '../model/puzzle';
 import { XwdPuzzle } from '../model/puzzle';
 
 // API base URL
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_HOST = process.env.REACT_APP_BACKEND_HOST || 'http://localhost:5001';
+const API_BASE_URL = API_HOST + '/api';
 
 // XWordInfo JSON format interface
 interface XWordInfoPuzzle {
