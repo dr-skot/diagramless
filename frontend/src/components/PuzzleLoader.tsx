@@ -68,10 +68,6 @@ export default function PuzzleLoader() {
     setShowXWordInfoImporter(false);
   };
 
-  const handleModalKeyDown = (e: React.KeyboardEvent) => {
-    e.stopPropagation();
-  };
-
   return (
     <div className="puzzle-loader">
       {showXWordInfoImporter && (

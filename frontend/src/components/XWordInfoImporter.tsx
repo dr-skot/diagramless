@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { puzzleFromXWordInfo, fetchAvailablePuzzles, fetchPuzzleFromXWordInfo, fetchPuzzleByFilename } from '../services/xwordInfoService';
+import { fetchAvailablePuzzles, fetchPuzzleFromXWordInfo, fetchPuzzleByFilename } from '../services/xwordInfoService';
 import { XwdPuzzle } from '../model/puzzle';
 import './XWordInfoImporter.css';
 
