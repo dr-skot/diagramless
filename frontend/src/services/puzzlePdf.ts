@@ -3,7 +3,7 @@
 // licensed under MIT license
 // https://opensource.org/licenses/MIT
 
-import JsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import { XwdClue, XwdPuzzle } from '../model/puzzle';
 import { XwdCell } from '../model/cell';
 const isAcrossClue = (clue: XwdClue) => clue.direction === 'across';
@@ -30,11 +30,11 @@ function drawSquare(doc: any, cell: XwdCell, x: number, y: number, size: number,
 
   //numbers
   doc.setFontSize(numberSize);
-  doc.text(x + numberOffset, y + numberSize, cell.number);
+  doc.text(cell.number.toString(), x + numberOffset, y + numberSize);
 
   // letters
   doc.setFontSize(contentSize);
-  doc.text(x + size / 2, y + contentOffset, cell.content, null, null, 'center');
+  doc.text(cell.content, x + size / 2, y + contentOffset, { align: 'center' });
 
   // circles
   if (cell.circle) {
@@ -42,7 +42,7 @@ function drawSquare(doc: any, cell: XwdCell, x: number, y: number, size: number,
   }
 }
 
-function drawGrid(doc: JsPDF, puzzle: XwdPuzzle, x0: number, y0: number, cellSize: number) {
+function drawGrid(doc: jsPDF, puzzle: XwdPuzzle, x0: number, y0: number, cellSize: number) {
   for (let i = 0; i < puzzle.height; i++) {
     for (let j = 0; j < puzzle.width; j++) {
       const y = y0 + i * cellSize;
@@ -70,7 +70,7 @@ export function puzzleToPdf(puzzle: XwdPuzzle, _options: any = {}) {
     maxClueSize: 14,
     minClueSize: 5,
     gridPadding: 5,
-    outfile: 'puz.pdf',
+    outfile: 'crossword-puzzle.pdf',
   };
 
   const options = { ...DEFAULT_OPTIONS, ..._options };
@@ -94,7 +94,11 @@ export function puzzleToPdf(puzzle: XwdPuzzle, _options: any = {}) {
 
   let margin = options.margin;
 
-  let doc = new JsPDF('portrait', 'pt', 'letter');
+  let doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'pt',
+    format: 'letter'
+  });
 
   // create the clue strings and clue arrays
   const acrossClues = ['ACROSS', ...puzzle.clues.filter(isAcrossClue).map(clueText), ''];
@@ -143,15 +147,14 @@ export function puzzleToPdf(puzzle: XwdPuzzle, _options: any = {}) {
           columnNumber += 1;
           line_x = margin + columnNumber * (colWidth + options.columnPadding);
           line_y =
-            margin + maxTitleAuthorSize + options.under_title_spacing + clueSize + cluePadding;
+            margin + maxTitleAuthorSize + options.underTitleSpacing + clueSize + cluePadding;
         }
 
         lines.forEach((line, j) => {
           if (!sizingFont) {
             // bold the ACROSS or DOWN title
             doc.setFont('helvetica', i + j === 0 ? 'bold' : 'normal');
-            // @ts-ignore
-            doc.text(line_x, line_y, line);
+            doc.text(line, line_x, line_y);
             written = true;
           }
           // set the y position for the next line
@@ -168,20 +171,23 @@ export function puzzleToPdf(puzzle: XwdPuzzle, _options: any = {}) {
     }
   }
 
-  // size for title and author
-  const titleAuthor = puzzle.title + 'asdfasdf' + puzzle.author;
-  if (!options.authorSize) options.authorSize = options.titleSize;
-  if (!options.titleSize) {
-    options.titleSize = DEFAULT_TITLE_SIZE;
-    let sizingTitle = true;
-    while (sizingTitle) {
-      doc.setFontSize(options.titleSize).setFont('helvetica', 'bold');
-      let textLines = doc.splitTextToSize(titleAuthor, DOC_WIDTH); // should this be totalWidth?
-      if (textLines.length === 1) {
-        sizingTitle = false;
-      } else {
-        options.titleSize -= 1;
-      }
+  /* Determine title and author size */
+
+  let sizingTitle = true;
+  options.titleSize = DEFAULT_TITLE_SIZE;
+
+  while (sizingTitle) {
+    doc.setFontSize(options.titleSize);
+    // @ts-ignore
+    const titleWidth = doc.getTextWidth(puzzle.title);
+    const authorWidth = doc.getTextWidth(puzzle.author);
+    const totalWidth = titleWidth + authorWidth;
+    const availableWidth = DOC_WIDTH - 2 * margin;
+
+    if (totalWidth < availableWidth || options.titleSize <= 8) {
+      sizingTitle = false;
+    } else {
+      options.titleSize -= 1;
     }
     options.authorSize = options.titleSize;
   }
@@ -194,25 +200,23 @@ export function puzzleToPdf(puzzle: XwdPuzzle, _options: any = {}) {
   //title
   doc.setFontSize(options.titleSize);
   doc.setFont('helvetica', 'bold');
-  // @ts-ignore
-  doc.text(title_x, titleAuthor_y, puzzle.title);
+  doc.text(puzzle.title || 'Crossword Puzzle', title_x, titleAuthor_y);
 
   //author
   doc.setFontSize(options.authorSize);
-  // @ts-ignore
-  doc.text(author_x, titleAuthor_y, puzzle.author, null, null, 'right');
+  doc.text(puzzle.author || '', author_x, titleAuthor_y, { align: 'right' });
   doc.setFont('helvetica', 'normal');
 
   /* Render copyright */
   let copyright_x = DOC_WIDTH - margin;
   let copyright_y = DOC_HEIGHT - margin;
   doc.setFontSize(options.copyrightSize);
-  // @ts-ignore
-  doc.text(copyright_x, copyright_y, puzzle.copyright, null, null, 'right');
+  doc.text(puzzle.copyright || '', copyright_x, copyright_y, { align: 'right' });
 
   /* Draw grid */
 
   drawGrid(doc, puzzle, grid_x, grid_y, gridWidth / puzzle.width);
 
-  doc.save(options.outfile);
+  // Save with a default filename
+  doc.save('crossword-puzzle.pdf');
 }
