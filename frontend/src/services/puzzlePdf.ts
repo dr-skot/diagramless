@@ -8,7 +8,18 @@ import { XwdClue, XwdPuzzle } from '../model/puzzle';
 import { XwdCell } from '../model/cell';
 const isAcrossClue = (clue: XwdClue) => clue.direction === 'across';
 const isDownClue = (clue: XwdClue) => clue.direction === 'down';
-const clueText = (clue: XwdClue) => `${clue.number}. ${clue.text}`;
+const clueText = (clue: XwdClue) => `${clue.number}. ${decodeHtmlEntities(clue.text)}`;
+
+/**
+ * Decode HTML entities in a string
+ */
+function decodeHtmlEntities(text: string): string {
+  if (!text) return '';
+  
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = text;
+  return textarea.value;
+}
 
 const DEFAULT_TITLE_SIZE = 12;
 const PTS_PER_IN = 72;
@@ -28,13 +39,13 @@ function drawSquare(doc: any, cell: XwdCell, x: number, y: number, size: number,
 
   if (cell.isBlack) return;
 
-  //numbers
-  doc.setFontSize(numberSize);
-  doc.text(cell.number.toString(), x + numberOffset, y + numberSize);
+  // Skip printing numbers
+  // doc.setFontSize(numberSize);
+  // doc.text(cell.number.toString(), x + numberOffset, y + numberSize);
 
   // letters
   doc.setFontSize(contentSize);
-  doc.text(cell.content, x + size / 2, y + contentOffset, { align: 'center' });
+  doc.text(decodeHtmlEntities(cell.content), x + size / 2, y + contentOffset, { align: 'center' });
 
   // circles
   if (cell.circle) {
@@ -200,18 +211,18 @@ export function puzzleToPdf(puzzle: XwdPuzzle, _options: any = {}) {
   //title
   doc.setFontSize(options.titleSize);
   doc.setFont('helvetica', 'bold');
-  doc.text(puzzle.title || 'Crossword Puzzle', title_x, titleAuthor_y);
+  doc.text(decodeHtmlEntities(puzzle.title) || 'Crossword Puzzle', title_x, titleAuthor_y);
 
   //author
   doc.setFontSize(options.authorSize);
-  doc.text(puzzle.author || '', author_x, titleAuthor_y, { align: 'right' });
+  doc.text(decodeHtmlEntities(puzzle.author) || '', author_x, titleAuthor_y, { align: 'right' });
   doc.setFont('helvetica', 'normal');
 
   /* Render copyright */
   let copyright_x = DOC_WIDTH - margin;
   let copyright_y = DOC_HEIGHT - margin;
   doc.setFontSize(options.copyrightSize);
-  doc.text(puzzle.copyright || '', copyright_x, copyright_y, { align: 'right' });
+  doc.text(decodeHtmlEntities(puzzle.copyright) || '', copyright_x, copyright_y, { align: 'right' });
 
   /* Draw grid */
 
