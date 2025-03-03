@@ -53,6 +53,7 @@ export const toggleBlack = (cell: XwdCell) =>
     : {
         ...cell,
         isBlack: !cell.isBlack,
+        number: !cell.isBlack ? '' : cell.number,
         isMarkedWrong: false,
         wasRevealed: false,
       };
