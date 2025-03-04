@@ -116,14 +116,14 @@ function splitStyledTextToSize(doc: jsPDF, styledText: StyledText, maxWidth: num
 
             // Find how many characters fit
             while (charIndex + charCount < word.length &&
-            charWidth + doc.getStringUnitWidth(word[charIndex + charCount]) * doc.getFontSize() / doc.internal.scaleFactor <= maxWidth) {
-              charWidth += doc.getStringUnitWidth(word[charIndex + charCount]) * doc.getFontSize() / doc.internal.scaleFactor;
+            charWidth + doc.getStringUnitWidth(word.substring(charIndex + charCount, charIndex + charCount + 1)) * doc.getFontSize() / doc.internal.scaleFactor <= maxWidth) {
+              charWidth += doc.getStringUnitWidth(word.substring(charIndex + charCount, charIndex + charCount + 1)) * doc.getFontSize() / doc.internal.scaleFactor;
               charCount++;
             }
 
             // Add this chunk to line
             if (charCount > 0) {
-              const wordPart = word.substr(charIndex, charCount);
+              const wordPart = word.substring(charIndex, charIndex + charCount);
               lines[currentLine].push({
                 text: wordPart,
                 style: { ...style }
@@ -142,7 +142,7 @@ function splitStyledTextToSize(doc: jsPDF, styledText: StyledText, maxWidth: num
               }
             } else {
               // Even a single character won't fit, force it on the line
-              const wordPart = word.substr(charIndex, 1);
+              const wordPart = word.substring(charIndex, charIndex + 1);
               lines[currentLine].push({
                 text: wordPart,
                 style: { ...style }
@@ -183,81 +183,6 @@ function splitStyledTextToSize(doc: jsPDF, styledText: StyledText, maxWidth: num
 }
 
 /**
- * Render styled text that has been split into multiple lines
- * @param {jsPDF} doc - jsPDF document instance
- * @param {StyledText[]} lines - Array of lines with styled segments from splitStyledTextToSize
- * @param {number} x - X position to start rendering
- * @param {number} y - Y position to start rendering
- * @param {number} lineHeight - Height between lines
- * @param {TextAlignment} [align='left'] - Text alignment: 'left', 'center', or 'right'
- */
-function renderStyledTextLines(
-  doc: jsPDF, 
-  lines: StyledText[], 
-  x: number, 
-  y: number, 
-  lineHeight: number,
-  align: TextAlignment = 'left'
-) {
-  let currentY = y;
-
-  // Process each line
-  lines.forEach(line => {
-    // Use setStyledText to render each line
-    setStyledText(doc, line, x, currentY, align);
-    
-    // Move to next line
-    currentY += lineHeight;
-  });
-}
-
-/**
- * Render styled text that has been split to fit width
- * @param {jsPDF} doc - jsPDF document instance
- * @param {Array<Array<StyledTextSegment>>} lines - Array of lines with styled segments from splitStyledTextToSize
- * @param {number} x - X position to start rendering
- * @param {number} y - Y position to start rendering
- * @param {number} lineHeight - Height between lines
- */
-function renderStyledText(doc: jsPDF, lines: StyledText[], x: number, y: number, lineHeight: number) {
-  let currentY = y;
-
-  // Save current font state
-  const originalFontSize = doc.getFontSize();
-  const originalFontName = doc.getFont().fontName;
-  const originalFontStyle = doc.getFont().fontStyle;
-  
-  // Process each line
-  lines.forEach(line => {
-    let currentX = x;
-
-    // Process each segment in the line
-    line.forEach(segment => {
-      const text = segment.text;
-      const style = segment.style || {};
-
-      // Apply segment style
-      if (style.font) doc.setFont(style.font, style.fontStyle || 'normal');
-      else if (style.fontStyle) doc.setFont(originalFontName, style.fontStyle);
-      if (style.size) doc.setFontSize(style.size);
-
-      // Draw text
-      doc.text(text, currentX, currentY);
-
-      // Move x position for next segment
-      currentX += doc.getStringUnitWidth(text) * doc.getFontSize() / doc.internal.scaleFactor;
-    });
-
-    // Move to next line
-    currentY += lineHeight;
-  });
-
-  // Restore font state
-  doc.setFont(originalFontName, originalFontStyle);
-  doc.setFontSize(originalFontSize);
-}
-
-/**
  * Decode HTML entities in a string
  */
 function decodeHtmlEntities(text: string): string {
@@ -286,11 +211,11 @@ function decodeHtmlEntities(text: string): string {
 function htmlToStyledText(html: string, font: string, size: number): StyledText {
   // Decode HTML entities first
   const decodedHtml = decodeHtmlEntities(html);
-  
+
   // Define the supported tags and their corresponding font styles
   const italicTags = ['<i>', '</i>', '<em>', '</em>'];
   const boldTags = ['<b>', '</b>', '<strong>', '</strong>'];
-  
+
   // Create a mapping of opening tags to their corresponding font style
   const tagToFontStyle: Record<string, string> = {
     '<i>': 'italic',
@@ -298,7 +223,7 @@ function htmlToStyledText(html: string, font: string, size: number): StyledText 
     '<b>': 'bold',
     '<strong>': 'bold'
   };
-  
+
   // Create a mapping of closing tags to their corresponding opening tags
   const closingToOpeningTag: Record<string, string> = {
     '</i>': '<i>',
@@ -306,26 +231,26 @@ function htmlToStyledText(html: string, font: string, size: number): StyledText 
     '</b>': '<b>',
     '</strong>': '<strong>'
   };
-  
+
   // Initialize the result array and current style
   const result: StyledTextSegment[] = [];
   let currentStyle: TextStyle = { font, size, fontStyle: 'normal' };
-  
+
   // Split the HTML string into segments based on the tags
   const allTags = [...italicTags, ...boldTags];
   const tagPattern = new RegExp(`(${allTags.map(tag => tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'g');
-  
+
   // Split by tags but keep the tags in the result
   const segments = decodedHtml.split(tagPattern);
-  
+
   let currentText = '';
   let activeItalic = false;
   let activeBold = false;
-  
+
   // Process each segment
   for (let i = 0; i < segments.length; i++) {
     const segment = segments[i];
-    
+
     // If the segment is a tag
     if (allTags.includes(segment)) {
       // If we have accumulated text, add it to the result with the current style
@@ -336,7 +261,7 @@ function htmlToStyledText(html: string, font: string, size: number): StyledText 
         });
         currentText = '';
       }
-      
+
       // If it's an opening tag
       if (tagToFontStyle[segment]) {
         // Update active styles
@@ -346,7 +271,7 @@ function htmlToStyledText(html: string, font: string, size: number): StyledText 
         if (boldTags.includes(segment) && segment.startsWith('<') && !segment.startsWith('</')) {
           activeBold = true;
         }
-      } 
+      }
       // If it's a closing tag
       else if (closingToOpeningTag[segment]) {
         // Update active styles
@@ -357,7 +282,7 @@ function htmlToStyledText(html: string, font: string, size: number): StyledText 
           activeBold = false;
         }
       }
-      
+
       // Determine the current font style based on active styles
       if (activeBold && activeItalic) {
         currentStyle.fontStyle = 'bolditalic';
@@ -368,13 +293,13 @@ function htmlToStyledText(html: string, font: string, size: number): StyledText 
       } else {
         currentStyle.fontStyle = 'normal';
       }
-    } 
+    }
     // If the segment is text
     else {
       currentText += segment;
     }
   }
-  
+
   // Add any remaining text
   if (currentText) {
     result.push({
@@ -382,7 +307,7 @@ function htmlToStyledText(html: string, font: string, size: number): StyledText 
       style: { ...currentStyle }
     });
   }
-  
+
   return result;
 }
 
@@ -400,38 +325,38 @@ type TextAlignment = 'left' | 'center' | 'right';
  * @param {TextAlignment} [align='left'] - Text alignment: 'left', 'center', or 'right'
  */
 function setStyledText(
-  doc: jsPDF, 
-  styledText: StyledText, 
-  x: number, 
-  y: number, 
+  doc: jsPDF,
+  styledText: StyledText,
+  x: number,
+  y: number,
   align: TextAlignment = 'left'
 ): void {
   // Save current font state
   const originalFontSize = doc.getFontSize();
   const originalFontName = doc.getFont().fontName;
   const originalFontStyle = doc.getFont().fontStyle;
-  
+
   // Calculate total width for alignment
   let totalWidth = 0;
   if (align === 'center' || align === 'right') {
     // We need to calculate the total width of all segments
     styledText.forEach(segment => {
       const { text, style = {} } = segment;
-      
+
       // Temporarily apply segment style to calculate width
       if (style.font) doc.setFont(style.font, style.fontStyle || 'normal');
       else if (style.fontStyle) doc.setFont(originalFontName, style.fontStyle);
       if (style.size) doc.setFontSize(style.size);
-      
+
       // Calculate segment width
       totalWidth += doc.getStringUnitWidth(text) * doc.getFontSize() / doc.internal.scaleFactor;
-      
+
       // Restore original font settings
       doc.setFont(originalFontName, originalFontStyle);
       doc.setFontSize(originalFontSize);
     });
   }
-  
+
   // Calculate starting X position based on alignment
   let startX = x;
   if (align === 'center') {
@@ -439,34 +364,34 @@ function setStyledText(
   } else if (align === 'right') {
     startX = x - totalWidth;
   }
-  
+
   // Current X position for rendering
   let currentX = startX;
-  
+
   // Process each segment
   styledText.forEach(segment => {
     const { text, style = {} } = segment;
-    
+
     // Apply segment style
     if (style.font) doc.setFont(style.font, style.fontStyle || 'normal');
     else if (style.fontStyle) doc.setFont(originalFontName, style.fontStyle);
     if (style.size) doc.setFontSize(style.size);
-    
+
     // Draw text
     doc.text(text, currentX, y);
-    
+
     // Move x position for next segment
     currentX += doc.getStringUnitWidth(text) * doc.getFontSize() / doc.internal.scaleFactor;
   });
-  
+
   // Restore original font state
   doc.setFont(originalFontName, originalFontStyle);
   doc.setFontSize(originalFontSize);
 }
 
 function drawSquare(doc: any, cell: XwdCell, x: number, y: number, size: number, color = 0.6) {
-  const numberOffset = size / 20;
-  const numberSize = size / 3.5;
+  // const numberOffset = size / 20;
+  // const numberSize = size / 3.5;
   const contentOffset = size * (4 / 5);
   const contentSize = size / (1.5 + 0.5 * (cell.content.length - 1));
 
@@ -589,10 +514,10 @@ export function puzzleToPdf(puzzle: XwdPuzzle, _options: any = {}) {
             : grid_y - options.gridPadding;
 
         // Convert HTML in clue to styled text
-        const styledText = i === 0 
-          ? [{ text: clue, style: { font: 'helvetica', fontStyle: 'bold', size: clueSize } }] // For headers (ACROSS/DOWN)
-          : htmlToStyledText(clue, 'helvetica', clueSize); // For regular clues
-        
+        const styledText = i === 0
+          ? [{ text: clue, style: { font: 'times', fontStyle: 'bold', size: clueSize } }] // For headers (ACROSS/DOWN)
+          : htmlToStyledText(clue, 'times', clueSize); // For regular clues
+
         // Split our clue
         const lines = splitStyledTextToSize(doc, styledText, colWidth);
 
@@ -604,7 +529,7 @@ export function puzzleToPdf(puzzle: XwdPuzzle, _options: any = {}) {
             margin + maxTitleAuthorSize + options.underTitleSpacing + clueSize + cluePadding;
         }
 
-        lines.forEach((line, j) => {
+        lines.forEach((line) => {
           if (!sizingFont) {
             // Render the line using setStyledText
             setStyledText(doc, line, line_x, line_y);
