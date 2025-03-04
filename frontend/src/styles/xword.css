@@ -438,10 +438,10 @@ div.circle {
   font-family: Arial;
 }
 
-.Clue-text em, .cluebar-text em { 
+.Clue-text em, .cluebar-text em, .Clue-text i, .cluebar-text i {
   font-style: italic;
 }
 
-.Clue-text strong, .cluebar-text strong { 
+.Clue-text strong, .cluebar-text strong, .Clue-text b, .cluebar-text b {
   font-weight: bold;
 }
