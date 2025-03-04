@@ -94,7 +94,7 @@ export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle |
     extras: {
       // Add circles if they exist
       GEXT: xwordInfoData.circles ?
-        solution.map((_, i) => xwordInfoData.circles?.includes(i) ? 0x80 : 0) :
+        solution.map((_, i) => xwordInfoData.circles && xwordInfoData.circles[i] === 1 ? 0x80 : 0) :
         []
     }
   };
