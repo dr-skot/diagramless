@@ -209,28 +209,9 @@ function decodeHtmlEntities(text: string): string {
  * @returns {StyledText} Array of styled text segments
  */
 function htmlToStyledText(html: string, font: string, size: number): StyledText {
-  // Decode HTML entities first
-  const decodedHtml = decodeHtmlEntities(html);
-
-  // Define the supported tags and their corresponding font styles
+  // Tags for each style
   const italicTags = ['<i>', '</i>', '<em>', '</em>'];
   const boldTags = ['<b>', '</b>', '<strong>', '</strong>'];
-
-  // Create a mapping of opening tags to their corresponding font style
-  const tagToFontStyle: Record<string, string> = {
-    '<i>': 'italic',
-    '<em>': 'italic',
-    '<b>': 'bold',
-    '<strong>': 'bold'
-  };
-
-  // Create a mapping of closing tags to their corresponding opening tags
-  const closingToOpeningTag: Record<string, string> = {
-    '</i>': '<i>',
-    '</em>': '<em>',
-    '</b>': '<b>',
-    '</strong>': '<strong>'
-  };
 
   // Initialize the result array and current style
   const result: StyledTextSegment[] = [];
@@ -238,14 +219,14 @@ function htmlToStyledText(html: string, font: string, size: number): StyledText 
 
   // Split the HTML string into segments based on the tags
   const allTags = [...italicTags, ...boldTags];
-  const tagPattern = new RegExp(`(${allTags.map(tag => tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'g');
+  const tagPattern = new RegExp(`(${allTags.join('|')})`, 'g');
 
   // Split by tags but keep the tags in the result
-  const segments = decodedHtml.split(tagPattern);
+  const segments = html.split(tagPattern);
 
   let currentText = '';
-  let activeItalic = false;
-  let activeBold = false;
+  let italicDepth = 0;
+  let boldDepth = 0;
 
   // Process each segment
   for (let i = 0; i < segments.length; i++) {
@@ -256,39 +237,26 @@ function htmlToStyledText(html: string, font: string, size: number): StyledText 
       // If we have accumulated text, add it to the result with the current style
       if (currentText) {
         result.push({
-          text: currentText,
+          text: decodeHtmlEntities(currentText), // Decode HTML entities when adding text to result
           style: { ...currentStyle }
         });
         currentText = '';
       }
 
-      // If it's an opening tag
-      if (tagToFontStyle[segment]) {
-        // Update active styles
-        if (italicTags.includes(segment) && segment.startsWith('<') && !segment.startsWith('</')) {
-          activeItalic = true;
-        }
-        if (boldTags.includes(segment) && segment.startsWith('<') && !segment.startsWith('</')) {
-          activeBold = true;
-        }
-      }
-      // If it's a closing tag
-      else if (closingToOpeningTag[segment]) {
-        // Update active styles
-        if (italicTags.includes(segment) && segment.startsWith('</')) {
-          activeItalic = false;
-        }
-        if (boldTags.includes(segment) && segment.startsWith('</')) {
-          activeBold = false;
-        }
+      if (segment.startsWith('</')) {
+        if (italicTags.includes(segment)) italicDepth = Math.min(0, italicDepth - 1);
+        if (boldTags.includes(segment)) boldDepth = Math.min(0, boldDepth - 1);
+      } else {
+        if (italicTags.includes(segment)) italicDepth++;
+        if (boldTags.includes(segment)) boldDepth++;
       }
 
       // Determine the current font style based on active styles
-      if (activeBold && activeItalic) {
+      if (boldDepth && italicDepth) {
         currentStyle.fontStyle = 'bolditalic';
-      } else if (activeBold) {
+      } else if (boldDepth) {
         currentStyle.fontStyle = 'bold';
-      } else if (activeItalic) {
+      } else if (italicDepth) {
         currentStyle.fontStyle = 'italic';
       } else {
         currentStyle.fontStyle = 'normal';
@@ -303,7 +271,7 @@ function htmlToStyledText(html: string, font: string, size: number): StyledText 
   // Add any remaining text
   if (currentText) {
     result.push({
-      text: currentText,
+      text: decodeHtmlEntities(currentText), // Decode HTML entities when adding text to result
       style: { ...currentStyle }
     });
   }
