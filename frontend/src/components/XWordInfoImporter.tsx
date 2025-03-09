@@ -31,8 +31,12 @@ export function XWordInfoImporter({ onImport, onCancel, initialError, defaultDat
   };
   
   // Initialize date state with defaultDate if provided, otherwise today's date
-  const initialDate = defaultDate ? convertDateFormat(defaultDate) : getTodayDateString();
-  const [date, setDate] = useState(initialDate);
+  const [date, setDate] = useState(() => {
+    if (defaultDate) {
+      return convertDateFormat(defaultDate);
+    }
+    return getTodayDateString();
+  });
   
   // Update date when defaultDate changes
   useEffect(() => {
@@ -97,7 +101,7 @@ export function XWordInfoImporter({ onImport, onCancel, initialError, defaultDat
     setLoading(true);
     
     try {
-      console.log(`Fetching puzzle for date: ${formattedDate}`);
+      // Fetch puzzle for the formatted date
       const puzzle = await fetchPuzzleFromXWordInfo(formattedDate);
       if (puzzle) {
         // Update URL with the date parameter - avoid escaping slashes

@@ -60,6 +60,10 @@ export default function PuzzleLoader() {
     const loadPuzzleFromUrl = async () => {
       const dateParam = getDateFromUrl();
       if (dateParam) {
+        // Always store the date from URL for future use
+        console.log('Setting defaultDate from URL:', dateParam);
+        setDefaultDate(dateParam);
+        
         try {
           const newPuzzle = await fetchPuzzleFromXWordInfo(dateParam);
           if (newPuzzle) {
@@ -69,22 +73,19 @@ export default function PuzzleLoader() {
             // set clock
             clock.setTime(newPuzzle.time || 0);
             setPuzzle(numberPuzzle(newPuzzle));
-            // Save the date for future use
-            setDefaultDate(dateParam);
           } else {
             setLoadError(`No puzzle found for date: ${dateParam}`);
-            setDefaultDate(dateParam);
             setShowXWordInfoImporter(true);
           }
         } catch (error) {
           console.error('Error loading puzzle from URL:', error);
           setLoadError(`Failed to load puzzle for date: ${dateParam}`);
-          setDefaultDate(dateParam);
           setShowXWordInfoImporter(true);
         }
       } else if (dateParam === null && window.location.search.includes('date=')) {
         // Invalid date format in URL
-        setLoadError('Invalid date format. Use MM/DD/YYYY');
+        const invalidDate = window.location.search.split('date=')[1]?.split('&')[0] || '';
+        setLoadError(`Invalid date: "${invalidDate}". Use mm/dd/yyyy.`);
         // Don't set default date for invalid format
         setDefaultDate(null);
         setShowXWordInfoImporter(true);
@@ -140,18 +141,24 @@ export default function PuzzleLoader() {
   });
 
   const handleImportFromXWordInfo = () => {
-    // When manually opening the importer, use current puzzle date if available, otherwise today
+    console.log('Current puzzle:', puzzle);
+    console.log('Current defaultDate:', defaultDate);
+    
+    // Always try to get the date from the current puzzle
     if (puzzle.title) {
       const dateMatch = puzzle.title.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
       if (dateMatch) {
         const [_, month, day, year] = dateMatch;
-        setDefaultDate(`${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`);
+        const extractedDate = `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+        console.log('Extracted date from title:', extractedDate);
+        setDefaultDate(extractedDate);
       } else {
-        setDefaultDate(null); // Use today's date as fallback
+        console.log('No date found in title:', puzzle.title);
       }
     } else {
-      setDefaultDate(null); // Use today's date as fallback
+      console.log('No title found in puzzle');
     }
+    
     setShowXWordInfoImporter(true);
   };
 
