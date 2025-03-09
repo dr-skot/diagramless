@@ -20,7 +20,7 @@ interface PuzzleProps {
   setPuzzle: PuzzleDispatch;
   clock: Clock;
   onDrop: DragEventHandler;
-  onImportFromXWordInfo?: () => void;
+  onLoadPuzzle?: () => void;
 }
 
 type XwdFillState = 'filled' | 'solved' | 'incomplete';
@@ -28,7 +28,7 @@ type XwdFillState = 'filled' | 'solved' | 'incomplete';
 const getFillState = (grid: XwdGrid): XwdFillState =>
   gridIsFilled(grid) ? (gridIsSolved(grid) ? 'solved' : 'filled') : 'incomplete';
 
-export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onImportFromXWordInfo }: PuzzleProps) {
+export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle }: PuzzleProps) {
   const [showModal, setShowModal] = useState<ModalReason | null>(null);
   const [fillState, setFillState] = useState<XwdFillState>(getFillState(puzzle.grid));
   const { grid } = puzzle;
@@ -84,12 +84,12 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onImportFromX
   return (
     <>
       <div className={showModal === 'PAUSED' ? 'app-obscured' : ''}>
-        <PuzzleView 
-          puzzle={puzzle} 
-          setPuzzle={setPuzzle} 
-          clock={clock} 
-          onDrop={onDrop} 
-          onImportFromXWordInfo={onImportFromXWordInfo} 
+        <PuzzleView
+          puzzle={puzzle}
+          setPuzzle={setPuzzle}
+          clock={clock}
+          onDrop={onDrop}
+          onImportFromXWordInfo={onLoadPuzzle}
         />
       </div>
       {showModal && <PuzzleModal reason={showModal} onClose={closeModal} />}
@@ -134,12 +134,12 @@ function PuzzleView(props: PuzzleViewProps) {
 
   return (
     <>
-      <PuzzleToolbar 
-        clock={clock} 
-        puzzle={puzzle} 
-        setPuzzle={setPuzzle} 
-        onRebus={toggleRebus} 
-        onImportFromXWordInfo={onImportFromXWordInfo} 
+      <PuzzleToolbar
+        clock={clock}
+        puzzle={puzzle}
+        setPuzzle={setPuzzle}
+        onRebus={toggleRebus}
+        onImportFromXWordInfo={onImportFromXWordInfo}
       />
       <PuzzleHeader title={puzzle.title} author={puzzle.author} />
       <div className="layout-puzzle" onDrop={onDrop} onDragOver={(e) => e.preventDefault()}>

@@ -120,7 +120,7 @@ export const parseXWordInfoJson = (jsonString: string): XwdPuzzle | null => {
 /**
  * Fetch a puzzle from XWordInfo by date
  */
-export async function fetchPuzzleFromXWordInfo(date: string): Promise<XwdPuzzle | null> {
+export async function fetchPuzzle(date: string): Promise<XwdPuzzle | null> {
   try {
     // Ensure date is in MM/DD/YYYY format
     let formattedDate = date;
