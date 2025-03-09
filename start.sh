@@ -21,7 +21,9 @@ FRONTEND_PID=$!
 # Function to handle script termination
 function cleanup {
   echo "Shutting down servers..."
+  echo "API server PID: $API_PID"
   kill $API_PID
+  echo "Frontend server PID: $FRONTEND_PID"
   kill $FRONTEND_PID
   exit
 }

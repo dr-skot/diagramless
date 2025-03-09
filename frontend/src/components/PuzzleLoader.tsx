@@ -8,6 +8,7 @@ import Puzzle from './Puzzle';
 import { handleDroppedFile } from '../utils/dom';
 import { numberPuzzle } from '../model/numbering';
 import { XWordInfoImporter } from './XWordInfoImporter';
+import { fetchPuzzleFromXWordInfo } from '../services/xwordInfoService';
 import './PuzzleLoader.css';
 
 const loadPuzzle = () => tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE);
@@ -18,11 +19,100 @@ const storePuzzle = (puzzle: XwdPuzzle) => {
 
 export type PuzzleDispatch = Dispatch<SetStateAction<XwdPuzzle>>;
 
+// Parse date from URL parameter (format: mm/dd/yyyy)
+const getDateFromUrl = (): string | null => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const dateParam = urlParams.get('date');
+  
+  if (!dateParam) return null;
+  
+  // Validate date format (mm/dd/yyyy)
+  const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/(\d{4})$/;
+  return dateRegex.test(dateParam) ? dateParam : null;
+};
+
+// Update URL with date parameter
+const updateUrlWithDate = (date: string) => {
+  // Manually construct URL to avoid escaping slashes
+  const baseUrl = window.location.href.split('?')[0];
+  window.history.pushState({}, '', `${baseUrl}?date=${date}`);
+};
+
+// Get today's date in MM/DD/YYYY format
+const getTodayDateString = (): string => {
+  const today = new Date();
+  const month = (today.getMonth() + 1).toString().padStart(2, '0');
+  const day = today.getDate().toString().padStart(2, '0');
+  const year = today.getFullYear();
+  return `${month}/${day}/${year}`;
+};
+
 export default function PuzzleLoader() {
   const [puzzle, setPuzzle] = useState<XwdPuzzle>(loadPuzzle());
   const [clock] = useState(new Clock(puzzle.time));
   const [showXWordInfoImporter, setShowXWordInfoImporter] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [defaultDate, setDefaultDate] = useState<string | null>(null);
   const modalContentRef = useRef<HTMLDivElement>(null);
+
+  // Load puzzle from URL date parameter on initial load
+  useEffect(() => {
+    const loadPuzzleFromUrl = async () => {
+      const dateParam = getDateFromUrl();
+      if (dateParam) {
+        try {
+          const newPuzzle = await fetchPuzzleFromXWordInfo(dateParam);
+          if (newPuzzle) {
+            // preserve numbering / symmetry settings
+            newPuzzle.autonumber = puzzle.autonumber;
+            newPuzzle.symmetry = puzzle.symmetry;
+            // set clock
+            clock.setTime(newPuzzle.time || 0);
+            setPuzzle(numberPuzzle(newPuzzle));
+            // Save the date for future use
+            setDefaultDate(dateParam);
+          } else {
+            setLoadError(`No puzzle found for date: ${dateParam}`);
+            setDefaultDate(dateParam);
+            setShowXWordInfoImporter(true);
+          }
+        } catch (error) {
+          console.error('Error loading puzzle from URL:', error);
+          setLoadError(`Failed to load puzzle for date: ${dateParam}`);
+          setDefaultDate(dateParam);
+          setShowXWordInfoImporter(true);
+        }
+      } else if (dateParam === null && window.location.search.includes('date=')) {
+        // Invalid date format in URL
+        setLoadError('Invalid date format. Use MM/DD/YYYY');
+        // Don't set default date for invalid format
+        setDefaultDate(null);
+        setShowXWordInfoImporter(true);
+      } else {
+        // No date parameter, load today's puzzle but don't update URL
+        try {
+          const todayDate = getTodayDateString();
+          const newPuzzle = await fetchPuzzleFromXWordInfo(todayDate);
+          if (newPuzzle) {
+            // preserve numbering / symmetry settings
+            newPuzzle.autonumber = puzzle.autonumber;
+            newPuzzle.symmetry = puzzle.symmetry;
+            // set clock
+            clock.setTime(newPuzzle.time || 0);
+            setPuzzle(numberPuzzle(newPuzzle));
+            // Save the date for future use
+            setDefaultDate(dateParam);
+            // Don't update URL with today's date so reloading after midnight gets the new day's puzzle
+          }
+        } catch (error) {
+          console.error('Error loading today\'s puzzle:', error);
+        }
+      }
+    };
+
+    loadPuzzleFromUrl();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const savePuzzle = () => storePuzzle({ ...puzzle, time: clock.getTime() });
@@ -50,10 +140,22 @@ export default function PuzzleLoader() {
   });
 
   const handleImportFromXWordInfo = () => {
+    // When manually opening the importer, use current puzzle date if available, otherwise today
+    if (puzzle.title) {
+      const dateMatch = puzzle.title.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (dateMatch) {
+        const [_, month, day, year] = dateMatch;
+        setDefaultDate(`${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`);
+      } else {
+        setDefaultDate(null); // Use today's date as fallback
+      }
+    } else {
+      setDefaultDate(null); // Use today's date as fallback
+    }
     setShowXWordInfoImporter(true);
   };
 
-  const handleXWordInfoPuzzleLoaded = (newPuzzle: XwdPuzzle) => {
+  const handleXWordInfoPuzzleLoaded = (newPuzzle: XwdPuzzle, loadedDate: string) => {
     // preserve numbering / symmetry settings
     newPuzzle.autonumber = puzzle.autonumber;
     newPuzzle.symmetry = puzzle.symmetry;
@@ -61,11 +163,27 @@ export default function PuzzleLoader() {
     clock.setTime(newPuzzle.time || 0);
     setPuzzle(numberPuzzle(newPuzzle));
     setShowXWordInfoImporter(false);
+    // Save the date for future use
+    setDefaultDate(loadedDate);
     storePuzzle(newPuzzle);
+    
+    // Extract date from puzzle if available and update URL
+    if (newPuzzle.title) {
+      const dateMatch = newPuzzle.title.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (dateMatch) {
+        const [_, month, day, year] = dateMatch;
+        const formattedDate = `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+        updateUrlWithDate(formattedDate);
+      }
+    }
+    
+    // Clear any load errors
+    setLoadError(null);
   };
 
   const handleXWordInfoImportCancel = () => {
     setShowXWordInfoImporter(false);
+    setLoadError(null);
   };
 
   return (
@@ -75,7 +193,9 @@ export default function PuzzleLoader() {
           <div className="modal-content" ref={modalContentRef} tabIndex={0}>
             <XWordInfoImporter 
               onImport={handleXWordInfoPuzzleLoaded} 
-              onCancel={handleXWordInfoImportCancel} 
+              onCancel={handleXWordInfoImportCancel}
+              initialError={loadError}
+              defaultDate={defaultDate}
             />
           </div>
         </div>

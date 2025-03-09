@@ -244,8 +244,8 @@ function htmlToStyledText(html: string, font: string, size: number): StyledText 
       }
 
       if (segment.startsWith('</')) {
-        if (italicTags.includes(segment)) italicDepth = Math.min(0, italicDepth - 1);
-        if (boldTags.includes(segment)) boldDepth = Math.min(0, boldDepth - 1);
+        if (italicTags.includes(segment)) italicDepth = Math.max(0, italicDepth - 1);
+        if (boldTags.includes(segment)) boldDepth = Math.max(0, boldDepth - 1);
       } else {
         if (italicTags.includes(segment)) italicDepth++;
         if (boldTags.includes(segment)) boldDepth++;

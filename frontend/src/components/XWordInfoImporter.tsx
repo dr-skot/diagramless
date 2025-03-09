@@ -4,14 +4,42 @@ import { XwdPuzzle } from '../model/puzzle';
 import './XWordInfoImporter.css';
 
 interface XWordInfoImporterProps {
-  onImport: (puzzle: XwdPuzzle) => void;
+  onImport: (puzzle: XwdPuzzle, loadedDate: string) => void;
   onCancel: () => void;
+  initialError?: string | null;
+  defaultDate?: string | null;
 }
 
-export const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onImport, onCancel }) => {
-  const [error, setError] = useState<string | null>(null);
+export function XWordInfoImporter({ onImport, onCancel, initialError, defaultDate }: XWordInfoImporterProps) {
+  const [error, setError] = useState<string | null>(initialError || null);
   const [loading, setLoading] = useState(false);
-  const [date, setDate] = useState('');
+  
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDateString = (): string => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+  };
+  
+  // Convert MM/DD/YYYY to YYYY-MM-DD format for date input
+  const convertDateFormat = (dateString: string): string => {
+    const parts = dateString.split('/');
+    if (parts.length === 3) {
+      const [month, day, year] = parts;
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+    return getTodayDateString();
+  };
+  
+  // Initialize date state with defaultDate if provided, otherwise today's date
+  const initialDate = defaultDate ? convertDateFormat(defaultDate) : getTodayDateString();
+  const [date, setDate] = useState(initialDate);
+  
+  // Update date when defaultDate changes
+  useEffect(() => {
+    if (defaultDate) {
+      setDate(convertDateFormat(defaultDate));
+    }
+  }, [defaultDate]);
   
   const dateInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -72,7 +100,11 @@ export const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onImport, 
       console.log(`Fetching puzzle for date: ${formattedDate}`);
       const puzzle = await fetchPuzzleFromXWordInfo(formattedDate);
       if (puzzle) {
-        onImport(puzzle);
+        // Update URL with the date parameter - avoid escaping slashes
+        const baseUrl = window.location.href.split('?')[0];
+        window.history.pushState({}, '', `${baseUrl}?date=${formattedDate}`);
+        
+        onImport(puzzle, formattedDate);
       } else {
         setError('Failed to fetch puzzle for the given date. Please check the date and try again.');
         setLoading(false);
@@ -113,4 +145,4 @@ export const XWordInfoImporter: React.FC<XWordInfoImporterProps> = ({ onImport, 
       {error && <div className="error-message">{error}</div>}
     </div>
   );
-};
+}
