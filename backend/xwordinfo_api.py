@@ -26,10 +26,10 @@ CACHE_DIR = os.path.dirname(os.path.abspath(__file__))
 def get_puzzle():
     """
     Fetch a puzzle for the given date.
-    
+
     Query parameters:
         date: Date in MM/DD/YYYY format
-    
+
     Returns:
         JSON response with the puzzle data
     """
@@ -37,33 +37,37 @@ def get_puzzle():
         date = request.args.get('date')
         if not date:
             return jsonify({"error": "Missing date parameter"}), 400
-            
+
         print(f"Received request for puzzle date: {date}")
-        
+
         # Check if we already have this puzzle cached
         date_parts = date.split('/')
         if len(date_parts) == 3:
             month, day, year = date_parts
             cache_filename = f"xwordinfo_{year}-{month}-{day}.json"
             cache_path = os.path.join(CACHE_DIR, cache_filename)
-            
+
             print(f"Looking for cached file: {cache_path}")
-            
+
             # If the puzzle is already cached, return it
             if os.path.exists(cache_path):
                 print(f"Found cached puzzle: {cache_path}")
                 with open(cache_path, 'r') as f:
                     puzzle_data = json.load(f)
+                    print('adding the fucking date')
+                    puzzle_data['date'] = date
                 return jsonify(puzzle_data)
-            
+
             # Otherwise, fetch it from XWordInfo
             print(f"Fetching puzzle from XWordInfo for date: {date}")
             try:
                 output_file = fetch_puzzle(date, cache_path)
-                
+
                 # Read the saved file and return its contents
                 with open(output_file, 'r') as f:
                     puzzle_data = json.load(f)
+                    print('adding the fucking date')
+                    puzzle_data['date'] = date
                 return jsonify(puzzle_data)
             except Exception as e:
                 print(f"Error fetching puzzle from XWordInfo: {str(e)}")

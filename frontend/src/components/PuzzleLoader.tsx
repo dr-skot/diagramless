@@ -49,6 +49,7 @@ const fetchPuzzleFromUrl = async () => {
 
 function getPuzzleDate(puzzle: XwdPuzzle) {
   let date = '';
+  if (puzzle.date) return puzzle.date;
   if (puzzle.title) {
     const dateMatch = puzzle.title.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
     if (dateMatch) {
@@ -110,7 +111,8 @@ export default function PuzzleLoader() {
     const puzzleDate = getPuzzleDate(puzzle);
     const dateToLoad = getDateFromUrl() || formatDate('MM/DD/YYYY');
     console.log('date to load', dateToLoad);
-    if (dateToLoad !== puzzleDate) setLoading(true);
+    if (dateToLoad === puzzleDate) return;
+    setLoading(true);
     fetchPuzzleFromUrl()
       .then((newPuzzle) => {
         newPuzzle.autonumber = puzzle.autonumber;
@@ -162,7 +164,8 @@ export default function PuzzleLoader() {
     const dateToLoad = formatDate('MM/DD/YYYY', date);
     const puzzleDate = getPuzzleDate(puzzle);
     updateUrlWithDate(dateToLoad);
-    if (dateToLoad !== puzzleDate) setLoading(true);
+    if (dateToLoad === puzzleDate) return;
+    setLoading(true);
     fetchPuzzleFromUrl()
       .then((newPuzzle) => {
         newPuzzle.autonumber = puzzle.autonumber;

@@ -39,6 +39,7 @@ interface XWordInfoPuzzle {
  */
 export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle | null => {
   if (!xwordInfoData) return null;
+  console.log('xwordInfoData', xwordInfoData);
 
   // Convert grid format from XWordInfo (array of strings) to our format
   // In XWordInfo format, '.' represents black squares
@@ -51,7 +52,7 @@ export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle |
   const clues: { number: string; direction: [number, number]; clue: string }[] = [];
 
   // Process across clues
-  xwordInfoData.clues.across.forEach(clueText => {
+  xwordInfoData.clues.across.forEach((clueText) => {
     // XWordInfo format is "1. Clue text"
     const match = clueText.match(/^(\d+)\.\s+(.+)$/);
     if (match) {
@@ -59,13 +60,13 @@ export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle |
       clues.push({
         number,
         direction: [0, 1], // Across direction vector
-        clue: text
+        clue: text,
       });
     }
   });
 
   // Process down clues
-  xwordInfoData.clues.down.forEach(clueText => {
+  xwordInfoData.clues.down.forEach((clueText) => {
     // XWordInfo format is "1. Clue text"
     const match = clueText.match(/^(\d+)\.\s+(.+)$/);
     if (match) {
@@ -73,13 +74,14 @@ export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle |
       clues.push({
         number,
         direction: [1, 0], // Down direction vector
-        clue: text
+        clue: text,
       });
     }
   });
 
   // Create puzzle data in our format
   const puzzleData = {
+    date: xwordInfoData.date,
     label: 'XWordInfo',
     width: xwordInfoData.size.cols,
     height: xwordInfoData.size.rows,
@@ -87,16 +89,20 @@ export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle |
     guesses,
     clues,
     numbers: xwordInfoData.gridnums,
-    author: xwordInfoData.editor ? `${xwordInfoData.author} / ${xwordInfoData.editor}` : xwordInfoData.author,
+    author: xwordInfoData.editor
+      ? `${xwordInfoData.author} / ${xwordInfoData.editor}`
+      : xwordInfoData.author,
     title: xwordInfoData.title,
     copyright: xwordInfoData.copyright,
     note: xwordInfoData.notepad || '',
     extras: {
       // Add circles if they exist
-      GEXT: xwordInfoData.circles ?
-        solution.map((_, i) => xwordInfoData.circles && xwordInfoData.circles[i] === 1 ? 0x80 : 0) :
-        []
-    }
+      GEXT: xwordInfoData.circles
+        ? solution.map((_, i) =>
+            xwordInfoData.circles && xwordInfoData.circles[i] === 1 ? 0x80 : 0
+          )
+        : [],
+    },
   };
 
   return puzzleFromData(puzzleData);

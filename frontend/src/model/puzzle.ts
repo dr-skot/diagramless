@@ -31,6 +31,7 @@ export interface XwdPuzzle {
   author: string;
   copyright: string;
   note: string;
+  date: string;
 }
 
 export const emptyPuzzle: XwdPuzzle = {
@@ -46,6 +47,7 @@ export const emptyPuzzle: XwdPuzzle = {
   author: '',
   copyright: '',
   note: '',
+  date: '',
 };
 
 // TODO read clues from data so they can be more easily accessed by number/direction
@@ -64,6 +66,7 @@ interface PuzzleData {
   copyright: string;
   note: string;
   extras: { GRBS?: any; RTBL?: any[]; GEXT?: any[] };
+  date: string;
 }
 
 export const puzzleFromData = (data?: PuzzleData): XwdPuzzle | null => {
@@ -107,6 +110,7 @@ export const puzzleFromData = (data?: PuzzleData): XwdPuzzle | null => {
     author: data.author,
     copyright: data.copyright,
     note: data.note,
+    date: data.date,
   };
 };
 

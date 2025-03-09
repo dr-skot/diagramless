@@ -156,6 +156,8 @@ export function puzzleFromFileData(data: ArrayBuffer) {
     copyright,
     note,
     extras,
+    // TODO can we get the date?
+    date: '',
   };
 
   // TODO: do this right. It's just to remove : from guesses in diagramless
