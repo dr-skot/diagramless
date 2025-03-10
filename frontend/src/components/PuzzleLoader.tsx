@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState, useRef } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
 import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../utils/utils';
@@ -142,7 +142,7 @@ export default function PuzzleLoader() {
         setPuzzle={setPuzzle}
         clock={clock}
         onDrop={onDrop}
-        onLoadPuzzle={()=>setShowLoadPuzzleModal(true)}
+        onLoadPuzzle={() => setShowLoadPuzzleModal(true)}
       />
     </div>
   );
