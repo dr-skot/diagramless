@@ -108,25 +108,7 @@ export default function PuzzleLoader() {
 
   // Load puzzle from URL date parameter on initial load
   useEffect(() => {
-    const puzzleDate = getPuzzleDate(puzzle);
-    const dateToLoad = getDateFromUrl() || formatDate('MM/DD/YYYY');
-    console.log('date to load', dateToLoad);
-    if (dateToLoad === puzzleDate) return;
-    setLoading(true);
-    fetchPuzzleFromUrl()
-      .then((newPuzzle) => {
-        newPuzzle.autonumber = puzzle.autonumber;
-        newPuzzle.symmetry = puzzle.symmetry;
-        // set clock
-        clock.setTime(newPuzzle.time || 0);
-        setPuzzle(numberPuzzle(newPuzzle));
-        updateUrlWithDate(dateToLoad);
-      })
-      .catch((error: Error) => {
-        setLoadError(error.message);
-        setShowLoadPuzzleModal(true);
-      })
-      .finally(() => setLoading(false));
+    fetchPuzzleForDate(getDateFromUrl() || formatDate('MM/DD/YYYY'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -160,11 +142,11 @@ export default function PuzzleLoader() {
     setShowLoadPuzzleModal(true);
   };
 
-  const handleLoadPuzzleSubmit = (date: Date) => {
-    const dateToLoad = formatDate('MM/DD/YYYY', date);
-    const puzzleDate = getPuzzleDate(puzzle);
+  function fetchPuzzleForDate(dateToLoad: string) {
+    setShowLoadPuzzleModal(false);
+    setLoadError('');
     updateUrlWithDate(dateToLoad);
-    if (dateToLoad === puzzleDate) return;
+    if (dateToLoad === getPuzzleDate(puzzle)) return;
     setLoading(true);
     fetchPuzzleFromUrl()
       .then((newPuzzle) => {
@@ -180,7 +162,10 @@ export default function PuzzleLoader() {
         setShowLoadPuzzleModal(true);
       })
       .finally(() => setLoading(false));
-    setShowLoadPuzzleModal(false);
+  }
+
+  const handleLoadPuzzleSubmit = (date: Date) => {
+    fetchPuzzleForDate(formatDate('MM/DD/YYYY', date));
   };
 
   const handleLoadPuzzleCancel = () => {
