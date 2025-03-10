@@ -3,6 +3,8 @@ import { vectorAdd, vectorSubtract, vectorMod, vectorFits } from '../utils/vecto
 import { XwdGrid } from '../model/grid';
 import { Vector } from '../model/direction';
 import { getElement } from '../utils/utils';
+import { XwdPuzzle } from '../model/puzzle';
+import { formatDate } from '../utils/dateUtils';
 // var TextDecoder = TextDecoder || require('text-encoding').TextDecoder;
 
 interface Clue {
@@ -313,4 +315,41 @@ export function parseRelatedClues(clue: string) {
       });
     })
     .flat();
+}
+export function getPuzzleDate(puzzle: XwdPuzzle) {
+  let date = '';
+  if (puzzle.date) return puzzle.date;
+  if (puzzle.title) {
+    const dateMatch = puzzle.title.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (dateMatch) {
+      const [, month, day, year] = dateMatch;
+      date = `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+      console.log('Extracted date from title:', date);
+    } else {
+      // Try to extract date using PuzzleHeader's regex patterns
+      let titlePieces = puzzle.title.match(/(?:NY|New York) Times,\s+(\w+,\s+\w+\s+\d+,\s+\d+)(.*)/) || [];
+      if (!titlePieces || titlePieces.length < 2) {
+        // Try another format that might be used
+        titlePieces = puzzle.title.match(/(\w+,\s+\w+\s+\d+,\s+\d+)(.*)/) || [];
+      }
+
+      const dateStr = titlePieces[1] || '';
+      if (dateStr) {
+        console.log('Date string extracted from title:', dateStr);
+        const titleDate = new Date(dateStr);
+        if (!isNaN(titleDate.getTime())) {
+          date = formatDate('MM/DD/YYYY', titleDate);
+          console.log('Converted to MM/DD/YYYY format:', date);
+        } else {
+          console.log('Could not convert date string to Date object');
+        }
+      } else {
+        console.log('No date string found using PuzzleHeader regex patterns');
+      }
+      console.log('No date found in title:', puzzle.title);
+    }
+  } else {
+    console.log('No title found in puzzle');
+  }
+  return date;
 }

@@ -11,6 +11,7 @@ import { LoadPuzzleModal } from './LoadPuzzleModal';
 import { fetchPuzzle } from '../services/xwordInfoService';
 import { formatDate, isValidMdy } from '../utils/dateUtils';
 import './PuzzleLoader.css';
+import { getPuzzleDate } from '../services/xwdService';
 
 const loadPuzzle = () => tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE);
 
@@ -47,45 +48,6 @@ const fetchPuzzleFromUrl = async () => {
   else throw new Error(`No puzzle found for date: ${dateParam}`);
 };
 
-function getPuzzleDate(puzzle: XwdPuzzle) {
-  let date = '';
-  if (puzzle.date) return puzzle.date;
-  if (puzzle.title) {
-    const dateMatch = puzzle.title.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-    if (dateMatch) {
-      const [, month, day, year] = dateMatch;
-      date = `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
-      console.log('Extracted date from title:', date);
-    } else {
-      // Try to extract date using PuzzleHeader's regex patterns
-      let titlePieces =
-        puzzle.title.match(/(?:NY|New York) Times,\s+(\w+,\s+\w+\s+\d+,\s+\d+)(.*)/) || [];
-      if (!titlePieces || titlePieces.length < 2) {
-        // Try another format that might be used
-        titlePieces = puzzle.title.match(/(\w+,\s+\w+\s+\d+,\s+\d+)(.*)/) || [];
-      }
-
-      const dateStr = titlePieces[1] || '';
-      if (dateStr) {
-        console.log('Date string extracted from title:', dateStr);
-        const titleDate = new Date(dateStr);
-        if (!isNaN(titleDate.getTime())) {
-          date = formatDate('MM/DD/YYYY', titleDate);
-          console.log('Converted to MM/DD/YYYY format:', date);
-        } else {
-          console.log('Could not convert date string to Date object');
-        }
-      } else {
-        console.log('No date string found using PuzzleHeader regex patterns');
-      }
-      console.log('No date found in title:', puzzle.title);
-    }
-  } else {
-    console.log('No title found in puzzle');
-  }
-  return date;
-}
-
 // Update URL with date parameter
 const updateUrlWithDate = (date: string) => {
   // Manually construct URL to avoid escaping slashes
@@ -99,12 +61,7 @@ export default function PuzzleLoader() {
   const [clock] = useState(new Clock(puzzle.time));
   const [showLoadPuzzleModal, setShowLoadPuzzleModal] = useState(false);
   const [loadError, setLoadError] = useState('');
-  const modalContentRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    console.log('puzzle', puzzle);
-  }, [puzzle]);
 
   // Load puzzle from URL date parameter on initial load
   useEffect(() => {
@@ -112,6 +69,7 @@ export default function PuzzleLoader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Save puzzle before unloading
   useEffect(() => {
     const savePuzzle = () => storePuzzle({ ...puzzle, time: clock.getTime() });
     (gridIsSolved(puzzle.grid) ? clock.stop : clock.start)();
@@ -120,27 +78,19 @@ export default function PuzzleLoader() {
     return () => window.removeEventListener('beforeunload', savePuzzle);
   }, [puzzle, clock]);
 
-  // TODO is this needed?
-  useEffect(() => {
-    if (showLoadPuzzleModal && modalContentRef.current) {
-      modalContentRef.current.focus();
-    }
-  }, [showLoadPuzzleModal]);
-
-  const onDrop = handleDroppedFile((contents) => {
-    const newPuzzle = puzzleFromFile(contents);
-    if (!newPuzzle) return;
-    // preserve numbering / symmetry settings
+  // Replace puzzle and update clock
+  function replacePuzzle(newPuzzle: XwdPuzzle) {
     newPuzzle.autonumber = puzzle.autonumber;
-    newPuzzle.symmetry = puzzle.symmetry;
+    newPuzzle.symmetry ||= puzzle.symmetry;
     // set clock
     clock.setTime(newPuzzle.time || 0);
     setPuzzle(numberPuzzle(newPuzzle));
-  });
+  }
 
-  const handleLoadPuzzle = () => {
-    setShowLoadPuzzleModal(true);
-  };
+  const onDrop = handleDroppedFile((contents) => {
+    const newPuzzle = puzzleFromFile(contents);
+    if (newPuzzle) replacePuzzle(newPuzzle);
+  });
 
   function fetchPuzzleForDate(dateToLoad: string) {
     setShowLoadPuzzleModal(false);
@@ -150,11 +100,7 @@ export default function PuzzleLoader() {
     setLoading(true);
     fetchPuzzleFromUrl()
       .then((newPuzzle) => {
-        newPuzzle.autonumber = puzzle.autonumber;
-        newPuzzle.symmetry = puzzle.symmetry;
-        // set clock
-        clock.setTime(newPuzzle.time || 0);
-        setPuzzle(numberPuzzle(newPuzzle));
+        replacePuzzle(newPuzzle);
         updateUrlWithDate(dateToLoad);
       })
       .catch((error: Error) => {
@@ -171,8 +117,6 @@ export default function PuzzleLoader() {
   const handleLoadPuzzleCancel = () => {
     setShowLoadPuzzleModal(false);
     setLoadError('');
-    console.log('puzzle:', puzzle);
-    console.log('puzzleDate', getPuzzleDate(puzzle));
     const puzzleDate = getPuzzleDate(puzzle);
     if (puzzleDate) updateUrlWithDate(puzzleDate);
   };
@@ -181,7 +125,7 @@ export default function PuzzleLoader() {
     <div className="puzzle-loader">
       {showLoadPuzzleModal && (
         <div className="modal-overlay">
-          <div className="modal-content" ref={modalContentRef} tabIndex={0}>
+          <div className="modal-content">
             <LoadPuzzleModal
               onSubmit={handleLoadPuzzleSubmit}
               onCancel={handleLoadPuzzleCancel}
@@ -198,7 +142,7 @@ export default function PuzzleLoader() {
         setPuzzle={setPuzzle}
         clock={clock}
         onDrop={onDrop}
-        onLoadPuzzle={handleLoadPuzzle}
+        onLoadPuzzle={()=>setShowLoadPuzzleModal(true)}
       />
     </div>
   );
