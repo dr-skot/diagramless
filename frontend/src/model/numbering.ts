@@ -45,7 +45,7 @@ export const getNumbers = (
 export const numberPuzzle = (puzzle: XwdPuzzle) => {
   if (puzzle.autonumber === 'off') return puzzle;
   const wordCount = countWordStarts(puzzle.grid);
-  const clueCount = parseInt(puzzle.clues.slice(-1)?.[0]?.number || '0');
+  const clueCount = Math.max(...puzzle.clues.map(clue => parseInt(clue.number) || 0));
   const grid = numberWordStarts(puzzle.grid, getNumbers(wordCount, clueCount, puzzle.autonumber));
   return { ...puzzle, grid };
 };
