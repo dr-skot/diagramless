@@ -72,7 +72,7 @@ describe('numberPuzzle', () => {
       .join(',');
     expect(numbers).toBe('1,2,3,,4,5,6,7,,,,8,,');
   });
-  it('numbers from top', () => {
+  it('numbers from bottom', () => {
     const data = 'abc:defghi:jkl'.split('');
     const grid = setContents(data)(newGrid(2, 7));
     let puzzle: XwdPuzzle = {
@@ -87,6 +87,29 @@ describe('numberPuzzle', () => {
       .map((cell) => cell.number)
       .join(',');
     expect(numbers).toBe('53,54,55,,56,57,58,59,,,,60,,');
+  });
+  it('numbers from bottom using highest clue number, not just the last clue', () => {
+    const data = 'abc:defghi:jkl'.split('');
+    const grid = setContents(data)(newGrid(2, 7));
+    let puzzle: XwdPuzzle = {
+      ...emptyPuzzle,
+      grid,
+      autonumber: 'from bottom',
+      // Note: clues are deliberately out of order with highest number not at the end
+      clues: [
+        { direction: 'across', text: '', number: '42' },
+        { direction: 'down', text: '', number: '75' }, // Highest number
+        { direction: 'across', text: '', number: '23' },
+        { direction: 'down', text: '', number: '60' },
+      ],
+    };
+    puzzle = numberPuzzle(puzzle);
+    const numbers = puzzle.grid
+      .flat()
+      .map((cell) => cell.number)
+      .join(',');
+    // Should count down from 75, not from 60 (the last clue)
+    expect(numbers).toBe('68,69,70,,71,72,73,74,,,,75,,');
   });
   it('numbers from both ends', () => {
     const data = 'abc:defghi:jkl'.split('');
