@@ -305,7 +305,7 @@ export function isWordStart(cursor: Vector, direction: Vector, grid: XwdGrid) {
 }
 
 export function parseRelatedClues(clue: string) {
-  const regex = /(\d+-(,|,? and|,? or) )*\d+-(Across|Down)/gi;
+  const regex = /(\d+-(,|\/|,? and|,? or) ?)*\d+-(Across|Down)/gi;
   const matches = clue.match(regex) || [];
   return matches
     .map((match) => {

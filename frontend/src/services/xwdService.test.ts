@@ -1,8 +1,15 @@
-import {getWord, moveOnGrid, moveOnGridUntil, isWordStart, parseRelatedClues, MoveOnGridOptions} from './xwdService';
+import {
+  getWord,
+  moveOnGrid,
+  moveOnGridUntil,
+  isWordStart,
+  parseRelatedClues,
+  MoveOnGridOptions,
+} from './xwdService';
 import { UP, DOWN, LEFT, RIGHT, ACROSS } from './xwdService';
 import { STOP, NEXT_LINE } from './xwdService';
-import {XwdGrid} from "../model/grid";
-import {Vector} from "../model/direction";
+import { XwdGrid } from '../model/grid';
+import { Vector } from '../model/direction';
 
 describe('getWord', () => {
   it('finds whole row if no blacks', () => {
@@ -208,5 +215,16 @@ describe('parseRelatedClues', () => {
   });
   it("doesn't choke on nothing", () => {
     expect(parseRelatedClues('blah blah blah')).toEqual([]);
+  });
+  it('corectly parses a clue with a slash', () => {
+    const clue =
+      "Slogan that celebrates a young woman's confidence and independence ... or a hint to 17-, 24-, 40-/41- and 49-Across";
+    expect(parseRelatedClues(clue)).toEqual([
+      { direction: ACROSS, number: '17' },
+      { direction: ACROSS, number: '24' },
+      { direction: ACROSS, number: '40' },
+      { direction: ACROSS, number: '41' },
+      { direction: ACROSS, number: '49' },
+    ]);
   });
 });
