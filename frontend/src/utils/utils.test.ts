@@ -8,7 +8,6 @@ import {
   tryToParse,
   nextOrLast,
   wrapFind,
-  capitalize,
 } from './utils';
 import { vectorAdd, vectorFits, vectorMod } from './vector';
 
@@ -175,11 +174,5 @@ describe('wrapFind', () => {
   it('finds match at index', () => {
     const result = wrapFind(['1', '2', '3', '4', '5'], 2, () => true);
     expect(result).toBe('3');
-  });
-});
-
-describe('capitalize', () => {
-  it('capitalizes each word', () => {
-    expect(capitalize('mein Gott im Himmel')).toBe('Mein Gott Im Himmel');
   });
 });

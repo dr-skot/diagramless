@@ -2,11 +2,9 @@ import { inRange, isEqual, range, repeat } from 'lodash';
 import { vectorAdd, vectorFits, vectorMod, vectorSubtract } from '../utils/vector';
 import { XwdGrid } from '../model/grid';
 import { Vector } from '../model/direction';
-import { capitalize, getElement } from '../utils/utils';
+import { getElement } from '../utils/utils';
 import { XwdPuzzle } from '../model/puzzle';
 import { formatDate } from '../utils/dateUtils';
-
-// var TextDecoder = TextDecoder || require('text-encoding').TextDecoder;
 
 interface Clue {
   number: string;
