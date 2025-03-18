@@ -5,6 +5,7 @@ import {
   isWordStart,
   parseRelatedClues,
   MoveOnGridOptions,
+  parseTitle,
 } from './xwdService';
 import { UP, DOWN, LEFT, RIGHT, ACROSS } from './xwdService';
 import { STOP, NEXT_LINE } from './xwdService';
@@ -228,3 +229,14 @@ describe('parseRelatedClues', () => {
     ]);
   });
 });
+
+describe('parseTitle', () => {
+  it('handles simple cases', () => {
+    expect(parseTitle('New York Times, Tuesday, April 26, 2022')).toEqual({
+      title: 'The Daily Crossword',
+      date: new Date('4/26/2022'),
+      dayOfWeek: 'Tuesday',
+      monthDayYear: 'April 26, 2022',
+    });
+  });
+})

@@ -132,6 +132,8 @@ function PuzzleView(props: PuzzleViewProps) {
     else finishRebus(true);
   }
 
+  console.log('puzzle', puzzle)
+
   return (
     <>
       <PuzzleToolbar

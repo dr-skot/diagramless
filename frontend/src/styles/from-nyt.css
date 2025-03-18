@@ -247,12 +247,14 @@ html {
 }
 
 .PuzzleDetails-date {
-    font-size: 2.5rem;
+    font-size: 2rem;
     line-height: 3.25rem;
 }
 
 .PuzzleDetails-date span {
-    font-weight: 700
+    font-weight: 700;
+    padding-right: 0.5rem;
+    font-size: 2.5rem;
 }
 
 .PuzzleDetails-byline {

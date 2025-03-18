@@ -17,11 +17,10 @@ export default function PuzzleHeader(props: PuzzleHeaderProps) {
         <div className="PuzzleHeader-puzzleDetailsContainer">
           <div className="PuzzleDetails-details">
             <div className="PuzzleDetails-date">
-              {dayOfWeek && <span>{dayOfWeek}</span>} {monthDayYear}
+              <span>{title}</span> {dayOfWeek}, {monthDayYear}
             </div>
             <div className="PuzzleDetails-byline">
-              {title}
-              <span>By {maker}</span>
+              By {maker}
               {editor && <span>Edited by {editor}</span>}
             </div>
           </div>

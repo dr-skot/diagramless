@@ -320,6 +320,9 @@ export function parseRelatedClues(clue: string) {
 }
 
 export function parseTitle(title: string, dateStr?: string) {
+  let date = dateStr ? new Date(dateStr) : undefined;
+  if (date && isNaN(date.getTime())) date = undefined;
+
   // Handle different title formats, including "New York Times, Tuesday, April 26, 2022"
   let titlePieces = title.match(/(?:NY|New York) Times,\s+(\w+,\s+\w+\s+\d+,\s+\d+)(.*)/);
   if (!titlePieces || titlePieces.length < 2) {
@@ -327,14 +330,10 @@ export function parseTitle(title: string, dateStr?: string) {
     titlePieces = title.match(/(\w+,\s+\w+\s+\d+,\s+\d+)(.*)/);
   }
   dateStr ||= titlePieces?.[1] || '';
-  let date = dateStr ? new Date(dateStr) : undefined;
-  if (date && isNaN(date.getTime())) date = undefined;
 
   // Get actual title (part after the date)
   const actualTitleText = titlePieces?.[2]?.trim() || title;
-  const actualTitle = actualTitleText
-    ? '"' + capitalize(actualTitleText.toLowerCase()) + '"'
-    : title || 'The Daily Crossword';
+  const actualTitle = actualTitleText || "The Crossword";
 
   const dayOfWeek = date?.toLocaleDateString('en-US', { weekday: 'long' }) || '';
   const monthDayYear =
@@ -342,9 +341,7 @@ export function parseTitle(title: string, dateStr?: string) {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
-    }) ||
-    title ||
-    'Crossword';
+    }) || 'Crossword';
 
   return { title: actualTitle, date, dayOfWeek, monthDayYear };
 }
