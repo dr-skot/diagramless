@@ -327,9 +327,8 @@ export function parseTitle(title: string, dateStr?: string) {
   }
   dateStr ||= titlePieces?.[1] || '';
 
-  // Get actual title (part after the date)
-  const actualTitleText = titlePieces?.[2]?.trim() || title;
-  const actualTitle = actualTitleText || "The Crossword";
+  // For standard NYT format (just date), use "The Crossword"
+  const actualTitle = titlePieces ? titlePieces[2]?.trim() || "The Crossword" : title;
 
   const dayOfWeek = date?.toLocaleDateString('en-US', { weekday: 'long' }) || '';
   const monthDayYear =
