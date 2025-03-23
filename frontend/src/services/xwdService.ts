@@ -166,7 +166,6 @@ export function puzzleFromFileData(data: ArrayBuffer) {
   // in guesses, ':' means user has not filled this square, but square is black in solution
   // '.' I guess would mean user has marked the square black
   puzzle.guesses = repeat('-', puzzle.guesses.length).split('');
-  console.log(puzzle);
   return puzzle;
 }
 
@@ -305,7 +304,6 @@ export function isWordStart(cursor: Vector, direction: Vector, grid: XwdGrid) {
 export function parseRelatedClues(clue: string) {
   const regex = /(\d+-(,|\/|,? and|,? or) ?)*\d+-(Across|Down)/gi;
   const matches = clue.match(regex) || [];
-  if (clue.match(regex)) console.log('parseRelatedClues', clue, matches);
   return matches
     .map((match) => {
       const numbers = match.match(/\d+/g);

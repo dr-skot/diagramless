@@ -72,8 +72,6 @@ interface PuzzleData {
 export const puzzleFromData = (data?: PuzzleData): XwdPuzzle | null => {
   if (!data) return null;
 
-  // console.log(JSON.stringify(data));
-
   const grid = mapCells((cell, { pos }) => {
     const answer = data.solution[pos];
     const isBlack = [':', '.'].includes(answer);

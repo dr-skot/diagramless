@@ -33,8 +33,6 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle 
   const [fillState, setFillState] = useState<XwdFillState>(getFillState(puzzle.grid));
   const { grid } = puzzle;
 
-  // console.log('render puzzle');
-
   // show modal when puzzle is filled
   useEffect(() => {
     const newFillState = getFillState(grid);
@@ -131,8 +129,6 @@ function PuzzleView(props: PuzzleViewProps) {
     if (!isEditingRebus) startRebus();
     else finishRebus(true);
   }
-
-  console.log('puzzle', puzzle)
 
   return (
     <>

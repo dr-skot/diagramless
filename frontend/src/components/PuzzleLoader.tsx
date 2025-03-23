@@ -24,7 +24,6 @@ export type PuzzleDispatch = Dispatch<SetStateAction<XwdPuzzle>>;
 // Parse date from URL parameter (format: mm/dd/yyyy)
 const getDateFromUrl = (): string => {
   const urlParams = new URLSearchParams(window.location.search);
-  console.log('getDateFromUrl', urlParams.get('date'));
   return urlParams.get('date') || '';
 };
 
