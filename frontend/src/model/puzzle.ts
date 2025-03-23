@@ -199,7 +199,7 @@ export const applySymmetry = (puzzle: XwdPuzzle, symmetryType = puzzle.symmetry)
   symmetryType ? { ...puzzle, grid: enforceSymmetry(puzzle.grid, symmetryType) } : puzzle;
 
 export const setSymmetry = (symmetryType: XwdSymmetry) => (puzzle: XwdPuzzle) =>
-  applySymmetry({ ...puzzle, symmetry: symmetryType });
+  numberPuzzle(applySymmetry({ ...puzzle, symmetry: symmetryType }));
 
 export const setAutonumber = (value: XwdNumbering) => (p: XwdPuzzle) =>
   numberPuzzle({
