@@ -1,5 +1,5 @@
-import React from 'react';
 import { parseAuthor, parseTitle } from '../services/xwdService';
+import { sanitizeHtml } from '../utils/sanitize';
 
 interface PuzzleHeaderProps {
   title: string;
@@ -17,7 +17,7 @@ export default function PuzzleHeader(props: PuzzleHeaderProps) {
         <div className="PuzzleHeader-puzzleDetailsContainer">
           <div className="PuzzleDetails-details">
             <div className="PuzzleDetails-date">
-              <span>{title}</span> {dayOfWeek}, {monthDayYear}
+              <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(title) }} /> {dayOfWeek}, {monthDayYear}
             </div>
             <div className="PuzzleDetails-byline">
               By {maker}

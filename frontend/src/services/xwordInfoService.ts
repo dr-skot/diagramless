@@ -4,7 +4,6 @@ import { XwdPuzzle } from '../model/puzzle';
 // API base URL
 const BACKEND_HOST = process.env.REACT_APP_BACKEND_HOST;
 const API_BASE_URL = BACKEND_HOST + '/api';
-console.log('Using API URL:', API_BASE_URL);
 
 // XWordInfo JSON format interface
 interface XWordInfoPuzzle {
@@ -39,7 +38,6 @@ interface XWordInfoPuzzle {
  */
 export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle | null => {
   if (!xwordInfoData) return null;
-  console.log('xwordInfoData', xwordInfoData);
 
   // Convert grid format from XWordInfo (array of strings) to our format
   // In XWordInfo format, '.' represents black squares
@@ -139,7 +137,6 @@ export async function fetchPuzzle(date: string): Promise<XwdPuzzle | null> {
     }
 
     const apiUrl = `${API_BASE_URL}/puzzle?date=${encodeURIComponent(formattedDate)}`;
-    console.log(`Fetching puzzle from URL: ${apiUrl}`);
 
     const response = await fetch(apiUrl);
 

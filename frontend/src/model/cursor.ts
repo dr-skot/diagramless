@@ -95,7 +95,6 @@ export const goToNextWord = (puzzle: XwdPuzzle, options: NextWordOptions = {}): 
   const newWord = getWord(grid, startOfWord, vector);
   if (!newWord) return puzzle;
   const emptyCell = newWord?.find(([i, j]: number[]) => cellIsEmpty(grid[i][j]));
-  console.log('new word', newWord, 'has empty cell?', emptyCell);
   const newPos = emptyCell || newWord[0];
   //console.log({ newWord, emptyCell, newPos });
   const newCursor = { row: newPos[0], col: newPos[1], direction };

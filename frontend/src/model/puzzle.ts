@@ -72,8 +72,6 @@ interface PuzzleData {
 export const puzzleFromData = (data?: PuzzleData): XwdPuzzle | null => {
   if (!data) return null;
 
-  // console.log(JSON.stringify(data));
-
   const grid = mapCells((cell, { pos }) => {
     const answer = data.solution[pos];
     const isBlack = [':', '.'].includes(answer);
@@ -200,7 +198,7 @@ export const applySymmetry = (puzzle: XwdPuzzle, symmetryType = puzzle.symmetry)
   symmetryType ? { ...puzzle, grid: enforceSymmetry(puzzle.grid, symmetryType) } : puzzle;
 
 export const setSymmetry = (symmetryType: XwdSymmetry) => (puzzle: XwdPuzzle) =>
-  applySymmetry({ ...puzzle, symmetry: symmetryType });
+  numberPuzzle(applySymmetry({ ...puzzle, symmetry: symmetryType }));
 
 export const setAutonumber = (value: XwdNumbering) => (p: XwdPuzzle) =>
   numberPuzzle({

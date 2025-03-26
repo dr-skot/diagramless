@@ -45,6 +45,7 @@ export default function PuzzleToolbar({
       'from both ends': () => setPuzzle(setAutonumber('from both ends')),
     },
     symmetry: {
+      none: () => setPuzzle(setSymmetry(null)),
       diagonal: () => setPuzzle(setSymmetry('diagonal')),
       'left-right': () => setPuzzle(setSymmetry('left-right')),
     },
