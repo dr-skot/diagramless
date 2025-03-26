@@ -1,5 +1,5 @@
 import { findCell, mapCells, newGrid, XwdCellCallback, XwdDirection, XwdGrid } from './grid';
-import { currentCell, currentWord, XwdCursor } from './cursor';
+import { currentCell, currentWord, crossingWord, XwdCursor } from './cursor';
 import { enforceSymmetry, getSisterCell, XwdSymmetry } from './symmetry';
 import { ACROSS, parseRelatedClues, puzzleFromFileData } from '../services/xwdService';
 import { getCellsInWord, wordIncludes, wordNumber, XwdLoc } from './word';
@@ -115,7 +115,8 @@ export const puzzleFromData = (data?: PuzzleData): XwdPuzzle | null => {
 };
 
 export const currentClue = (puzzle: XwdPuzzle, direction = puzzle.cursor.direction) => {
-  const word = currentWord(puzzle);
+  const word = (direction === puzzle.cursor.direction ? currentWord : crossingWord)(puzzle);
+  if (!word) return null;
   const number = wordNumber(puzzle.grid, word);
   if (!number) return null;
   return puzzle.clues.find((clue) => clue.number === number && clue.direction === direction);
