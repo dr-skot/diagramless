@@ -161,11 +161,7 @@ export const changeCurrentCell =
   (change: Partial<XwdCell> | ((cell: XwdCell) => Partial<XwdCell>)) =>
   (puzzle: XwdPuzzle): XwdPuzzle => {
     const current = currentCell(puzzle);
-    console.log('changeCurrentCell - current cell:', JSON.stringify(current));
-    console.log('changeCurrentCell - change function:', typeof change === 'function' ? 'function' : JSON.stringify(change));
-    const result = changeCells(change)((cell) => cell === current)(puzzle);
-    console.log('changeCurrentCell - result puzzle cursor:', JSON.stringify(result.cursor));
-    return result;
+    return changeCells(change)((cell) => cell === current)(puzzle);
   };
 
 export const changeCellsInWord =

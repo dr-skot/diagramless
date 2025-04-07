@@ -36,41 +36,27 @@ export const emptyCell = (solution: Partial<XwdCellSolution> = {}): XwdCell => (
   isLocked: false,
 });
 
-export const setContent = (cell: XwdCell, content: string) => {
-  console.log('setContent called with cell:', JSON.stringify(cell), 'content:', content);
-  if (cell.isLocked) {
-    console.log('Cell is locked, not setting content');
-    return cell;
-  }
-  
-  const result = {
-    ...cell,
-    content,
-    isBlack: false,
-    isMarkedWrong: false,
-    wasRevealed: false,
-  };
-  console.log('setContent result:', JSON.stringify(result));
-  return result;
-};
+export const setContent = (cell: XwdCell, content: string) =>
+  cell.isLocked
+    ? cell
+    : {
+        ...cell,
+        content,
+        isBlack: false,
+        isMarkedWrong: false,
+        wasRevealed: false,
+      };
 
-export const toggleBlack = (cell: XwdCell) => {
-  console.log('toggleBlack called with cell:', JSON.stringify(cell));
-  if (cell.isLocked) {
-    console.log('Cell is locked, not toggling');
-    return cell;
-  }
-  
-  const result = {
-    ...cell,
-    isBlack: !cell.isBlack,
-    number: !cell.isBlack ? '' : cell.number,
-    isMarkedWrong: false,
-    wasRevealed: false,
-  };
-  console.log('toggleBlack result:', JSON.stringify(result));
-  return result;
-};
+export const toggleBlack = (cell: XwdCell) =>
+  cell.isLocked
+    ? cell
+    : {
+        ...cell,
+        isBlack: !cell.isBlack,
+        number: !cell.isBlack ? '' : cell.number,
+        isMarkedWrong: false,
+        wasRevealed: false,
+      };
 
 // Checking and revealing
 
