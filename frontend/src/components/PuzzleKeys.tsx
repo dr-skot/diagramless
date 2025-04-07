@@ -176,6 +176,6 @@ export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [setPuzzle]);
+  }, [setPuzzle, showToast]);
   return null;
 }
