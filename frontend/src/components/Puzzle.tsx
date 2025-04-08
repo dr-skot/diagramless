@@ -5,7 +5,7 @@ import ClueLists from './ClueLists';
 import PuzzleModal, { ModalReason } from './PuzzleModal';
 import PuzzleToolbar from './PuzzleToolbar';
 import Clock from '../model/clock';
-import { changeCurrentCell, XwdPuzzle } from '../model/puzzle';
+import { changeCurrentCell, XwdPuzzle, changeCells } from '../model/puzzle';
 import PuzzleKeys from './PuzzleKeys';
 import { PuzzleDispatch } from './PuzzleLoader';
 import { currentCell } from '../model/cursor';
@@ -48,6 +48,10 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle 
 
     const handlePause = () => {
       const reason = gridIsSolved(grid) ? 'SOLVED' : 'PAUSED';
+      if (reason === 'SOLVED') {
+        // Lock all cells when puzzle is solved
+        setPuzzle(prev => changeCells(() => ({ isLocked: true }))(() => true)(prev));
+      }
       setShowModal(reason);
     };
 
@@ -55,7 +59,7 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle 
     return () => {
       clock.off('stop', handlePause);
     };
-  }, [grid, clock]);
+  }, [grid, clock, setPuzzle]);
 
   // pause clock on blur
   useEffect(() => {
