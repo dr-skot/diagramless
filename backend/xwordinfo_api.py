@@ -54,7 +54,6 @@ def get_puzzle():
                 print(f"Found cached puzzle: {cache_path}")
                 with open(cache_path, 'r') as f:
                     puzzle_data = json.load(f)
-                    print('adding the fucking date')
                     puzzle_data['date'] = date
                 return jsonify(puzzle_data)
 
@@ -66,7 +65,6 @@ def get_puzzle():
                 # Read the saved file and return its contents
                 with open(output_file, 'r') as f:
                     puzzle_data = json.load(f)
-                    print('adding the fucking date')
                     puzzle_data['date'] = date
                 return jsonify(puzzle_data)
             except Exception as e:
