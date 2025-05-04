@@ -39,9 +39,8 @@ interface XWordInfoPuzzle {
 export const puzzleFromXWordInfo = (xwordInfoData: XWordInfoPuzzle): XwdPuzzle | null => {
   if (!xwordInfoData) return null;
 
-  // Convert grid format from XWordInfo (array of strings) to our format
-  // In XWordInfo format, '.' represents black squares
-  const solution = xwordInfoData.grid.join('').split('');
+  // Solution is the grid
+  const solution = xwordInfoData.grid;
 
   // Create empty guesses array
   const guesses = Array(solution.length).fill('-');
