@@ -107,7 +107,6 @@ export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
     const handlePeriodKey = (event: KeyboardEvent) => {
       if (event.key !== '.') return false;
       setPuzzle((prev) => {
-        const cell = currentCell(prev);
         return addToCursor(
           changeCurrentCell(toggleBlack)(prev),
           ...directionVector(prev.cursor.direction)
