@@ -108,16 +108,10 @@ export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
       if (event.key !== '.') return false;
       setPuzzle((prev) => {
         const cell = currentCell(prev);
-        if (cell.isLocked) {
-          showToast("This cell is correct and locked!");
-          return prev;
-        }
-        // TODO curry addToCursor
-        else
-          return addToCursor(
-            changeCurrentCell(toggleBlack)(prev),
-            ...directionVector(prev.cursor.direction)
-          );
+        return addToCursor(
+          changeCurrentCell(toggleBlack)(prev),
+          ...directionVector(prev.cursor.direction)
+        );
       });
       return true;
     };

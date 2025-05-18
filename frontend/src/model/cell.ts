@@ -48,15 +48,13 @@ export const setContent = (cell: XwdCell, content: string) =>
       };
 
 export const toggleBlack = (cell: XwdCell) =>
-  cell.isLocked
-    ? cell
-    : {
+    ({
         ...cell,
         isBlack: !cell.isBlack,
         number: !cell.isBlack ? '' : cell.number,
         isMarkedWrong: false,
         wasRevealed: false,
-      };
+      });
 
 // Checking and revealing
 
