@@ -65,7 +65,7 @@ interface PuzzleData {
   title: string;
   copyright: string;
   note: string;
-  extras: { GRBS?: any; RTBL?: any[]; GEXT?: any[] };
+  extras: { GRBS?: any; RTBL?: any[]; GEXT?: any[], shaded?: boolean[] };
   date: string;
 }
 
@@ -82,6 +82,7 @@ export const puzzleFromData = (data?: PuzzleData): XwdPuzzle | null => {
         isBlack,
         number: `${data.numbers[pos] || ''}`,
         circle: data.extras.GEXT && (data.extras.GEXT[pos] & 0x80) === 0x80,
+        shaded: !!data.extras.shaded?.[pos],
       },
     };
   })(newGrid(data.height, data.width));

@@ -11,7 +11,7 @@ import {
 } from '../model/puzzle';
 import { puzzleToPdf } from '../services/puzzlePdf';
 import { gridIsSolved } from '../model/grid';
-import { checkCell, clearCell, revealCell, revealCircle, revealMeta } from '../model/cell';
+import { checkCell, clearCell, revealCell, revealCircle, revealShaded, revealMeta } from '../model/cell';
 import Clock from '../model/clock';
 import { PuzzleDispatch } from './PuzzleLoader';
 
@@ -64,6 +64,7 @@ export default function PuzzleToolbar({
       puzzle: () => setPuzzle(changeCells(revealCell)()),
       diagram: () => setPuzzle(changeCells(revealMeta)()),
       circles: () => setPuzzle(changeCells(revealCircle)()),
+      shaded: () => setPuzzle(changeCells(revealShaded)()),
     },
     check: {
       square: () => setPuzzle(changeCurrentCell(checkCell)),

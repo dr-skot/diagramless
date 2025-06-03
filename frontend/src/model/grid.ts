@@ -40,7 +40,6 @@ export const someCell = findCell;
 export const everyCell = (callback: XwdCellCallback) => not(findCell(not(callback)));
 
 export const revealDiagram = mapCells(revealMeta);
-export const revealCircles = mapCells((cell) => ({ ...cell, cirle: cell.solution.circle }));
 
 export const gridIsFilled = not(someCell(cellIsEmpty));
 export const gridIsSolved = everyCell(cellIsCorrect);

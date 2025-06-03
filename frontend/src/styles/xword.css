@@ -359,6 +359,16 @@ div.circle {
   border: 1px solid #999;
 }
 
+div.shading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #666;
+  opacity: 0.2;
+}
+
 .puzzle-cell.rebus {
   position: absolute;
   width: unset;

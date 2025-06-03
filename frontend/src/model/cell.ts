@@ -5,6 +5,7 @@ export interface XwdCellSolution {
   content: string;
   number: string;
   circle?: boolean;
+  shaded?: boolean;
 }
 
 export interface XwdCell {
@@ -13,6 +14,7 @@ export interface XwdCell {
   content: string;
   number: string;
   circle: boolean;
+  shaded?: boolean;
   isMarkedWrong: boolean;
   wasRevealed: boolean;
   isLocked: boolean;
@@ -40,21 +42,21 @@ export const setContent = (cell: XwdCell, content: string) =>
   cell.isLocked
     ? cell
     : {
-        ...cell,
-        content,
-        isBlack: false,
-        isMarkedWrong: false,
-        wasRevealed: false,
-      };
+      ...cell,
+      content,
+      isBlack: false,
+      isMarkedWrong: false,
+      wasRevealed: false,
+    };
 
 export const toggleBlack = (cell: XwdCell) =>
-    ({
-        ...cell,
-        isBlack: !cell.isBlack,
-        number: !cell.isBlack ? '' : cell.number,
-        isMarkedWrong: false,
-        wasRevealed: false,
-      });
+({
+  ...cell,
+  isBlack: !cell.isBlack,
+  number: !cell.isBlack ? '' : cell.number,
+  isMarkedWrong: false,
+  wasRevealed: false,
+});
 
 // Checking and revealing
 
@@ -76,12 +78,12 @@ export const revealCell = (cell: XwdCell) =>
   cellIsCorrect(cell)
     ? { ...cell, wasChecked: true, isLocked: true }
     : {
-        ...cell,
-        isBlack: cell.solution.isBlack,
-        content: cell.solution.content,
-        wasRevealed: true,
-        isLocked: true,
-      };
+      ...cell,
+      isBlack: cell.solution.isBlack,
+      content: cell.solution.content,
+      wasRevealed: true,
+      isLocked: true,
+    };
 
 export const clearCell = (cell: XwdCell, options: { number?: boolean } = {}) => ({
   ...emptyCell(cell.solution),
@@ -104,3 +106,9 @@ export const revealCircle = (cell: XwdCell) => ({
   ...cell,
   circle: cell.solution.circle,
 });
+
+export const revealShaded = (cell: XwdCell) => ({
+  ...cell,
+  shaded: cell.solution.shaded,
+});
+

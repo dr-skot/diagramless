@@ -66,7 +66,7 @@ export default function PuzzleCell({ width, cell, cursor, cursorRef, onClick }: 
     };
   }, [width, cell.content]);
 
-  const { content, number, isBlack, circle } = cell;
+  const { content, number, isBlack, circle, shaded } = cell;
   return (
     <div
       className={getClasses(cell, cursor)}
@@ -79,6 +79,7 @@ export default function PuzzleCell({ width, cell, cursor, cursorRef, onClick }: 
       </div>
       <div className="label">{isBlack ? '' : number}</div>
       {circle ? <div className="circle" /> : ''}
+      {shaded ? <div className="shading" /> : ''}
     </div>
   );
 }
