@@ -1,6 +1,7 @@
-import { isEqual } from 'lodash';
+import { inRange, isEqual } from 'lodash';
 import { vectorAdd, vectorFits, vectorMod, vectorSubtract } from '../utils/vector';
-import { XwdDirection } from './grid';
+import { getElement } from '../utils/utils';
+import { XwdDirection, XwdGrid } from './grid';
 
 export type Vector = [number, number];
 
@@ -87,4 +88,48 @@ export function moveOnGridUntil(
     !isEqual(position, start)
   );
   return position;
+}
+
+// --- Word finding ---
+
+export function getWord(grid: XwdGrid, cursor: Vector, direction: Vector) {
+  const [row, col] = cursor;
+  const height = grid.length;
+  if (height === 0) return [];
+  const width = grid[0].length;
+
+  const off = (row: number, col: number) => !inRange(row, 0, height) || !inRange(col, 0, width);
+  const black = (row: number, col: number) => grid[row][col].isBlack;
+  const add = (v1: Vector, v2: Vector): Vector => vectorAdd(v1, v2) as Vector;
+  const subtract = (v1: Vector, v2: Vector): Vector => vectorSubtract(v1, v2) as Vector;
+
+  if (black(row, col)) return null;
+
+  let word = [];
+  for (let pos = cursor; !off(...pos) && !black(...pos); pos = subtract(pos, direction)) {
+    word.unshift(pos);
+  }
+
+  for (
+    let pos = add(cursor, direction);
+    !off(...pos) && !black(...pos);
+    pos = add(pos, direction)
+  ) {
+    word.push(pos);
+  }
+
+  return word;
+}
+
+function isWhiteCell(grid: XwdGrid, pos: Vector) {
+  const cell = getElement(grid, pos);
+  return cell && !cell.isBlack;
+}
+
+export function isWordStart(cursor: Vector, direction: Vector, grid: XwdGrid) {
+  const vector = direction;
+  const oneBack = vectorSubtract(cursor, vector) as Vector,
+    oneForward = vectorAdd(cursor, vector) as Vector,
+    white = (pos: Vector) => isWhiteCell(grid, pos);
+  return white(cursor) && !white(oneBack) && white(oneForward);
 }

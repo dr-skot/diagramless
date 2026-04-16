@@ -1,10 +1,9 @@
 import { gridHeight, gridIsFilled, gridWidth, XwdDirection } from './grid';
-import { ACROSS, DOWN, getWord } from '../services/xwdService';
 import { includesEqual, mod } from '../utils/utils';
 import { findWord, wordNumber, wordStartsAt } from './word';
 import { cellIsEmpty } from './cell';
 import { XwdPuzzle } from './puzzle';
-import { LEFT, RIGHT, moveOnGrid, NEXT_LINE, perp, Vector } from './navigation';
+import { ACROSS, DOWN, LEFT, RIGHT, getWord, moveOnGrid, NEXT_LINE, perp, Vector } from './navigation';
 
 export interface XwdCursor {
   row: number;

@@ -1,4 +1,5 @@
-import { LEFT, RIGHT, UP, DOWN, ACROSS, vectorFor, backVectorFor, perp, isPerpendicular, moveOnGrid, moveOnGridUntil, Vector } from './navigation';
+import { LEFT, RIGHT, UP, DOWN, ACROSS, vectorFor, backVectorFor, perp, isPerpendicular, moveOnGrid, moveOnGridUntil, getWord, isWordStart, Vector } from './navigation';
+import { XwdGrid } from './grid';
 
 describe('direction constants', () => {
   it('LEFT is [0, -1]', () => expect(LEFT).toEqual([0, -1]));
@@ -116,5 +117,82 @@ describe('moveOnGridUntil', () => {
   it('can be invoked as an option using moveOnGrid', () => {
     const options = { until: (position: number[]) => position[1] === 2 };
     expect(moveOnGrid([1, 1], RIGHT, [4, 4], options)).toEqual([1, 2]);
+  });
+});
+
+describe('getWord', () => {
+  it('finds whole row if no blacks', () => {
+    const grid = [
+      [{}, {}, {}],
+      [{}, {}, {}],
+      [{}, {}, {}],
+    ] as XwdGrid;
+    expect(getWord(grid, [1, 1], [0, 1])).toEqual([
+      [1, 0],
+      [1, 1],
+      [1, 2],
+    ]);
+  });
+
+  it('finds whole col if no blacks', () => {
+    const grid = [
+      [{}, {}, {}],
+      [{}, {}, {}],
+      [{}, {}, {}],
+    ] as XwdGrid;
+    expect(getWord(grid, [1, 1], [1, 0])).toEqual([
+      [0, 1],
+      [1, 1],
+      [2, 1],
+    ]);
+  });
+
+  it('finds word from black to end', () => {
+    const grid = [
+      [{}, {}, {}],
+      [{}, { isBlack: true }, {}],
+      [{}, {}, {}],
+      [{}, {}, {}],
+    ] as XwdGrid;
+    expect(getWord(grid, [2, 1], [1, 0])).toEqual([
+      [2, 1],
+      [3, 1],
+    ]);
+  });
+
+  it("doesn't break on empty grid", () => {
+    expect(getWord([], [1, 1], [0, 1])).toEqual([]);
+  });
+});
+
+describe('isWordStart', () => {
+  it('is true at puzzle edge', () => {
+    const grid = [
+      [{}, {}, {}],
+      [{}, {}, {}],
+      [{}, {}, {}],
+    ] as XwdGrid;
+    expect(isWordStart([0, 1], DOWN, grid)).toBe(true);
+    expect(isWordStart([1, 0], ACROSS, grid)).toBe(true);
+  });
+
+  it('is false in midword', () => {
+    const grid = [
+      [{ isBlack: true }, {}, {}],
+      [{}, {}, {}],
+      [{}, {}, {}],
+    ] as XwdGrid;
+    expect(isWordStart([0, 2], ACROSS, grid)).toBe(false);
+    expect(isWordStart([2, 0], DOWN, grid)).toBe(false);
+  });
+
+  it('is true after black square', () => {
+    const grid = [
+      [{ isBlack: true }, {}, {}],
+      [{}, {}, {}],
+      [{}, {}, {}],
+    ] as XwdGrid;
+    expect(isWordStart([0, 1], ACROSS, grid)).toBe(true);
+    expect(isWordStart([1, 0], DOWN, grid)).toBe(true);
   });
 });
