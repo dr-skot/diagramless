@@ -1,59 +1,12 @@
-import { inRange, isEqual, range, repeat } from 'lodash';
-import { vectorAdd, vectorFits, vectorMod, vectorSubtract } from '../utils/vector';
-import { XwdGrid } from '../model/grid';
-import { Vector } from '../model/navigation';
-import { getElement } from '../utils/utils';
+import { range, repeat } from 'lodash';
 import { XwdPuzzle } from '../model/puzzle';
+import { ACROSS, DOWN, Vector } from '../model/navigation';
 import { formatDate } from '../utils/dateUtils';
 
 interface Clue {
   number: string;
   direction: Vector;
   clue: string;
-}
-
-let puzzle;
-
-export const LEFT: Vector = [0, -1],
-  RIGHT: Vector = [0, 1],
-  UP: Vector = [-1, 0],
-  DOWN: Vector = [1, 0],
-  ACROSS = RIGHT;
-
-export const STOP = 'STOP',
-  WRAP_AROUND = 'WRAP_AROUND',
-  NEXT_LINE = 'NEXT_LINE';
-
-export function getWord(grid: XwdGrid, cursor: Vector, direction: Vector) {
-  const [row, col] = cursor;
-  const height = grid.length;
-  if (height === 0) return [];
-  const width = grid[0].length;
-
-  const off = (row: number, col: number) => !inRange(row, 0, height) || !inRange(col, 0, width);
-  const black = (row: number, col: number) => grid[row][col].isBlack;
-  const add = (v1: Vector, v2: Vector): Vector => vectorAdd(v1, v2) as Vector;
-  const subtract = (v1: Vector, v2: Vector): Vector => vectorSubtract(v1, v2) as Vector;
-
-  // no word if black square
-  if (black(row, col)) return null;
-
-  let word = [];
-  // trace backward from cursor until black or off
-  for (let pos = cursor; !off(...pos) && !black(...pos); pos = subtract(pos, direction)) {
-    word.unshift(pos);
-  }
-
-  // trace forward from cursor until black or off
-  for (
-    let pos = add(cursor, direction);
-    !off(...pos) && !black(...pos);
-    pos = add(pos, direction)
-  ) {
-    word.push(pos);
-  }
-
-  return word;
 }
 
 export function puzzleFromFileData(data: ArrayBuffer) {
@@ -144,7 +97,7 @@ export function puzzleFromFileData(data: ArrayBuffer) {
   // <seconds elapsed>,<timer running ? 1 : 0>
   // "42,1" means 42 seconds have elapsed, and timer is running
 
-  puzzle = {
+  let puzzle = {
     label,
     width,
     height,
@@ -215,90 +168,6 @@ function isStartCell(grid: string[], width: number, k: number, direction: Vector
 
 function isBlack(grid: string[], k: number) {
   return grid[k] === ':' || grid[k] === '.';
-}
-
-// returns new cursor position after moving one cell in direction
-// on a grid of a certain size
-//    start: starting position, [row, col]
-//    direction: LEFT | RIGHT | UP | DOWN
-//    dimensions: grid size, [height, width];
-//    options:
-//       atLineEnd: STOP | WRAP_AROUND | NEXT_LINE (default WRAP_AROUND)
-//       onPuzzleWrap: a callback triggered when wrapping past the end of the puzzle
-export interface MoveOnGridOptions {
-  atLineEnd: 'STOP' | 'WRAP_AROUND' | 'NEXT_LINE';
-  onPuzzleWrap: () => void;
-  until: (pos: Vector) => boolean;
-}
-
-export function moveOnGrid(
-  start: Vector,
-  direction: Vector,
-  gridSize: Vector,
-  options: Partial<MoveOnGridOptions> = {}
-): Vector {
-  const { atLineEnd, onPuzzleWrap, until } = options;
-
-  if (until) {
-    return moveOnGridUntil(until, start, direction, gridSize, {
-      atLineEnd,
-      onPuzzleWrap,
-    });
-  }
-
-  const vector = direction; // TODO make direction a string & look up vector
-  const onGrid = (position: Vector) => vectorFits(position, gridSize);
-  const wrap = (position: Vector) => vectorMod(position, gridSize);
-
-  const unwrapped = vectorAdd(start, vector) as Vector;
-  if (onGrid(unwrapped)) return unwrapped;
-  if (atLineEnd === STOP) return start;
-
-  const wrapped = wrap(unwrapped) as Vector;
-  if (atLineEnd !== NEXT_LINE) return wrapped;
-
-  const crossVector = vector.slice().reverse();
-  const lineAdvanced = vectorAdd(wrapped, crossVector) as Vector;
-  if (onGrid(lineAdvanced)) return lineAdvanced;
-
-  const puzzleWrapped = wrap(lineAdvanced);
-  if (onPuzzleWrap) onPuzzleWrap();
-  return puzzleWrapped as Vector;
-}
-
-export function moveOnGridUntil(
-  found: (pos: Vector) => boolean,
-  start: Vector,
-  direction: Vector,
-  gridSize: Vector,
-  options: Partial<MoveOnGridOptions> = {}
-) {
-  let position = start,
-    lastPosition;
-  do {
-    lastPosition = position;
-    position = moveOnGrid(position, direction, gridSize, options);
-  } while (
-    !found(position) && // haven't fulfilled condition
-    !isEqual(position, lastPosition) && // still moving
-    !isEqual(position, start) // not back where we started
-  );
-  return position;
-}
-
-function isWhiteCell(grid: XwdGrid, pos: Vector) {
-  const cell = getElement(grid, pos);
-  return cell && !cell.isBlack;
-}
-
-// returns true if cell at cursor starts a word in direction
-//    grid: a two d array of cells, where black cells have a true property isBlack
-export function isWordStart(cursor: Vector, direction: Vector, grid: XwdGrid) {
-  const vector = direction; // TODO make direction a string & look up vector
-  const oneBack = vectorSubtract(cursor, vector) as Vector,
-    oneForward = vectorAdd(cursor, vector) as Vector,
-    white = (pos: Vector) => isWhiteCell(grid, pos);
-  return white(cursor) && !white(oneBack) && white(oneForward);
 }
 
 export function parseRelatedClues(clue: string) {
