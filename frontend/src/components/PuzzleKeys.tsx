@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
-import { DOWN, LEFT, RIGHT, UP } from '../services/xwdService';
 import { advanceCursorInWord, changeCurrentCell, XwdPuzzle } from '../model/puzzle';
 import {
   addToCursor,
@@ -9,7 +8,7 @@ import {
   XwdCursor,
 } from '../model/cursor';
 import { setContent, toggleBlack } from '../model/cell';
-import {backVectorFor as backVector, isPerpendicular, vectorFor as directionVector, Vector} from '../model/navigation';
+import { DOWN, LEFT, RIGHT, UP, backVectorFor as backVector, isPerpendicular, vectorFor as directionVector, Vector } from '../model/navigation';
 import { useToast } from '../context/ToastContext';
 
 // TODO change number[] to vector here
