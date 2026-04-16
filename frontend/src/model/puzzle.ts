@@ -1,7 +1,8 @@
 import { findCell, mapCells, newGrid, XwdCellCallback, XwdDirection, XwdGrid } from './grid';
 import { currentCell, currentWord, crossingWord, XwdCursor } from './cursor';
 import { enforceSymmetry, getSisterCell, XwdSymmetry } from './symmetry';
-import { parseRelatedClues, puzzleFromFileData } from '../services/xwdService';
+import { parseRelatedClues } from '../services/xwdService';
+import { puzzleFromFileData } from '../parsers/puz';
 import { ACROSS } from './navigation';
 import { getCellsInWord, wordIncludes, wordNumber, XwdLoc } from './word';
 import { XwdCell } from './cell';
