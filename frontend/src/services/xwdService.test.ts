@@ -10,7 +10,7 @@ import {
 import { UP, DOWN, LEFT, RIGHT, ACROSS } from './xwdService';
 import { STOP, NEXT_LINE } from './xwdService';
 import { XwdGrid } from '../model/grid';
-import { Vector } from '../model/direction';
+import { Vector } from '../model/navigation';
 
 describe('getWord', () => {
   it('finds whole row if no blacks', () => {

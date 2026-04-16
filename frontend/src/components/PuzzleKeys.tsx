@@ -9,7 +9,7 @@ import {
   XwdCursor,
 } from '../model/cursor';
 import { setContent, toggleBlack } from '../model/cell';
-import {backVector, isPerpendicular, directionVector, Vector} from '../model/direction';
+import {backVectorFor as backVector, isPerpendicular, vectorFor as directionVector, Vector} from '../model/navigation';
 import { useToast } from '../context/ToastContext';
 
 // TODO change number[] to vector here

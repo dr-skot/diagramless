@@ -4,7 +4,7 @@ import { includesEqual, mod } from '../utils/utils';
 import { findWord, wordNumber, wordStartsAt } from './word';
 import { cellIsEmpty } from './cell';
 import { XwdPuzzle } from './puzzle';
-import { perp, Vector } from './direction';
+import { perp, Vector } from './navigation';
 
 export interface XwdCursor {
   row: number;

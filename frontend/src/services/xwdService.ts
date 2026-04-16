@@ -1,7 +1,7 @@
 import { inRange, isEqual, range, repeat } from 'lodash';
 import { vectorAdd, vectorFits, vectorMod, vectorSubtract } from '../utils/vector';
 import { XwdGrid } from '../model/grid';
-import { Vector } from '../model/direction';
+import { Vector } from '../model/navigation';
 import { getElement } from '../utils/utils';
 import { XwdPuzzle } from '../model/puzzle';
 import { formatDate } from '../utils/dateUtils';
