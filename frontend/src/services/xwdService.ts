@@ -17,19 +17,17 @@ export function parseRelatedClues(clue: string) {
 }
 
 export function parseTitle(title: string, dateStr?: string) {
-  let date = dateStr ? new Date(dateStr) : undefined;
-  if (date && isNaN(date.getTime())) date = undefined;
-
   // Handle different title formats, including "New York Times, Tuesday, April 26, 2022"
   let titlePieces = title.match(/(?:NY|New York) Times,\s+(\w+,\s+\w+\s+\d+,\s+\d+)(.*)/);
   if (!titlePieces || titlePieces.length < 2) {
-    // Try another format that might be used
     titlePieces = title.match(/(\w+,\s+\w+\s+\d+,\s+\d+)(.*)/);
   }
   dateStr ||= titlePieces?.[1] || '';
 
-  // For standard NYT format (just date), use "The Crossword"
-  const actualTitle = titlePieces ? titlePieces[2]?.trim() || "The Crossword" : title;
+  let date = dateStr ? new Date(dateStr) : undefined;
+  if (date && isNaN(date.getTime())) date = undefined;
+
+  const actualTitle = titlePieces ? titlePieces[2]?.trim() || "The Daily Crossword" : title;
 
   const dayOfWeek = date?.toLocaleDateString('en-US', { weekday: 'long' }) || '';
   const monthDayYear =
