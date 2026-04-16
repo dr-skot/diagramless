@@ -3,7 +3,7 @@ import { includesEqual, mod } from '../utils/utils';
 import { findWord, wordNumber, wordStartsAt } from './word';
 import { cellIsEmpty } from './cell';
 import { XwdPuzzle } from './puzzle';
-import { ACROSS, DOWN, LEFT, RIGHT, getWord, moveOnGrid, NEXT_LINE, perp, Vector } from './navigation';
+import { LEFT, RIGHT, getWord, moveOnGrid, NEXT_LINE, perp, vectorFor, Vector } from './navigation';
 
 export interface XwdCursor {
   row: number;
@@ -90,7 +90,7 @@ export const goToNextWord = (puzzle: XwdPuzzle, options: NextWordOptions = {}): 
     until: ([row, col]: number[]) =>
       wordStartsAt(grid, row, col, eitherDirection ? undefined : direction),
   });
-  let vector = cursor.direction === 'across' ? ACROSS : DOWN;
+  let vector = vectorFor(cursor.direction);
   const newWord = getWord(grid, startOfWord, vector);
   if (!newWord) return puzzle;
   const emptyCell = newWord?.find(([i, j]: number[]) => cellIsEmpty(grid[i][j]));

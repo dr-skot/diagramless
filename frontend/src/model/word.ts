@@ -1,4 +1,4 @@
-import { ACROSS, DOWN, getWord, isWordStart } from './navigation';
+import { getWord, isWordStart, vectorFor } from './navigation';
 import { mapCells, XwdDirection, XwdGrid } from './grid';
 import { XwdWordLoc } from './puzzle';
 
@@ -6,7 +6,7 @@ export type XwdLoc = [number, number];
 export type XwdWord = XwdLoc[];
 
 export const findWord = (grid: XwdGrid, row: number, col: number, direction: XwdDirection) =>
-  getWord(grid, [row, col], direction === 'across' ? ACROSS : DOWN) as XwdWord;
+  getWord(grid, [row, col], vectorFor(direction)) as XwdWord;
 
 export const wordIncludes = (row: number, col: number, word: XwdWord) =>
   word.some(([i, j]) => i === row && j === col);
@@ -34,7 +34,7 @@ export const wordStartsAt = (
   direction?: XwdDirection
 ): boolean =>
   direction
-    ? isWordStart([row, col], direction === 'across' ? ACROSS : DOWN, grid)
+    ? isWordStart([row, col], vectorFor(direction), grid)
     : wordStartsAt(grid, row, col, 'across') || wordStartsAt(grid, row, col, 'down');
 
 export const getWordStarts = (grid: XwdGrid, number: string, direction: XwdDirection) => {
