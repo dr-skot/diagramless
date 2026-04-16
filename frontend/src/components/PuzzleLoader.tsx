@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
-import { puzzleFromFile, XwdPuzzle } from '../model/puzzle';
+import { migratePuzzle, puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../utils/utils';
 import Clock from '../model/clock';
 import { gridIsSolved } from '../model/grid';
@@ -13,7 +13,7 @@ import { formatDate, isValidMdy } from '../utils/dateUtils';
 import './PuzzleLoader.css';
 import { getPuzzleDate } from '../services/xwdService';
 
-const loadPuzzle = () => tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE);
+const loadPuzzle = () => migratePuzzle(tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE));
 
 const storePuzzle = (puzzle: XwdPuzzle) => {
   localStorage.setItem('xword2', JSON.stringify(puzzle));

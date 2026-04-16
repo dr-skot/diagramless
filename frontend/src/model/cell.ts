@@ -10,7 +10,8 @@ export interface XwdCellSolution {
 
 export interface XwdCell {
   solution: XwdCellSolution;
-  isBlack: boolean | XwdSymmetry;
+  isBlack: boolean;
+  blackedBy?: XwdSymmetry;
   content: string;
   number: string;
   circle: boolean;

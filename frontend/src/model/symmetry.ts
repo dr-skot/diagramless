@@ -16,12 +16,12 @@ export const getSisterCell = (grid: XwdGrid, row: number, col: number, symmetry:
 };
 
 export const enforceSymmetry = (grid: XwdGrid, symmetryType: XwdSymmetry) =>
-  mapCells((cell, { row, col }) =>
-    // ignore cells set black by enforce symmetry by requiring true not truthy
-    !cell.isBlack && getSisterCell(grid, row, col, symmetryType)?.isBlack === true
-      ? { ...cell, isBlack: symmetryType }
-      : cell
-  )(grid);
+  mapCells((cell, { row, col }) => {
+    const sister = getSisterCell(grid, row, col, symmetryType);
+    return !cell.isBlack && sister?.isBlack && !sister?.blackedBy
+      ? { ...cell, isBlack: true, blackedBy: symmetryType }
+      : cell;
+  })(grid);
 
 export const undoSymmetry = (grid: XwdGrid, symmetryType: XwdSymmetry) =>
-  mapCells((cell) => (cell.isBlack === symmetryType ? { ...cell, isBlack: false } : cell))(grid);
+  mapCells((cell) => (cell.blackedBy === symmetryType ? { ...cell, isBlack: false, blackedBy: undefined } : cell))(grid);

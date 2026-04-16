@@ -31,6 +31,14 @@ describe('enforceSymmetry', () => {
     grid = enforceSymmetry(grid, 'left-right');
     expect(grid[2][6].isBlack).toBeTruthy();
   });
+  it('sets isBlack to boolean true and tracks origin in blackedBy', () => {
+    let grid = newGrid(10, 12);
+    grid[2][5].isBlack = true;
+    grid = enforceSymmetry(grid, 'diagonal');
+    expect(grid[7][6].isBlack).toBe(true);
+    expect(grid[7][6].blackedBy).toBe('diagonal');
+    expect(grid[2][5].blackedBy).toBeUndefined();
+  });
 });
 
 describe('undoSymmetry', () => {

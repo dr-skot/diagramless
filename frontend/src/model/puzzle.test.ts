@@ -1,7 +1,7 @@
 import { puzzleData as plainData } from '../../tests/assets/plain-Jun2521.data';
 import { puzzleData as dataWithNote } from '../../tests/assets/note-Jul0121.data';
 import { puzzleData as dataWithCircles } from '../../tests/assets/circles-Jun2221.data';
-import { changeCurrentCell, puzzleFromData, setSymmetry } from './puzzle';
+import { changeCurrentCell, migratePuzzle, puzzleFromData, setSymmetry } from './puzzle';
 import { currentCell } from './cursor';
 import { emptyCell } from './cell';
 
@@ -65,6 +65,29 @@ describe('changeCurrentCell', () => {
     // @ts-ignore
     let puzzle = changeCurrentCell({ content: '%' })(getPuzzle(plainData));
     expect(currentCell(puzzle).content).toBe('%');
+  });
+});
+
+describe('migratePuzzle', () => {
+  it('converts legacy isBlack strings to boolean + blackedBy', () => {
+    const puzzle = getPuzzle(plainData);
+    // Simulate legacy data where symmetry wrote strings into isBlack
+    const legacyGrid = puzzle.grid.map((row, r) =>
+      row.map((cell, c) =>
+        r === 0 && c === 0 ? { ...cell, isBlack: 'diagonal' as any } : cell
+      )
+    );
+    const legacyPuzzle = { ...puzzle, grid: legacyGrid };
+    const migrated = migratePuzzle(legacyPuzzle);
+    expect(migrated.grid[0][0].isBlack).toBe(true);
+    expect(migrated.grid[0][0].blackedBy).toBe('diagonal');
+  });
+
+  it('leaves clean boolean isBlack untouched', () => {
+    const puzzle = getPuzzle(plainData);
+    const migrated = migratePuzzle(puzzle);
+    expect(migrated.grid[0][0].isBlack).toBe(puzzle.grid[0][0].isBlack);
+    expect(migrated.grid[0][0].blackedBy).toBeUndefined();
   });
 });
 

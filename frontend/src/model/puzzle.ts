@@ -135,7 +135,7 @@ export const gridReplaceCell =
     const newSister =
       !sister || !sister.isBlack === !newCell.isBlack
         ? sister
-        : { ...sister, isBlack: newCell.isBlack && symmetry };
+        : { ...sister, isBlack: !!newCell.isBlack, blackedBy: newCell.isBlack ? symmetry : undefined };
     return mapCells((cell, index) =>
       index.row === row && index.col === col ? newCell : cell === sister ? newSister : cell
     )(grid);
@@ -195,6 +195,16 @@ export function advanceCursorInWord(puzzle: XwdPuzzle, findEmpty: boolean) {
     cursor: { ...puzzle.cursor, row: i, col: j },
   };
 }
+
+export const migratePuzzle = (puzzle: XwdPuzzle): XwdPuzzle => ({
+  ...puzzle,
+  grid: mapCells((cell) => {
+    if (typeof cell.isBlack === 'string') {
+      return { ...cell, isBlack: true, blackedBy: cell.isBlack as any };
+    }
+    return cell;
+  })(puzzle.grid),
+});
 
 export const applySymmetry = (puzzle: XwdPuzzle, symmetryType = puzzle.symmetry) =>
   symmetryType ? { ...puzzle, grid: enforceSymmetry(puzzle.grid, symmetryType) } : puzzle;
