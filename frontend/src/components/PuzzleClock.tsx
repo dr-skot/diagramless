@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import Clock from '../model/clock';
 
-// formats the clock string
-function clockString(ms) {
+function clockString(ms: number) {
   const totalSeconds = Math.floor((ms || 0) / 1000),
     secs = totalSeconds % 60,
     mins = Math.floor(totalSeconds / 60) % 60,
     hrs = Math.floor(totalSeconds / 3600),
-    nn = (n) => (n < 10 ? '0' : '') + n;
+    nn = (n: number) => (n < 10 ? '0' : '') + n;
   return [hrs, ...[mins, secs].map(nn)].join(':');
 }
 
-export default function PuzzleClock({ clock, disabled }) {
+interface PuzzleClockProps {
+  clock: Clock;
+  disabled: boolean;
+}
+
+export default function PuzzleClock({ clock, disabled }: PuzzleClockProps) {
   const [time, setTime] = useState(0);
 
   useEffect(() => {

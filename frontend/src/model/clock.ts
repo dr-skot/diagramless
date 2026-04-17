@@ -1,21 +1,29 @@
-const EventEmitter = require('events');
+import { EventEmitter } from 'events';
 
-class Clock extends EventEmitter {
+export default class Clock extends EventEmitter {
+  isRunning: boolean;
+  private startTime: number;
+  private pauses: number;
+  private pauseStarted: number;
+
   constructor(time = 0) {
     super();
-    this.setTime(time);
     this.isRunning = false;
+    this.startTime = 0;
+    this.pauses = 0;
+    this.pauseStarted = 0;
+    this.setTime(time);
   }
 
-  setTime = (time) => {
+  setTime = (time: number) => {
     const now = Date.now();
     this.startTime = now - time;
     this.pauses = 0;
-    this.pauseStarted = now; // ignored if isRunning
+    this.pauseStarted = now;
     this.emit('set', time);
   };
 
-  getTime = () => {
+  getTime = (): number => {
     const now = Date.now();
     const currentPause = this.isRunning ? 0 : now - this.pauseStarted;
     return now - this.startTime - this.pauses - currentPause;
@@ -41,5 +49,3 @@ class Clock extends EventEmitter {
     this.setTime(0);
   };
 }
-
-export default Clock;
