@@ -1,3 +1,5 @@
+import { XwdPuzzle } from './puzzle';
+
 export const DEFAULT_PUZZLE = {
   width: 15,
   height: 15,
