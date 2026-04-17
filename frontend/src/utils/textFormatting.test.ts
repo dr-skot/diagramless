@@ -3,7 +3,7 @@ import { parseTitle, parseAuthor } from './textFormatting';
 describe('parseTitle', () => {
   it('handles simple cases', () => {
     expect(parseTitle('New York Times, Tuesday, April 26, 2022')).toEqual({
-      title: 'The Daily Crossword',
+      title: 'The Crossword',
       date: new Date('4/26/2022'),
       dayOfWeek: 'Tuesday',
       monthDayYear: 'April 26, 2022',

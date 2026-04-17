@@ -9,7 +9,7 @@ export function parseTitle(title: string, dateStr?: string) {
   let date = dateStr ? new Date(dateStr) : undefined;
   if (date && isNaN(date.getTime())) date = undefined;
 
-  const actualTitle = titlePieces ? titlePieces[2]?.trim() || "The Daily Crossword" : title;
+  const actualTitle = titlePieces ? titlePieces[2]?.trim() || "The Crossword" : title;
 
   const dayOfWeek = date?.toLocaleDateString('en-US', { weekday: 'long' }) || '';
   const monthDayYear =

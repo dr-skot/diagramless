@@ -1,7 +1,106 @@
 * {
   box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
   font-family: Arial, sans-serif;
   font-size: 11px;
+}
+
+a,
+abbr,
+acronym,
+address,
+applet,
+article,
+aside,
+audio,
+b,
+big,
+blockquote,
+body,
+canvas,
+caption,
+center,
+cite,
+code,
+dd,
+del,
+details,
+dfn,
+div,
+dl,
+dt,
+em,
+embed,
+fieldset,
+figcaption,
+figure,
+footer,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+header,
+hgroup,
+html,
+i,
+iframe,
+img,
+ins,
+kbd,
+label,
+legend,
+li,
+mark,
+menu,
+nav,
+object,
+ol,
+output,
+p,
+pre,
+q,
+ruby,
+s,
+samp,
+section,
+small,
+span,
+strike,
+strong,
+sub,
+summary,
+sup,
+table,
+tbody,
+td,
+tfoot,
+th,
+thead,
+time,
+tr,
+tt,
+u,
+ul,
+var,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  vertical-align: baseline;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+table {
+  border-collapse: collapse;
 }
 
 .grid {
@@ -53,6 +152,7 @@
   background-color: white;
 }
 
+
 .puzzle-cell.black {
   background-color: black;
 }
@@ -94,8 +194,28 @@
 .shadow {
   background-color: #dcebf8;
 }
+.selected {
+  background-color: lightgreen;
+}
+.selected.black {
+  background-color: #2d5a2d;
+}
+.good {
+  background-color: lightgreen;
+}
+.bad {
+  background-color: red;
+}
 .puzzle-cell.cursor {
   background-color: #fbd428;
+}
+
+.help p {
+  margin: 0;
+}
+
+.titles p {
+  margin: 0;
 }
 
 .toolbar-wrapper {
@@ -103,9 +223,14 @@
 }
 
 .layout-puzzle {
+  -webkit-box-align: start;
+  -webkit-align-items: flex-start;
+  -ms-flex-align: start;
   align-items: flex-start;
   height: 100vh;
   max-height: 660px;
+  -webkit-justify-content: space-around;
+  -ms-flex-pack: distribute;
   justify-content: space-around;
   margin: auto;
   max-width: 1132px;
@@ -115,6 +240,9 @@
 
 .layout-puzzle,
 .layout-puzzle > * {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
 }
 
@@ -124,12 +252,22 @@
 }
 
 .layout-cluebar-and-board {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
   flex-direction: column;
 }
 
 .cluebar {
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
   background: #dcefff;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
   font-size: 1.2em;
   margin-bottom: 10px;
@@ -149,10 +287,66 @@
   text-align: left;
 }
 
+.puzzle-board {
+  width: 100%;
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  position: relative;
+}
+
 .cluelist-wrapper {
   font: 14px franklin;
   width: 47%;
   height: 100%;
+}
+
+.clue-list-title {
+  border-bottom: 1px solid #e6e6e6;
+  content: attr(name);
+  font-weight: 700;
+  line-height: 2;
+  text-transform: uppercase;
+}
+
+.clue-list-list {
+  height: calc(100% - 30px);
+  overflow-y: scroll;
+}
+
+.clue-list-item {
+  border-left: 10px solid transparent;
+  cursor: pointer;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 5px 1px;
+}
+
+.clue-number {
+  font-weight: 700;
+  margin-right: 10px;
+  text-align: right;
+  min-width: 24px;
+  width: 24px;
+}
+
+.clue-text {
+  margin-left: 5px;
+}
+
+.clue-filled {
+  color: gray;
+}
+
+.clue-selected {
+  background-color: #a7d8ff;
+}
+
+.clue-highlighted {
+  border-left-color: #a7d8ff;
 }
 
 div.circle {
@@ -189,6 +383,23 @@ div.shading {
   outline: none;
 }
 
+.empty-dropzone {
+  border: 2px dashed #bbb;
+  border-radius: 5px;
+  padding: 25px;
+  text-align: center;
+  font: 20pt bold;
+  color: #bbb;
+  margin-bottom: 20px;
+}
+
+.file-drop-demo {
+  border: 1px solid black;
+  width: 600px;
+  color: black;
+  padding: 20px;
+}
+
 .modal-dimmer {
   position: fixed;
   top: 0;
@@ -198,8 +409,43 @@ div.shading {
   background: rgba(0, 0, 0, 0.6);
 }
 
+.modal-main {
+  position: fixed;
+  background: white;
+  max-height: 95%;
+  min-height: 300px;
+  max-width: 500px;
+  min-width: 300px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 4px;
+  -webkit-box-shadow: 0 3px 12px -1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 12px -1px rgba(0, 0, 0, 0.3);
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  outline: none;
+  padding: 5%;
+  pointer-events: visible;
+}
+
 .display-block {
   display: block;
+}
+
+.display-none {
+  visibility: hidden;
+}
+
+/* TODO this should be relative to container, not viewport */
+.no-puzzle {
+  width: 90vw;
+  margin: 5vh 5vw;
+  height: 90vh;
+  padding-top: 42vh;
+  border: 1px dashed black;
+  text-align: center;
+  font-family: Arial;
 }
 
 .Clue-text em, .cluebar-text em, .Clue-text i, .cluebar-text i {

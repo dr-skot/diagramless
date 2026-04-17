@@ -36,17 +36,16 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle 
   // respond to fill-state changes: start/stop clock, lock cells, show modals
   useEffect(() => {
     const newFillState = getFillState(grid);
-    if (newFillState === fillState) return;
-    setFillState(newFillState);
     if (newFillState === 'solved') {
       clock.stop();
       setPuzzle(prev => changeCells(() => ({ isLocked: true }))(() => true)(prev));
-      setShowModal('SOLVED');
+      if (newFillState !== fillState) setShowModal('SOLVED');
     } else if (newFillState === 'filled') {
-      setShowModal('FILLED');
+      if (newFillState !== fillState) setShowModal('FILLED');
     } else {
       clock.start();
     }
+    setFillState(newFillState);
   }, [grid, fillState, clock, setPuzzle]);
 
   // show PAUSED modal on clock stop (from blur timeout)

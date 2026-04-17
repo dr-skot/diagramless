@@ -1,5 +1,5 @@
 import { times } from 'lodash';
-import { cellIsCorrect, cellIsEmpty, emptyCell, revealMeta, XwdCell } from './cell';
+import { cellIsCorrect, cellIsEmpty, emptyCell, XwdCell } from './cell';
 import { not } from '../utils/utils';
 
 export type XwdDirection = 'across' | 'down';
@@ -38,8 +38,6 @@ export const findCell = (callback: XwdCellCallback) => (grid: XwdGrid) => {
 
 export const someCell = findCell;
 export const everyCell = (callback: XwdCellCallback) => not(findCell(not(callback)));
-
-export const revealDiagram = mapCells(revealMeta);
 
 export const gridIsFilled = not(someCell(cellIsEmpty));
 export const gridIsSolved = everyCell(cellIsCorrect);
