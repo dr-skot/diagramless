@@ -33,39 +33,37 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle 
   const [fillState, setFillState] = useState<XwdFillState>(getFillState(puzzle.grid));
   const { grid } = puzzle;
 
-  // show modal when puzzle is filled
+  // respond to fill-state changes: start/stop clock, lock cells, show modals
   useEffect(() => {
     const newFillState = getFillState(grid);
-    if (newFillState !== fillState) {
-      setFillState(newFillState);
-      if (newFillState === 'filled') setShowModal('FILLED');
+    if (newFillState === fillState) return;
+    setFillState(newFillState);
+    if (newFillState === 'solved') {
+      clock.stop();
+      setPuzzle(prev => changeCells(() => ({ isLocked: true }))(() => true)(prev));
+      setShowModal('SOLVED');
+    } else if (newFillState === 'filled') {
+      setShowModal('FILLED');
+    } else {
+      clock.start();
     }
-  }, [grid, fillState]);
+  }, [grid, fillState, clock, setPuzzle]);
 
-  // show modal when clock pauses
+  // show PAUSED modal on clock stop (from blur timeout)
   useEffect(() => {
-    if (!grid) return;
-
     const handlePause = () => {
-      const reason = gridIsSolved(grid) ? 'SOLVED' : 'PAUSED';
-      if (reason === 'SOLVED') {
-        // Lock all cells when puzzle is solved
-        setPuzzle(prev => changeCells(() => ({ isLocked: true }))(() => true)(prev));
-      }
-      setShowModal(reason);
+      if (!gridIsSolved(grid)) setShowModal('PAUSED');
     };
-
     clock.on('stop', handlePause);
-    return () => {
-      clock.off('stop', handlePause);
-    };
-  }, [grid, clock, setPuzzle]);
+    return () => { clock.off('stop', handlePause); };
+  }, [grid, clock]);
 
   // pause clock on blur
   useEffect(() => {
+    const solved = fillState === 'solved';
     let blurTimeout = 0;
     const handleBlur = () => {
-      if (!gridIsSolved(puzzle.grid)) blurTimeout = window.setTimeout(clock.stop, BLUR_INTERVAL);
+      if (!solved) blurTimeout = window.setTimeout(clock.stop, BLUR_INTERVAL);
     };
     const handleFocus = () => window.clearTimeout(blurTimeout);
     window.addEventListener('blur', handleBlur);
@@ -74,7 +72,7 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle 
       window.removeEventListener('blur', handleBlur);
       window.removeEventListener('focus', handleFocus);
     };
-  });
+  }, [fillState, clock]);
 
   const closeModal = (reason: ModalReason) => {
     setShowModal(null);

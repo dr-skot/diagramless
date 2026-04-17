@@ -3,7 +3,6 @@ import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
 import { migratePuzzle, puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../utils/utils';
 import Clock from '../model/clock';
-import { gridIsSolved } from '../model/grid';
 import Puzzle from './Puzzle';
 import { handleDroppedFile } from '../utils/dom';
 import { numberPuzzle } from '../model/numbering';
@@ -71,7 +70,6 @@ export default function PuzzleLoader() {
   // Save puzzle before unloading
   useEffect(() => {
     const savePuzzle = () => storePuzzle({ ...puzzle, time: clock.getTime() });
-    (gridIsSolved(puzzle.grid) ? clock.stop : clock.start)();
     savePuzzle();
     window.addEventListener('beforeunload', savePuzzle);
     return () => window.removeEventListener('beforeunload', savePuzzle);
