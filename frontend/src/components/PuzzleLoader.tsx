@@ -10,7 +10,7 @@ import { LoadPuzzleModal } from './LoadPuzzleModal';
 import { fetchPuzzle } from '../services/xwordInfoService';
 import { formatDate, isValidMdy } from '../utils/dateUtils';
 import './PuzzleLoader.css';
-import { getPuzzleDate } from '../services/xwdService';
+import { getPuzzleDate } from '../model/puzzle';
 
 const loadPuzzle = () => migratePuzzle(tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE));
 

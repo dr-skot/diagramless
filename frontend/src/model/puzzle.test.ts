@@ -1,7 +1,8 @@
 import { puzzleData as plainData } from '../../tests/assets/plain-Jun2521.data';
 import { puzzleData as dataWithNote } from '../../tests/assets/note-Jul0121.data';
 import { puzzleData as dataWithCircles } from '../../tests/assets/circles-Jun2221.data';
-import { changeCurrentCell, migratePuzzle, puzzleFromData, setSymmetry } from './puzzle';
+import { changeCurrentCell, migratePuzzle, parseRelatedClues, puzzleFromData, setSymmetry } from './puzzle';
+import { DOWN, ACROSS } from './navigation';
 import { currentCell } from './cursor';
 import { emptyCell } from './cell';
 
@@ -110,5 +111,35 @@ describe('when symmetry is set', () => {
     puzzle = changeCurrentCell({ isBlack: false })(puzzle);
     expect(puzzle.grid[0][0].isBlack).toBeFalsy();
     expect(puzzle.grid[14][14].isBlack).toBeFalsy();
+  });
+});
+
+describe('parseRelatedClues', () => {
+  it('finds simple cases', () => {
+    expect(parseRelatedClues('blah blah 18-Down blah 25-Across blarf')).toEqual([
+      { direction: DOWN, number: '18' },
+      { direction: ACROSS, number: '25' },
+    ]);
+  });
+  it('finds complicated cases', () => {
+    expect(parseRelatedClues('blah blah 18-, 20-, and 25-Across blarf')).toEqual([
+      { direction: ACROSS, number: '18' },
+      { direction: ACROSS, number: '20' },
+      { direction: ACROSS, number: '25' },
+    ]);
+  });
+  it("doesn't choke on nothing", () => {
+    expect(parseRelatedClues('blah blah blah')).toEqual([]);
+  });
+  it('correctly parses a clue with a slash', () => {
+    const clue =
+      "Slogan that celebrates a young woman's confidence and independence ... or a hint to 17-, 24-, 40-/41- and 49-Across";
+    expect(parseRelatedClues(clue)).toEqual([
+      { direction: ACROSS, number: '17' },
+      { direction: ACROSS, number: '24' },
+      { direction: ACROSS, number: '40' },
+      { direction: ACROSS, number: '41' },
+      { direction: ACROSS, number: '49' },
+    ]);
   });
 });

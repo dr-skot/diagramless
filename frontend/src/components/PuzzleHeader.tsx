@@ -1,4 +1,4 @@
-import { parseAuthor, parseTitle } from '../services/xwdService';
+import { parseAuthor, parseTitle } from '../utils/textFormatting';
 import { sanitizeHtml } from '../utils/sanitize';
 
 interface PuzzleHeaderProps {

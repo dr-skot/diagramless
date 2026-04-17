@@ -1,9 +1,10 @@
 import { findCell, mapCells, newGrid, XwdCellCallback, XwdDirection, XwdGrid } from './grid';
 import { currentCell, currentWord, crossingWord, XwdCursor } from './cursor';
 import { enforceSymmetry, getSisterCell, XwdSymmetry } from './symmetry';
-import { parseRelatedClues } from '../services/xwdService';
 import { puzzleFromFileData } from '../parsers/puz';
-import { ACROSS } from './navigation';
+import { ACROSS, DOWN, Vector } from './navigation';
+import { formatDate } from '../utils/dateUtils';
+import { parseTitle } from '../utils/textFormatting';
 import { getCellsInWord, wordIncludes, wordNumber, XwdLoc } from './word';
 import { XwdCell } from './cell';
 import { nextOrLast, wrapFindIndex } from '../utils/utils';
@@ -233,3 +234,29 @@ export const relatedCells = (puzzle: XwdPuzzle): XwdLoc[] =>
   getRelatedClues(puzzle)
     .map((locator) => getCellsInWord(puzzle.grid, locator))
     .flat();
+
+/* text parsing */
+
+export function parseRelatedClues(clue: string) {
+  const regex = /(\d+-(,|\/|,? and|,? or) ?)*\d+-(Across|Down)/gi;
+  const matches = clue.match(regex) || [];
+  return matches
+    .map((match) => {
+      const numbers = match.match(/\d+/g);
+      const direction = match.match(/across/i) ? ACROSS : DOWN;
+      return numbers!.map((number) => {
+        return { number, direction };
+      });
+    })
+    .flat();
+}
+
+export function getPuzzleDate(puzzle: XwdPuzzle) {
+  let date = '';
+  if (puzzle.date) return puzzle.date;
+  if (puzzle.title) {
+    const titleDate = parseTitle(puzzle.title).date;
+    if (titleDate) date = formatDate('MM/DD/YYYY', titleDate);
+  }
+  return date;
+}

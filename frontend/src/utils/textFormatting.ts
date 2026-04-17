@@ -1,21 +1,3 @@
-import { XwdPuzzle } from '../model/puzzle';
-import { ACROSS, DOWN, Vector } from '../model/navigation';
-import { formatDate } from '../utils/dateUtils';
-
-export function parseRelatedClues(clue: string) {
-  const regex = /(\d+-(,|\/|,? and|,? or) ?)*\d+-(Across|Down)/gi;
-  const matches = clue.match(regex) || [];
-  return matches
-    .map((match) => {
-      const numbers = match.match(/\d+/g);
-      const direction = match.match(/across/i) ? ACROSS : DOWN;
-      return numbers!.map((number) => {
-        return { number, direction };
-      });
-    })
-    .flat();
-}
-
 export function parseTitle(title: string, dateStr?: string) {
   // Handle different title formats, including "New York Times, Tuesday, April 26, 2022"
   let titlePieces = title.match(/(?:NY|New York) Times,\s+(\w+,\s+\w+\s+\d+,\s+\d+)(.*)/);
@@ -41,19 +23,8 @@ export function parseTitle(title: string, dateStr?: string) {
 }
 
 export function parseAuthor(author: string) {
-  // Parse author and editor
   const authorParts = author?.split(' / ') || [];
   const maker = authorParts[0]?.toUpperCase() || 'Unknown';
   const editor = authorParts[1]?.toUpperCase() || '';
   return { maker, editor };
-}
-
-export function getPuzzleDate(puzzle: XwdPuzzle) {
-  let date = '';
-  if (puzzle.date) return puzzle.date;
-  if (puzzle.title) {
-    const titleDate = parseTitle(puzzle.title).date;
-    if (titleDate) date = formatDate('MM/DD/YYYY', titleDate);
-  }
-  return date;
 }
