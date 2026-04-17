@@ -1,17 +1,17 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
-import { advanceCursorInWord, changeCurrentCell, XwdPuzzle } from '../model/puzzle';
-import {
-  addToCursor,
-  currentCell,
-  goToNextWord,
-  toggleDirection,
-  XwdCursor,
-} from '../model/cursor';
-import { setContent, toggleBlack } from '../model/cell';
-import { DOWN, LEFT, RIGHT, UP, backVectorFor as backVector, isPerpendicular, vectorFor as directionVector, Vector } from '../model/navigation';
+import { XwdPuzzle } from '../model/puzzle';
+import { currentCell, XwdCursor } from '../model/cursor';
+import { DOWN, LEFT, RIGHT, UP, Vector } from '../model/navigation';
 import { useToast } from '../context/ToastContext';
+import {
+  handleArrow,
+  handleTab,
+  handleBackspace,
+  handleAlpha,
+  handlePeriod,
+  handleDigit,
+} from '../model/keyActions';
 
-// TODO change number[] to vector here
 const arrowVectors: Record<string, Vector> = {
   ArrowLeft: LEFT,
   ArrowUp: UP,
@@ -26,7 +26,7 @@ interface PuzzleKeysProps {
 
 export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
   const { showToast } = useToast();
-  
+
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
@@ -38,104 +38,68 @@ export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
   }, [onRebus]);
 
   useEffect(() => {
-    // the cursor if we're editing the cell number; otherwise null
     let editingNumber: XwdCursor | null = null;
 
     const handleArrowKey = (event: KeyboardEvent) => {
       const vector = arrowVectors[event.key];
       if (!vector) return false;
-      setPuzzle((prev) =>
-        isPerpendicular(prev.cursor.direction, vector)
-          ? { ...prev, cursor: toggleDirection(prev.cursor) }
-          : addToCursor(prev, vector[0], vector[1])
-      );
+      setPuzzle((prev) => handleArrow(vector)(prev));
       return true;
     };
 
     const handleTabKey = (event: KeyboardEvent) => {
       if (event.key !== 'Tab') return false;
-      setPuzzle((prev) =>
-        goToNextWord(prev, {
-          // eitherDirection: event.altKey, // TODO support this (it's tricker than it looks)
-          backward: event.shiftKey,
-          skipFilled: true,
-        })
-      );
+      setPuzzle((prev) => handleTab({ backward: event.shiftKey })(prev));
       return true;
     };
 
     const handleBackspaceKey = (event: KeyboardEvent) => {
       if (event.key !== 'Backspace') return false;
       setPuzzle((prev) => {
-        const cell = currentCell(prev);
-        if (prev.cursor === editingNumber) {
-          const newPuzzle = changeCurrentCell((c) => ({ number: c.number.slice(0, -1) }))(prev);
+        const wasEditing = prev.cursor === editingNumber;
+        if (wasEditing) {
+          const newPuzzle = handleBackspace(true)(prev);
           editingNumber = newPuzzle.cursor;
           return newPuzzle;
-        } else if (cell.content && !cell.isBlack && !cell.isLocked) {
-          return changeCurrentCell(() => ({ content: '' }))(prev);
-        } else if (cell.isLocked) {
+        }
+        const cell = currentCell(prev);
+        if (cell.isLocked) {
           showToast("This cell is correct and locked!");
           return prev;
-        } else {
-          return addToCursor(prev, ...backVector(prev.cursor.direction));
         }
+        return handleBackspace(false)(prev);
       });
       return true;
     };
 
     const handleAlphaKey = (event: KeyboardEvent) => {
       if (!event.key.match(/^[A-Za-z ]$/)) return false;
-      const content = event.key.trim().toUpperCase(); // space bar sets content to ''
+      const content = event.key.trim().toUpperCase();
       setPuzzle((prev) => {
         const cell = currentCell(prev);
         if (cell.isLocked) {
           showToast("This cell is correct and locked!");
           return prev;
         }
-        // TODO curry setContent & advanceCursorInWord to make this read better
-        else
-          return advanceCursorInWord(
-            changeCurrentCell((c) => setContent(c, content))(prev),
-            !cell.content // if cell was empty, find next empty cell
-          );
+        return handleAlpha(content)(prev);
       });
       return true;
     };
 
     const handlePeriodKey = (event: KeyboardEvent) => {
       if (event.key !== '.') return false;
-      setPuzzle((prev) => {
-        return addToCursor(
-          changeCurrentCell(toggleBlack)(prev),
-          ...directionVector(prev.cursor.direction)
-        );
-      });
+      setPuzzle((prev) => handlePeriod(prev));
       return true;
     };
 
     const handleDigitKey = (event: KeyboardEvent) => {
       if (!event.key.match(/^\d$/)) return false;
-
-      // adds digit if we were already editing, starts over if not; '0' becomes empty string
-      function editNumber(number: string, digit: string, wasEditing: boolean) {
-        const newNumber = (wasEditing ? number : '') + digit;
-        return newNumber === '0' ? '' : newNumber;
-      }
-
       setPuzzle((prev) => {
         const cell = currentCell(prev);
         if (prev.autonumber !== 'off' || cell.isLocked) return prev;
-        else {
-          // editingNumber saves the puzzle cursor each time we edit
-          // so if prev.cursor === editingNumber, continue editing; otherwise start over
-          const newPuzzle = changeCurrentCell({
-            isBlack: false,
-            number: editNumber(cell.number, event.key, prev.cursor === editingNumber),
-          })(prev);
-          editingNumber = newPuzzle.cursor;
-          return newPuzzle;
-        }
+        const newPuzzle = handleDigit(event.key, prev.cursor === editingNumber)(prev);
+        editingNumber = newPuzzle.cursor;
+        return newPuzzle;
       });
       return true;
     };
@@ -150,13 +114,8 @@ export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
     ];
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      // ignore command-key combinations
       if (event.metaKey || event.ctrlKey) return;
-
-      // clear editingNumber on any key that doesn't edit the number
       if (!(event.key === 'Backspace' || event.key.match(/^\d$/))) editingNumber = null;
-
-      // try each handler; if one responds, prevent default
       keyHandlers.forEach((handler) => {
         if (handler(event)) {
           event.preventDefault();
