@@ -2,7 +2,7 @@ import { findCell, mapCells, newGrid, XwdCellCallback, XwdDirection, XwdGrid } f
 import { currentCell, currentWord, crossingWord, XwdCursor } from './cursor';
 import { enforceSymmetry, getSisterCell, XwdSymmetry } from './symmetry';
 import { puzzleFromFileData } from '../parsers/puz';
-import { ACROSS, DOWN, Vector } from './navigation';
+import { ACROSS, DOWN } from './navigation';
 import { formatDate } from '../utils/dateUtils';
 import { parseTitle } from '../utils/textFormatting';
 import { getCellsInWord, wordIncludes, wordNumber, XwdLoc } from './word';
