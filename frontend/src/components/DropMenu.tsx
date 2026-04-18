@@ -4,9 +4,11 @@ interface DropMenuProps {
   title: string;
   items: Record<string, () => void>;
   checked: string[];
+  disabled?: string[];
 }
 
-export default function DropMenu({ title, items, checked }: DropMenuProps) {
+export default function DropMenu({ title, items, checked, disabled = [] }: DropMenuProps) {
+  const allDisabled = disabled.length > 0 && Object.keys(items).every(k => disabled.includes(k));
   const [showing, setShowing] = useState(false);
   const menuRef = useRef<HTMLUListElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -41,21 +43,24 @@ export default function DropMenu({ title, items, checked }: DropMenuProps) {
   };
 
   return (
-    <li className="Tool-button Tool-tool Tool-texty">
+    <li className="Tool-button Tool-tool Tool-texty" style={allDisabled ? { opacity: 0.4, pointerEvents: 'none' } : {}}>
       <button ref={buttonRef} onClick={toggleMenu}>{title}</button>
       <ul ref={menuRef} className={`HelpMenu-menu${showing ? ' visible' : ''}`}>
-        {Object.entries(items).map(([label, action]) => (
-          <li
-            key={['drop-menu', title, label].join(' ')}
-            className={`HelpMenu-item${checked.includes(label) ? ' HelpMenu-checked' : ''}`}
-          >
-            <button onClick={() => {
-              action();
-              // Close the menu after selecting an item
-              setShowing(false);
-            }}>{label}</button>
-          </li>
-        ))}
+        {Object.entries(items).map(([label, action]) => {
+          const isDisabled = disabled.includes(label);
+          return (
+            <li
+              key={['drop-menu', title, label].join(' ')}
+              className={`HelpMenu-item${checked.includes(label) ? ' HelpMenu-checked' : ''}`}
+              style={isDisabled ? { opacity: 0.4, pointerEvents: 'none' } : {}}
+            >
+              <button onClick={() => {
+                action();
+                setShowing(false);
+              }}>{label}</button>
+            </li>
+          );
+        })}
       </ul>
     </li>
   );

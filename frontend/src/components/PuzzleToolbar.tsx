@@ -34,10 +34,13 @@ export default function PuzzleToolbar({
   onPause,
   onClearAndRestart,
 }: PuzzleToolbarProps) {
+  const solved = gridIsSolved(puzzle.grid);
   const checked: Record<string, string> = {
     symmetry: puzzle.symmetry as string,
     numbering: puzzle.autonumber as string,
   };
+  const allItems = (items: Record<string, any>) => Object.keys(items);
+  const disabledWhenSolved: Record<string, string[]> = {};
 
   // TODO support clear incomplete
   // TODO support autocheck
@@ -81,6 +84,12 @@ export default function PuzzleToolbar({
     },
   };
 
+  disabledWhenSolved['check'] = allItems(menu.check);
+  disabledWhenSolved['clear'] = allItems(menu.clear).filter(k => k !== 'puzzle & timer');
+  disabledWhenSolved['reveal'] = allItems(menu.reveal);
+  disabledWhenSolved['numbering'] = allItems(menu.numbering);
+  disabledWhenSolved['symmetry'] = allItems(menu.symmetry);
+
   function print() {
     puzzleToPdf(puzzle);
   }
@@ -97,12 +106,18 @@ export default function PuzzleToolbar({
           </li>
         )}
         <PuzzleClock clock={clock} disabled={gridIsSolved(puzzle.grid)} onToggle={onPause} />
-        <li className="Tool-button Tool-tool Tool-texty">
+        <li className="Tool-button Tool-tool Tool-texty" style={solved ? { opacity: 0.4, pointerEvents: 'none' } : {}}>
           <button onClick={onRebus}>rebus</button>
         </li>
         <div className="Toolbar-expandedMenu">
           {Object.entries(menu).map(([title, items]) => (
-            <DropMenu key={title} title={title} items={items} checked={[checked[title]]} />
+            <DropMenu
+              key={title}
+              title={title}
+              items={items}
+              checked={[checked[title]]}
+              disabled={solved ? disabledWhenSolved[title] || [] : []}
+            />
           ))}
         </div>
       </ul>
