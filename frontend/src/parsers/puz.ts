@@ -8,13 +8,15 @@ interface Clue {
 }
 
 export function puzzleFromFileData(data: ArrayBuffer) {
-  if (!data) return;
+  if (!data || data.byteLength < 0x35) return;
   // using file descriptions at
   // http://acrossdown.net/specification.htmvar
   // https://code.google.com/archive/p/puz/wikis/FileFormat.wiki
   let decoder = new TextDecoder('ascii'),
     dv = new DataView(data),
-    label = decoder.decode(data.slice(2, 13)),
+    label = decoder.decode(data.slice(2, 13));
+  if (label !== 'ACROSS&DOWN') return;
+  let
     width = dv.getUint8(0x2c),
     height = dv.getUint8(0x2d),
     size = width * height,

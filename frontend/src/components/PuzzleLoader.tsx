@@ -191,6 +191,8 @@ export default function PuzzleLoader() {
       newPuzzle.symmetry = newPuzzle.symmetry || puzzle?.symmetry || null;
       clock.setTime(newPuzzle.time || 0);
       dispatch({ type: 'puzzleFetched', puzzle: numberPuzzle(newPuzzle) });
+    } else {
+      dispatch({ type: 'fetchFailed', error: 'Not a valid .puz file' });
     }
   };
 
