@@ -12,6 +12,7 @@ export type AppState =
   | { mode: 'paused'; puzzle: XwdPuzzle }
   | { mode: 'filled'; puzzle: XwdPuzzle }
   | { mode: 'solved'; puzzle: XwdPuzzle }
+  | { mode: 'solvedReview'; puzzle: XwdPuzzle }
   | { mode: 'pickingDate'; puzzle?: XwdPuzzle; error?: string };
 
 // --- Events ---
@@ -20,12 +21,15 @@ export type AppEvent =
   | { type: 'puzzleRestored'; puzzle: XwdPuzzle }
   | { type: 'puzzleFetched'; puzzle: XwdPuzzle }
   | { type: 'solveModePicked'; mode: 'diagramless' | 'withDiagram' }
+  | { type: 'puzzleUpdated'; puzzle: XwdPuzzle }
   | { type: 'gridChanged'; puzzle: XwdPuzzle }
   | { type: 'blurred' }
   | { type: 'focused' }
   | { type: 'blurTimedOut' }
   | { type: 'modalDismissed' }
   | { type: 'loadRequested' }
+  | { type: 'pauseRequested' }
+  | { type: 'dateSubmitted' }
   | { type: 'clearAndRestart' }
   | { type: 'fetchFailed'; error: string };
 
@@ -52,6 +56,16 @@ function handleGridChanged(state: { mode: string; puzzle: XwdPuzzle }, puzzle: X
 // --- Reducer ---
 
 export function reducer(state: AppState, event: AppEvent): AppState {
+  const next = _reducer(state, event);
+  if (next !== state) {
+    console.log(`[state] ${state.mode} → ${next.mode} (on ${event.type})`);
+  } else {
+    console.log(`[state] ${state.mode} ignored ${event.type}`);
+  }
+  return next;
+}
+
+function _reducer(state: AppState, event: AppEvent): AppState {
   switch (state.mode) {
     case 'loading':
       switch (event.type) {
@@ -80,10 +94,17 @@ export function reducer(state: AppState, event: AppEvent): AppState {
 
     case 'playing':
       switch (event.type) {
+        case 'puzzleUpdated':
+          if (event.puzzle.grid === state.puzzle.grid) {
+            return { ...state, puzzle: event.puzzle };
+          }
+          return handleGridChanged(state, event.puzzle);
         case 'gridChanged':
           return handleGridChanged(state, event.puzzle);
         case 'blurred':
           return { mode: 'pausePending', puzzle: state.puzzle };
+        case 'pauseRequested':
+          return { mode: 'paused', puzzle: state.puzzle };
         case 'loadRequested':
           return { mode: 'pickingDate', puzzle: state.puzzle };
         default:
@@ -120,6 +141,20 @@ export function reducer(state: AppState, event: AppEvent): AppState {
 
     case 'solved':
       switch (event.type) {
+        case 'modalDismissed':
+          return { mode: 'solvedReview', puzzle: state.puzzle };
+        default:
+          return state;
+      }
+
+    case 'solvedReview':
+      switch (event.type) {
+        case 'puzzleUpdated':
+          // Only allow cursor changes, not grid changes
+          if (event.puzzle.grid === state.puzzle.grid) {
+            return { ...state, puzzle: event.puzzle };
+          }
+          return state;
         case 'loadRequested':
           return { mode: 'pickingDate', puzzle: state.puzzle };
         case 'clearAndRestart':
@@ -130,6 +165,8 @@ export function reducer(state: AppState, event: AppEvent): AppState {
 
     case 'pickingDate':
       switch (event.type) {
+        case 'dateSubmitted':
+          return { mode: 'loading' };
         case 'puzzleFetched':
           return { mode: 'choosing', puzzle: event.puzzle };
         case 'fetchFailed':

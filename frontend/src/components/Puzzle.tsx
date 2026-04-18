@@ -2,18 +2,14 @@ import React, { DragEventHandler, useEffect, useRef, useState } from 'react';
 import PuzzleHeader from './PuzzleHeader';
 import ClueBarAndBoard from './ClueBarAndBoard';
 import ClueLists from './ClueLists';
-import PuzzleModal, { ModalReason } from './PuzzleModal';
 import PuzzleToolbar from './PuzzleToolbar';
 import Clock from '../model/clock';
-import { changeCurrentCell, XwdPuzzle, changeCells } from '../model/puzzle';
+import { changeCurrentCell, XwdPuzzle } from '../model/puzzle';
 import PuzzleKeys from './PuzzleKeys';
 import { PuzzleDispatch } from './PuzzleLoader';
 import { currentCell } from '../model/cursor';
 import { setContent } from '../model/cell';
 import { RebusInput } from './RebusInput';
-import { gridIsSolved, gridIsFilled, XwdGrid } from '../model/grid';
-
-const BLUR_INTERVAL = 10000;
 
 interface PuzzleProps {
   puzzle: XwdPuzzle;
@@ -21,92 +17,10 @@ interface PuzzleProps {
   clock: Clock;
   onDrop: DragEventHandler;
   onLoadPuzzle?: () => void;
+  onPause?: () => void;
 }
 
-type XwdFillState = 'filled' | 'solved' | 'incomplete';
-
-const getFillState = (grid: XwdGrid): XwdFillState =>
-  gridIsFilled(grid) ? (gridIsSolved(grid) ? 'solved' : 'filled') : 'incomplete';
-
-export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle }: PuzzleProps) {
-  const [showModal, setShowModal] = useState<ModalReason | null>(null);
-  const [fillState, setFillState] = useState<XwdFillState>(getFillState(puzzle.grid));
-  const { grid } = puzzle;
-
-  // respond to fill-state changes: start/stop clock, lock cells, show modals
-  useEffect(() => {
-    const newFillState = getFillState(grid);
-    if (newFillState === 'solved') {
-      clock.stop();
-      setPuzzle(prev => changeCells(() => ({ isLocked: true }))(() => true)(prev));
-      if (newFillState !== fillState) setShowModal('SOLVED');
-    } else if (newFillState === 'filled') {
-      if (newFillState !== fillState) setShowModal('FILLED');
-    } else {
-      clock.start();
-    }
-    setFillState(newFillState);
-  }, [grid, fillState, clock, setPuzzle]);
-
-  // show PAUSED modal on clock stop (from blur timeout)
-  useEffect(() => {
-    const handlePause = () => {
-      if (!gridIsSolved(grid)) setShowModal('PAUSED');
-    };
-    clock.on('stop', handlePause);
-    return () => { clock.off('stop', handlePause); };
-  }, [grid, clock]);
-
-  // pause clock on blur
-  useEffect(() => {
-    const solved = fillState === 'solved';
-    let blurTimeout = 0;
-    const handleBlur = () => {
-      if (!solved) blurTimeout = window.setTimeout(clock.stop, BLUR_INTERVAL);
-    };
-    const handleFocus = () => window.clearTimeout(blurTimeout);
-    window.addEventListener('blur', handleBlur);
-    window.addEventListener('focus', handleFocus);
-    return () => {
-      window.removeEventListener('blur', handleBlur);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [fillState, clock]);
-
-  const closeModal = (reason: ModalReason) => {
-    setShowModal(null);
-    if (reason === 'PAUSED') clock.start();
-  };
-
-  if (!puzzle) return null;
-
-  return (
-    <>
-      <div className={showModal === 'PAUSED' ? 'app-obscured' : ''}>
-        <PuzzleView
-          puzzle={puzzle}
-          setPuzzle={setPuzzle}
-          clock={clock}
-          onDrop={onDrop}
-          onImportFromXWordInfo={onLoadPuzzle}
-        />
-      </div>
-      {showModal && <PuzzleModal reason={showModal} onClose={closeModal} />}
-    </>
-  );
-}
-
-interface PuzzleViewProps {
-  puzzle: XwdPuzzle;
-  setPuzzle: PuzzleDispatch;
-  clock: Clock;
-  onDrop: DragEventHandler;
-  onImportFromXWordInfo?: () => void;
-}
-
-function PuzzleView(props: PuzzleViewProps) {
-  const { puzzle, setPuzzle, clock, onDrop, onImportFromXWordInfo } = props;
-
+export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle, onPause }: PuzzleProps) {
   const [isEditingRebus, setEditingRebus] = useState(false);
   const rebusValue = useRef('');
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -123,6 +37,7 @@ function PuzzleView(props: PuzzleViewProps) {
   }
 
   function startRebus() {
+    if (currentCell(puzzle).isLocked) return;
     rebusValue.current = currentCell(puzzle).content;
     setEditingRebus(true);
   }
@@ -139,7 +54,8 @@ function PuzzleView(props: PuzzleViewProps) {
         puzzle={puzzle}
         setPuzzle={setPuzzle}
         onRebus={toggleRebus}
-        onImportFromXWordInfo={onImportFromXWordInfo}
+        onImportFromXWordInfo={onLoadPuzzle}
+        onPause={onPause}
       />
       <PuzzleHeader title={puzzle.title} author={puzzle.author} date={puzzle.date} />
       <div className="layout-puzzle" onDrop={onDrop} onDragOver={(e) => e.preventDefault()}>

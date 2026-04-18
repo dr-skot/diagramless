@@ -13,9 +13,10 @@ function clockString(ms: number) {
 interface PuzzleClockProps {
   clock: Clock;
   disabled: boolean;
+  onToggle?: () => void;
 }
 
-export default function PuzzleClock({ clock, disabled }: PuzzleClockProps) {
+export default function PuzzleClock({ clock, disabled, onToggle }: PuzzleClockProps) {
   const [time, setTime] = useState(0);
 
   useEffect(() => {
@@ -25,7 +26,7 @@ export default function PuzzleClock({ clock, disabled }: PuzzleClockProps) {
 
   return (
     <li className="Timer-button Tool-tool">
-      <button onClick={clock.toggle} disabled={disabled}>
+      <button onClick={onToggle || clock.toggle} disabled={disabled}>
         <div className="timer-count">{clockString(time)}</div>
         {clock.isRunning && <i className="Icon-pause Icon-icon" />}
       </button>

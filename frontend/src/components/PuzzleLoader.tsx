@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useReducer, useRef, useState } from 'react';
 import { DEFAULT_PUZZLE } from '../model/defaultPuzzle';
 import { migratePuzzle, puzzleFromFile, XwdPuzzle } from '../model/puzzle';
 import { tryToParse } from '../utils/utils';
@@ -11,11 +11,16 @@ import { fetchPuzzle } from '../services/xwordInfoService';
 import { formatDate, isValidMdy } from '../utils/dateUtils';
 import './PuzzleLoader.css';
 import { getPuzzleDate } from '../model/puzzle';
+import { AppState, reducer } from '../model/appState';
+import PuzzleModal, { ModalReason } from './PuzzleModal';
+import SolveModeModal from './SolveModeModal';
 
-const loadPuzzle = () => migratePuzzle(tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE));
+const BLUR_INTERVAL = 10000;
 
-const storePuzzle = (puzzle: XwdPuzzle) => {
-  localStorage.setItem('xword2', JSON.stringify(puzzle));
+const loadPuzzleFromStorage = () => migratePuzzle(tryToParse(localStorage.getItem('xword2') || '', DEFAULT_PUZZLE));
+
+const storePuzzle = (puzzle: XwdPuzzle, clock: Clock) => {
+  localStorage.setItem('xword2', JSON.stringify({ ...puzzle, time: clock.getTime() }));
 };
 
 export type PuzzleDispatch = Dispatch<SetStateAction<XwdPuzzle>>;
@@ -31,116 +36,205 @@ function getDefaultDate(): Date {
   return isValidMdy(urlDate) ? new Date(urlDate) : new Date();
 }
 
-const fetchPuzzleFromUrl = async () => {
-  const dateParam = getDateFromUrl() || formatDate('MM/DD/YYYY');
-  let puzzle: XwdPuzzle | null;
-  if (!isValidMdy(dateParam)) {
-    throw new Error(`Invalid date format: ${dateParam}. Use mm/dd/yyyy.`);
-  }
-  try {
-    puzzle = await fetchPuzzle(dateParam);
-  } catch (error) {
-    throw new Error(`Error loading puzzle`, { cause: error });
-  }
-  if (puzzle) return puzzle;
-  else throw new Error(`No puzzle found for date: ${dateParam}`);
-};
-
 // Update URL with date parameter
 const updateUrlWithDate = (date: string) => {
-  // Manually construct URL to avoid escaping slashes
   const baseUrl = window.location.href.split('?')[0];
   const search = date === formatDate('MM/DD/YYYY') ? '' : `?date=${date}`;
   window.history.pushState({}, '', `${baseUrl}${search}`);
 };
 
-export default function PuzzleLoader() {
-  const [puzzle, setPuzzle] = useState<XwdPuzzle>(loadPuzzle());
-  const [clock] = useState(new Clock(puzzle.time));
-  const [showLoadPuzzleModal, setShowLoadPuzzleModal] = useState(false);
-  const [loadError, setLoadError] = useState('');
-  const [loading, setLoading] = useState(false);
+// Map app state mode to modal reason
+function getModalReason(state: AppState): ModalReason | null {
+  switch (state.mode) {
+    case 'paused': return 'PAUSED';
+    case 'filled': return 'FILLED';
+    case 'solved': return 'SOLVED';
+    default: return null;
+  }
+}
 
-  // Load puzzle from URL date parameter on initial load
+// Get puzzle from state (if any)
+function getPuzzleFromState(state: AppState): XwdPuzzle | undefined {
+  if ('puzzle' in state) return state.puzzle;
+  return undefined;
+}
+
+export default function PuzzleLoader() {
+  const [state, dispatch] = useReducer(reducer, { mode: 'loading' } as AppState);
+  const [clock] = useState(() => new Clock(0));
+  const blurTimeoutRef = useRef<number>(0);
+
+  const puzzle = getPuzzleFromState(state);
+
+  // --- Initial load ---
   useEffect(() => {
-    fetchPuzzleForDate(getDateFromUrl() || formatDate('MM/DD/YYYY'));
+    const stored = loadPuzzleFromStorage();
+    const dateParam = getDateFromUrl() || formatDate('MM/DD/YYYY');
+
+    // If we have a stored puzzle and it matches the URL date (or no date param), restore it
+    if (stored && stored.grid && stored.grid.length > 0) {
+      const storedDate = getPuzzleDate(stored);
+      if (!getDateFromUrl() || storedDate === dateParam) {
+        clock.setTime(stored.time || 0);
+        dispatch({ type: 'puzzleRestored', puzzle: stored });
+        if (storedDate) updateUrlWithDate(storedDate);
+        return;
+      }
+    }
+
+    // Otherwise fetch from API
+    fetchPuzzleForDate(dateParam);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Save puzzle before unloading
+  // --- Clock syncs with state ---
   useEffect(() => {
-    const savePuzzle = () => storePuzzle({ ...puzzle, time: clock.getTime() });
-    savePuzzle();
+    if (state.mode === 'playing') clock.start();
+    else clock.stop();
+  }, [state.mode, clock]);
+
+  // --- Blur/focus for pause ---
+  // --- Blur/focus for pause ---
+  useEffect(() => {
+    const handleBlur = () => {
+      dispatch({ type: 'blurred' });
+      blurTimeoutRef.current = window.setTimeout(() => {
+        dispatch({ type: 'blurTimedOut' });
+      }, BLUR_INTERVAL);
+    };
+    const handleFocus = () => {
+      window.clearTimeout(blurTimeoutRef.current);
+      dispatch({ type: 'focused' });
+    };
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
+  // --- Save to localStorage on puzzle change ---
+  useEffect(() => {
+    if (!puzzle) return;
+    storePuzzle(puzzle, clock);
+    const savePuzzle = () => storePuzzle(puzzle, clock);
     window.addEventListener('beforeunload', savePuzzle);
     return () => window.removeEventListener('beforeunload', savePuzzle);
   }, [puzzle, clock]);
 
-  // Replace puzzle and update clock
-  function replacePuzzle(newPuzzle: XwdPuzzle) {
-    newPuzzle.autonumber = puzzle.autonumber;
-    newPuzzle.symmetry ||= puzzle.symmetry;
-    // set clock
-    clock.setTime(newPuzzle.time || 0);
-    setPuzzle(numberPuzzle(newPuzzle));
-  }
+  // --- Puzzle state setter ---
+  const setPuzzle: PuzzleDispatch = (action) => {
+    const newPuzzle = typeof action === 'function'
+      ? action(puzzle!)
+      : action;
+    dispatch({ type: 'puzzleUpdated', puzzle: newPuzzle });
+  };
 
-  const onDrop = handleDroppedFile((contents) => {
-    const newPuzzle = puzzleFromFile(contents);
-    if (newPuzzle) replacePuzzle(newPuzzle);
-  });
-
+  // --- Fetch puzzle by date ---
   function fetchPuzzleForDate(dateToLoad: string) {
-    setShowLoadPuzzleModal(false);
-    setLoadError('');
     updateUrlWithDate(dateToLoad);
-    if (dateToLoad === getPuzzleDate(puzzle)) return;
-    setLoading(true);
-    fetchPuzzleFromUrl()
+    if (puzzle && dateToLoad === getPuzzleDate(puzzle)) return;
+
+    if (!isValidMdy(dateToLoad)) {
+      dispatch({ type: 'fetchFailed', error: `Invalid date format: ${dateToLoad}. Use mm/dd/yyyy.` });
+      return;
+    }
+
+    dispatch({ type: 'dateSubmitted' });
+    fetchPuzzle(dateToLoad)
       .then((newPuzzle) => {
-        replacePuzzle(newPuzzle);
-        updateUrlWithDate(dateToLoad);
+        if (newPuzzle) {
+          newPuzzle.autonumber = puzzle?.autonumber || 'off';
+          newPuzzle.symmetry = newPuzzle.symmetry || puzzle?.symmetry || null;
+          clock.setTime(newPuzzle.time || 0);
+          dispatch({ type: 'puzzleFetched', puzzle: numberPuzzle(newPuzzle) });
+          updateUrlWithDate(dateToLoad);
+        } else {
+          dispatch({ type: 'fetchFailed', error: `No puzzle found for date: ${dateToLoad}` });
+        }
       })
       .catch((error: Error) => {
-        setLoadError(error.message);
-        setShowLoadPuzzleModal(true);
-      })
-      .finally(() => setLoading(false));
+        dispatch({ type: 'fetchFailed', error: error.message });
+      });
   }
 
+  // --- Load puzzle modal handlers ---
   const handleLoadPuzzleSubmit = (date: Date) => {
     fetchPuzzleForDate(formatDate('MM/DD/YYYY', date));
   };
 
   const handleLoadPuzzleCancel = () => {
-    setShowLoadPuzzleModal(false);
-    setLoadError('');
-    const puzzleDate = getPuzzleDate(puzzle);
-    if (puzzleDate) updateUrlWithDate(puzzleDate);
+    dispatch({ type: 'modalDismissed' });
+    if (puzzle) {
+      const puzzleDate = getPuzzleDate(puzzle);
+      if (puzzleDate) updateUrlWithDate(puzzleDate);
+    }
   };
+
+  // --- File drop ---
+  const onDrop = handleDroppedFile((contents) => {
+    const newPuzzle = puzzleFromFile(contents);
+    if (newPuzzle) {
+      newPuzzle.autonumber = puzzle?.autonumber || 'off';
+      newPuzzle.symmetry = newPuzzle.symmetry || puzzle?.symmetry || null;
+      clock.setTime(newPuzzle.time || 0);
+      dispatch({ type: 'puzzleFetched', puzzle: numberPuzzle(newPuzzle) });
+    }
+  });
+
+  // --- Modal dismiss ---
+  const handleModalClose = (reason: ModalReason) => {
+    dispatch({ type: 'modalDismissed' });
+  };
+
+  // --- Render ---
+  const modalReason = getModalReason(state);
+  const showLoadModal = state.mode === 'pickingDate';
 
   return (
     <div className="puzzle-loader">
-      {showLoadPuzzleModal && (
+      {state.mode === 'loading' && (
+        <div className="modal-dimmer display-block ModalWrapper-wrapper ModalWrapper-stretch">
+          <div className="ModalBody-body" style={{ textAlign: 'center', fontFamily: 'franklin', fontSize: '1rem' }}>
+            Loading puzzle...
+          </div>
+        </div>
+      )}
+
+      {showLoadModal && (
         <div className="modal-overlay">
           <div className="modal-content">
             <LoadPuzzleModal
               onSubmit={handleLoadPuzzleSubmit}
               onCancel={handleLoadPuzzleCancel}
-              error={loadError}
+              error={(state as any).error || ''}
               defaultDate={getDefaultDate()}
-              loading={loading}
+              loading={false}
             />
           </div>
         </div>
       )}
 
-      <Puzzle
-        puzzle={puzzle}
-        setPuzzle={setPuzzle}
-        clock={clock}
-        onDrop={onDrop}
-        onLoadPuzzle={() => setShowLoadPuzzleModal(true)}
-      />
+      {state.mode === 'choosing' && puzzle && (
+        <SolveModeModal onChoose={(mode) => dispatch({ type: 'solveModePicked', mode })} />
+      )}
+
+      {puzzle && (
+        <>
+          <div className={state.mode === 'paused' ? 'app-obscured' : ''}>
+            <Puzzle
+              puzzle={puzzle}
+              setPuzzle={setPuzzle}
+              clock={clock}
+              onDrop={onDrop}
+              onLoadPuzzle={() => dispatch({ type: 'loadRequested' })}
+              onPause={() => dispatch({ type: 'pauseRequested' })}
+            />
+          </div>
+          {modalReason && <PuzzleModal reason={modalReason} onClose={handleModalClose} />}
+        </>
+      )}
     </div>
   );
 }

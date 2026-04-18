@@ -21,14 +21,16 @@ interface PuzzleToolbarProps {
   setPuzzle: PuzzleDispatch;
   onRebus: () => void;
   onImportFromXWordInfo?: () => void;
+  onPause?: () => void;
 }
 
-export default function PuzzleToolbar({ 
-  clock, 
-  puzzle, 
-  setPuzzle, 
-  onRebus, 
-  onImportFromXWordInfo 
+export default function PuzzleToolbar({
+  clock,
+  puzzle,
+  setPuzzle,
+  onRebus,
+  onImportFromXWordInfo,
+  onPause,
 }: PuzzleToolbarProps) {
   const checked: Record<string, string> = {
     symmetry: puzzle.symmetry as string,
@@ -88,7 +90,7 @@ export default function PuzzleToolbar({
             <button onClick={onImportFromXWordInfo}>Load</button>
           </li>
         )}
-        <PuzzleClock clock={clock} disabled={gridIsSolved(puzzle.grid)} />
+        <PuzzleClock clock={clock} disabled={gridIsSolved(puzzle.grid)} onToggle={onPause} />
         <li className="Tool-button Tool-tool Tool-texty">
           <button onClick={onRebus}>rebus</button>
         </li>

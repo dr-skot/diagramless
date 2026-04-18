@@ -168,21 +168,35 @@ describe('reducer', () => {
   });
 
   // --- solved ---
-  it('loadRequested transitions solved to pickingDate', () => {
+  it('modalDismissed transitions solved to solvedReview', () => {
     const puzzle = makePuzzle(true);
     const state: AppState = { mode: 'solved', puzzle };
+    const next = reducer(state, { type: 'modalDismissed' });
+    expect(next.mode).toBe('solvedReview');
+  });
+
+  // --- solvedReview ---
+  it('loadRequested transitions solvedReview to pickingDate', () => {
+    const puzzle = makePuzzle(true);
+    const state: AppState = { mode: 'solvedReview', puzzle };
     const next = reducer(state, { type: 'loadRequested' });
     expect(next.mode).toBe('pickingDate');
   });
 
-  it('clearAndRestart transitions solved to choosing', () => {
+  it('clearAndRestart transitions solvedReview to choosing', () => {
     const puzzle = makePuzzle(true);
-    const state: AppState = { mode: 'solved', puzzle };
+    const state: AppState = { mode: 'solvedReview', puzzle };
     const next = reducer(state, { type: 'clearAndRestart' });
     expect(next.mode).toBe('choosing');
   });
 
   // --- pickingDate ---
+  it('dateSubmitted transitions pickingDate to loading', () => {
+    const state: AppState = { mode: 'pickingDate' };
+    const next = reducer(state, { type: 'dateSubmitted' });
+    expect(next.mode).toBe('loading');
+  });
+
   it('puzzleFetched transitions pickingDate to choosing', () => {
     const puzzle = makePuzzle();
     const state: AppState = { mode: 'pickingDate' };
@@ -214,6 +228,12 @@ describe('reducer', () => {
   it('blurred in solved is a no-op', () => {
     const puzzle = makePuzzle(true);
     const state: AppState = { mode: 'solved', puzzle };
+    expect(reducer(state, { type: 'blurred' })).toBe(state);
+  });
+
+  it('blurred in solvedReview is a no-op', () => {
+    const puzzle = makePuzzle(true);
+    const state: AppState = { mode: 'solvedReview', puzzle };
     expect(reducer(state, { type: 'blurred' })).toBe(state);
   });
 
