@@ -60,16 +60,6 @@ function handleGridChanged(state: { mode: string; puzzle: XwdPuzzle }, puzzle: X
 // --- Reducer ---
 
 export function reducer(state: AppState, event: AppEvent): AppState {
-  const next = _reducer(state, event);
-  if (next !== state) {
-    console.log(`[state] ${state.mode} → ${next.mode} (on ${event.type})`);
-  } else {
-    console.log(`[state] ${state.mode} ignored ${event.type}`);
-  }
-  return next;
-}
-
-function _reducer(state: AppState, event: AppEvent): AppState {
   switch (state.mode) {
     case 'loading':
       switch (event.type) {

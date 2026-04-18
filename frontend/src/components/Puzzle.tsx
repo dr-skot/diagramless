@@ -29,7 +29,6 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle,
   // cancel rebus on any puzzle change
   useEffect(() => {
     setEditingRebus(false);
-    console.debug(puzzle);
   }, [puzzle]);
 
   function finishRebus(submit: boolean) {
