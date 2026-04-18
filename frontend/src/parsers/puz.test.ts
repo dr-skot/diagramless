@@ -2,13 +2,13 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { TextDecoder as NodeTextDecoder } from 'util';
 import { puzzleFromFileData } from './puz';
+import { puzzleData as expectedPlain } from '../../tests/assets/plain-Jun2521.data';
+import { puzzleData as expectedCircles } from '../../tests/assets/circles-Jun2221.data';
 
 // Polyfill TextDecoder for jsdom test environment
 if (typeof globalThis.TextDecoder === 'undefined') {
   (globalThis as any).TextDecoder = NodeTextDecoder;
 }
-import { puzzleData as expectedPlain } from '../../tests/assets/plain-Jun2521.data';
-import { puzzleData as expectedCircles } from '../../tests/assets/circles-Jun2221.data';
 
 const loadPuz = (filename: string) => {
   const buf = readFileSync(resolve(__dirname, '../../tests/assets', filename));
