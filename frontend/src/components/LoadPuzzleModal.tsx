@@ -5,6 +5,7 @@ import { formatDate } from '../utils/dateUtils';
 interface LoadPuzzleModalProps {
   onSubmit: (date: Date) => void;
   onCancel: () => void;
+  onFileDrop?: (file: ArrayBuffer) => void;
   loading?: boolean;
   error?: string;
   defaultDate?: Date;
@@ -17,9 +18,10 @@ function dateFromInput(date: string) {
 }
 
 export function LoadPuzzleModal(props: LoadPuzzleModalProps) {
-  const { onSubmit, onCancel, error: initialError, loading, defaultDate = new Date() } = props;
+  const { onSubmit, onCancel, onFileDrop, error: initialError, loading, defaultDate = new Date() } = props;
   const [error, setError] = useState<string>(initialError || '');
   const [date, setDate] = useState(formatDate('YYYY-MM-DD', defaultDate));
+  const [dragOver, setDragOver] = useState(false);
 
   // Update date when defaultDate changes
   useEffect(() => setDate(formatDate('YYYY-MM-DD', defaultDate)), [defaultDate]);
@@ -85,6 +87,26 @@ export function LoadPuzzleModal(props: LoadPuzzleModalProps) {
           {loading ? 'Loading...' : 'Load Puzzle'}
         </button>
       </form>
+
+      {onFileDrop && (
+        <div
+          className={`drop-zone ${dragOver ? 'drag-over' : ''}`}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            const file = e.dataTransfer.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = () => onFileDrop(reader.result as ArrayBuffer);
+              reader.readAsArrayBuffer(file);
+            }
+          }}
+        >
+          or drop a .puz file here
+        </div>
+      )}
 
       {error && <div className="error-message">{error}</div>}
     </div>

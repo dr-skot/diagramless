@@ -1,6 +1,6 @@
 import { changeCells, XwdPuzzle } from './puzzle';
 import { gridIsFilled, gridIsSolved } from './grid';
-import { revealMeta } from './cell';
+import { clearCell, revealMeta } from './cell';
 
 // --- States ---
 
@@ -41,6 +41,10 @@ function lockAllCells(puzzle: XwdPuzzle): XwdPuzzle {
 
 function applyRevealMeta(puzzle: XwdPuzzle): XwdPuzzle {
   return changeCells(revealMeta)()(puzzle);
+}
+
+function clearPuzzle(puzzle: XwdPuzzle): XwdPuzzle {
+  return { ...changeCells(clearCell)()(puzzle), time: 0 };
 }
 
 function handleGridChanged(state: { mode: string; puzzle: XwdPuzzle }, puzzle: XwdPuzzle): AppState {
@@ -158,7 +162,7 @@ function _reducer(state: AppState, event: AppEvent): AppState {
         case 'loadRequested':
           return { mode: 'pickingDate', puzzle: state.puzzle };
         case 'clearAndRestart':
-          return { mode: 'choosing', puzzle: state.puzzle };
+          return { mode: 'choosing', puzzle: clearPuzzle(state.puzzle) };
         default:
           return state;
       }

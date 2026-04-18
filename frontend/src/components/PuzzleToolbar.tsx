@@ -22,6 +22,7 @@ interface PuzzleToolbarProps {
   onRebus: () => void;
   onImportFromXWordInfo?: () => void;
   onPause?: () => void;
+  onClearAndRestart?: () => void;
 }
 
 export default function PuzzleToolbar({
@@ -31,6 +32,7 @@ export default function PuzzleToolbar({
   onRebus,
   onImportFromXWordInfo,
   onPause,
+  onClearAndRestart,
 }: PuzzleToolbarProps) {
   const checked: Record<string, string> = {
     symmetry: puzzle.symmetry as string,
@@ -56,8 +58,12 @@ export default function PuzzleToolbar({
       'white squares': () => setPuzzle(changeCells(clearCell)((cell) => cell.isBlack)),
       puzzle: () => setPuzzle(changeCells(clearCell)()),
       'puzzle & timer': () => {
-        setPuzzle(changeCells(clearCell)());
-        clock.reset();
+        if (onClearAndRestart) {
+          onClearAndRestart();
+        } else {
+          setPuzzle(changeCells(clearCell)());
+          clock.reset();
+        }
       },
     },
     reveal: {

@@ -91,9 +91,9 @@ export default function PuzzleLoader() {
   useEffect(() => {
     if (state.mode === 'playing') clock.start();
     else clock.stop();
-  }, [state.mode, clock]);
+    if (state.mode === 'choosing' && puzzle?.time === 0) clock.setTime(0);
+  }, [state.mode, clock, puzzle?.time]);
 
-  // --- Blur/focus for pause ---
   // --- Blur/focus for pause ---
   useEffect(() => {
     const handleBlur = () => {
@@ -183,6 +183,17 @@ export default function PuzzleLoader() {
     }
   });
 
+  // --- File drop from load modal ---
+  const handleFileDrop = (contents: ArrayBuffer) => {
+    const newPuzzle = puzzleFromFile(contents);
+    if (newPuzzle) {
+      newPuzzle.autonumber = puzzle?.autonumber || 'off';
+      newPuzzle.symmetry = newPuzzle.symmetry || puzzle?.symmetry || null;
+      clock.setTime(newPuzzle.time || 0);
+      dispatch({ type: 'puzzleFetched', puzzle: numberPuzzle(newPuzzle) });
+    }
+  };
+
   // --- Modal dismiss ---
   const handleModalClose = (reason: ModalReason) => {
     dispatch({ type: 'modalDismissed' });
@@ -208,6 +219,7 @@ export default function PuzzleLoader() {
             <LoadPuzzleModal
               onSubmit={handleLoadPuzzleSubmit}
               onCancel={handleLoadPuzzleCancel}
+              onFileDrop={handleFileDrop}
               error={(state as any).error || ''}
               defaultDate={getDefaultDate()}
               loading={false}
@@ -230,6 +242,7 @@ export default function PuzzleLoader() {
               onDrop={onDrop}
               onLoadPuzzle={() => dispatch({ type: 'loadRequested' })}
               onPause={() => dispatch({ type: 'pauseRequested' })}
+              onClearAndRestart={() => dispatch({ type: 'clearAndRestart' })}
             />
           </div>
           {modalReason && <PuzzleModal reason={modalReason} onClose={handleModalClose} />}

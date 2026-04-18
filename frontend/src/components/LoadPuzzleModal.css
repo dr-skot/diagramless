@@ -90,6 +90,23 @@ button[type="submit"]:disabled {
   cursor: not-allowed;
 }
 
+.drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 15px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.drop-zone.drag-over {
+  border-color: #0066cc;
+  color: #0066cc;
+  background-color: rgba(0, 102, 204, 0.05);
+}
+
 .error-message {
   color: #d9534f;
   margin-bottom: 15px;

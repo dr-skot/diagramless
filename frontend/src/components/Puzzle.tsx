@@ -18,9 +18,10 @@ interface PuzzleProps {
   onDrop: DragEventHandler;
   onLoadPuzzle?: () => void;
   onPause?: () => void;
+  onClearAndRestart?: () => void;
 }
 
-export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle, onPause }: PuzzleProps) {
+export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle, onPause, onClearAndRestart }: PuzzleProps) {
   const [isEditingRebus, setEditingRebus] = useState(false);
   const rebusValue = useRef('');
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -56,6 +57,7 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle,
         onRebus={toggleRebus}
         onImportFromXWordInfo={onLoadPuzzle}
         onPause={onPause}
+        onClearAndRestart={onClearAndRestart}
       />
       <PuzzleHeader title={puzzle.title} author={puzzle.author} date={puzzle.date} />
       <div className="layout-puzzle" onDrop={onDrop} onDragOver={(e) => e.preventDefault()}>
