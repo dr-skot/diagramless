@@ -7,7 +7,7 @@ import { clearCell, revealMeta } from './cell';
 export type AppState =
   | { mode: 'loading' }
   | { mode: 'choosing'; puzzle: XwdPuzzle }
-  | { mode: 'playing'; puzzle: XwdPuzzle }
+  | { mode: 'playing'; puzzle: XwdPuzzle; diagramRevealed?: boolean }
   | { mode: 'pausePending'; puzzle: XwdPuzzle }
   | { mode: 'paused'; puzzle: XwdPuzzle }
   | { mode: 'filled'; puzzle: XwdPuzzle }
@@ -47,14 +47,15 @@ function clearPuzzle(puzzle: XwdPuzzle): XwdPuzzle {
   return { ...changeCells(clearCell)()(puzzle), time: 0 };
 }
 
-function handleGridChanged(state: { mode: string; puzzle: XwdPuzzle }, puzzle: XwdPuzzle): AppState {
+function handleGridChanged(state: AppState & { puzzle: XwdPuzzle }, puzzle: XwdPuzzle): AppState {
+  const diagramRevealed = 'diagramRevealed' in state ? state.diagramRevealed : undefined;
   if (gridIsSolved(puzzle.grid)) {
     return { mode: 'solved', puzzle: lockAllCells(puzzle) };
   }
   if (gridIsFilled(puzzle.grid)) {
     return { mode: 'filled', puzzle };
   }
-  return { mode: 'playing', puzzle };
+  return { mode: 'playing', puzzle, diagramRevealed };
 }
 
 // --- Reducer ---
@@ -81,6 +82,7 @@ export function reducer(state: AppState, event: AppEvent): AppState {
             puzzle: event.mode === 'withDiagram'
               ? applyRevealMeta(state.puzzle)
               : state.puzzle,
+            diagramRevealed: event.mode === 'withDiagram',
           };
         default:
           return state;

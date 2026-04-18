@@ -23,6 +23,7 @@ interface PuzzleToolbarProps {
   onImportFromXWordInfo?: () => void;
   onPause?: () => void;
   onClearAndRestart?: () => void;
+  diagramRevealed?: boolean;
 }
 
 export default function PuzzleToolbar({
@@ -33,6 +34,7 @@ export default function PuzzleToolbar({
   onImportFromXWordInfo,
   onPause,
   onClearAndRestart,
+  diagramRevealed,
 }: PuzzleToolbarProps) {
   const solved = gridIsSolved(puzzle.grid);
   const checked: Record<string, string> = {
@@ -44,38 +46,43 @@ export default function PuzzleToolbar({
 
   // TODO support clear incomplete
   // TODO support autocheck
-  const menu = {
-    numbering: {
-      off: () => setPuzzle(setAutonumber('off')),
-      'from top': () => setPuzzle(setAutonumber('from top')),
-      'from bottom': () => setPuzzle(setAutonumber('from bottom')),
-      'from both ends': () => setPuzzle(setAutonumber('from both ends')),
-    },
-    symmetry: {
-      none: () => setPuzzle(setSymmetry(null)),
-      diagonal: () => setPuzzle(setSymmetry('diagonal')),
-      'left-right': () => setPuzzle(setSymmetry('left-right')),
-    },
+  const clearAll = () => setPuzzle(changeCells(clearCell)());
+  const clearAndRestart = () => {
+    if (onClearAndRestart) onClearAndRestart();
+    else { clearAll(); clock.reset(); }
+  };
+
+  const menu: Record<string, Record<string, () => void>> = {
+    ...(diagramRevealed ? {} : {
+      numbering: {
+        off: () => setPuzzle(setAutonumber('off')),
+        'from top': () => setPuzzle(setAutonumber('from top')),
+        'from bottom': () => setPuzzle(setAutonumber('from bottom')),
+        'from both ends': () => setPuzzle(setAutonumber('from both ends')),
+      },
+      symmetry: {
+        none: () => setPuzzle(setSymmetry(null)),
+        diagonal: () => setPuzzle(setSymmetry('diagonal')),
+        'left-right': () => setPuzzle(setSymmetry('left-right')),
+      },
+    }),
     clear: {
       word: () => setPuzzle(changeCellsInWord(clearCell)),
-      'white squares': () => setPuzzle(changeCells(clearCell)((cell) => cell.isBlack)),
-      puzzle: () => setPuzzle(changeCells(clearCell)()),
-      'puzzle & timer': () => {
-        if (onClearAndRestart) {
-          onClearAndRestart();
-        } else {
-          setPuzzle(changeCells(clearCell)());
-          clock.reset();
-        }
-      },
+      ...(diagramRevealed ? {} : {
+        'white squares': () => setPuzzle(changeCells(clearCell)((cell) => cell.isBlack)),
+      }),
+      puzzle: clearAll,
+      'puzzle & timer': clearAndRestart,
     },
     reveal: {
       square: () => setPuzzle(changeCurrentCell(revealCell)),
       word: () => setPuzzle(changeCellsInWord(revealCell)),
       puzzle: () => setPuzzle(changeCells(revealCell)()),
-      diagram: () => setPuzzle(changeCells(revealMeta)()),
-      circles: () => setPuzzle(changeCells(revealCircle)()),
-      shaded: () => setPuzzle(changeCells(revealShaded)()),
+      ...(diagramRevealed ? {} : {
+        diagram: () => setPuzzle(changeCells(revealMeta)()),
+        circles: () => setPuzzle(changeCells(revealCircle)()),
+        shaded: () => setPuzzle(changeCells(revealShaded)()),
+      }),
     },
     check: {
       square: () => setPuzzle(changeCurrentCell(checkCell)),
@@ -84,11 +91,14 @@ export default function PuzzleToolbar({
     },
   };
 
-  disabledWhenSolved['check'] = allItems(menu.check);
-  disabledWhenSolved['clear'] = allItems(menu.clear).filter(k => k !== 'puzzle & timer');
-  disabledWhenSolved['reveal'] = allItems(menu.reveal);
-  disabledWhenSolved['numbering'] = allItems(menu.numbering);
-  disabledWhenSolved['symmetry'] = allItems(menu.symmetry);
+  Object.keys(menu).forEach(key => {
+    if (key === 'clear') {
+      disabledWhenSolved[key] = allItems(menu[key]).filter(k => k !== 'puzzle & timer');
+    } else {
+      disabledWhenSolved[key] = allItems(menu[key]);
+    }
+  });
+
 
   function print() {
     puzzleToPdf(puzzle);

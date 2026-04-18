@@ -245,6 +245,7 @@ export default function PuzzleLoader() {
               onLoadPuzzle={() => dispatch({ type: 'loadRequested' })}
               onPause={() => dispatch({ type: 'pauseRequested' })}
               onClearAndRestart={() => dispatch({ type: 'clearAndRestart' })}
+              diagramRevealed={'diagramRevealed' in state && !!state.diagramRevealed}
             />
           </div>
           {modalReason && <PuzzleModal reason={modalReason} onClose={handleModalClose} />}
