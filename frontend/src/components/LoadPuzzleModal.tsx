@@ -23,8 +23,15 @@ export function LoadPuzzleModal(props: LoadPuzzleModalProps) {
   const [date, setDate] = useState(formatDate('YYYY-MM-DD', defaultDate));
   const [dragOver, setDragOver] = useState(false);
 
-  // Update date when defaultDate changes
+  // Sync props into local state
   useEffect(() => setDate(formatDate('YYYY-MM-DD', defaultDate)), [defaultDate]);
+  useEffect(() => {
+    setError(initialError || '');
+    if (initialError) {
+      const timer = setTimeout(() => setError(''), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [initialError]);
 
   const dateInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
