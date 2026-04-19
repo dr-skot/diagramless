@@ -68,7 +68,7 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle,
       {isEditingRebus ? (
         <RebusInput value={rebusValue} alignWith={cursorRef} onFinish={finishRebus} />
       ) : (
-        <PuzzleKeys setPuzzle={setPuzzle} onRebus={startRebus} />
+        <PuzzleKeys setPuzzle={setPuzzle} onRebus={startRebus} diagramRevealed={diagramRevealed} />
       )}
     </>
   );

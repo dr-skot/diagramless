@@ -22,9 +22,10 @@ const arrowVectors: Record<string, Vector> = {
 interface PuzzleKeysProps {
   setPuzzle: Dispatch<SetStateAction<XwdPuzzle>>;
   onRebus: () => void;
+  diagramRevealed?: boolean;
 }
 
-export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
+export default function PuzzleKeys({ setPuzzle, onRebus, diagramRevealed }: PuzzleKeysProps) {
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -87,7 +88,7 @@ export default function PuzzleKeys({ setPuzzle, onRebus }: PuzzleKeysProps) {
     };
 
     const handlePeriodKey = (event: KeyboardEvent) => {
-      if (event.key !== '.') return false;
+      if (event.key !== '.' || diagramRevealed) return false;
       setPuzzle((prev) => handlePeriod(prev));
       return true;
     };
