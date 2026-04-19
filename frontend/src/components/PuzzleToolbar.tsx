@@ -24,6 +24,7 @@ interface PuzzleToolbarProps {
   onPause?: () => void;
   onClearAndRestart?: () => void;
   diagramRevealed?: boolean;
+  onHelp?: () => void;
 }
 
 export default function PuzzleToolbar({
@@ -35,6 +36,7 @@ export default function PuzzleToolbar({
   onPause,
   onClearAndRestart,
   diagramRevealed,
+  onHelp,
 }: PuzzleToolbarProps) {
   const solved = gridIsSolved(puzzle.grid);
   const checked: Record<string, string> = {
@@ -115,7 +117,12 @@ export default function PuzzleToolbar({
             <button onClick={onImportFromXWordInfo}>Load</button>
           </li>
         )}
-        <PuzzleClock clock={clock} disabled={gridIsSolved(puzzle.grid)} onToggle={onPause} />
+        {onHelp && (
+          <li className="Tool-button Tool-tool Tool-texty">
+            <button onClick={onHelp}>Help</button>
+          </li>
+        )}
+        <PuzzleClock clock={clock} disabled={solved} onToggle={onPause} />
         <li className="Tool-button Tool-tool Tool-texty" style={solved ? { opacity: 0.4, pointerEvents: 'none' } : {}}>
           <button onClick={onRebus}>rebus</button>
         </li>

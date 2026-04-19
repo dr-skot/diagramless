@@ -11,10 +11,11 @@ import { fetchPuzzle } from '../services/xwordInfoService';
 import { formatDate, isValidMdy } from '../utils/dateUtils';
 import './PuzzleLoader.css';
 import { getPuzzleDate } from '../model/puzzle';
-import { AppState, reducer } from '../model/appState';
+import { AppState, reducer, shouldObscurePuzzle } from '../model/appState';
 import PuzzleModal, { ModalReason } from './PuzzleModal';
 import SolveModeModal from './SolveModeModal';
 import SubscriptionModal from './SubscriptionModal';
+import HelpModal from './HelpModal';
 
 const BLUR_INTERVAL = 10000;
 
@@ -144,6 +145,14 @@ export default function PuzzleLoader() {
     dispatch({ type: 'puzzleUpdated', puzzle: newPuzzle });
   };
 
+  // --- Load a new puzzle into the state machine ---
+  function loadNewPuzzle(newPuzzle: XwdPuzzle) {
+    newPuzzle.autonumber = puzzle?.autonumber || 'off';
+    newPuzzle.symmetry = newPuzzle.symmetry || puzzle?.symmetry || null;
+    clock.setTime(newPuzzle.time || 0);
+    dispatch({ type: 'puzzleFetched', puzzle: numberPuzzle(newPuzzle) });
+  }
+
   // --- Fetch puzzle by date ---
   function fetchPuzzleForDate(dateToLoad: string) {
     updateUrlWithDate(dateToLoad);
@@ -158,10 +167,7 @@ export default function PuzzleLoader() {
     fetchPuzzle(dateToLoad)
       .then((newPuzzle) => {
         if (newPuzzle) {
-          newPuzzle.autonumber = puzzle?.autonumber || 'off';
-          newPuzzle.symmetry = newPuzzle.symmetry || puzzle?.symmetry || null;
-          clock.setTime(newPuzzle.time || 0);
-          dispatch({ type: 'puzzleFetched', puzzle: numberPuzzle(newPuzzle) });
+          loadNewPuzzle(newPuzzle);
           updateUrlWithDate(dateToLoad);
         } else {
           dispatch({ type: 'fetchFailed', error: `No puzzle found for date: ${dateToLoad}` });
@@ -188,25 +194,14 @@ export default function PuzzleLoader() {
   // --- File drop ---
   const onDrop = handleDroppedFile((contents) => {
     const newPuzzle = puzzleFromFile(contents);
-    if (newPuzzle) {
-      newPuzzle.autonumber = puzzle?.autonumber || 'off';
-      newPuzzle.symmetry = newPuzzle.symmetry || puzzle?.symmetry || null;
-      clock.setTime(newPuzzle.time || 0);
-      dispatch({ type: 'puzzleFetched', puzzle: numberPuzzle(newPuzzle) });
-    }
+    if (newPuzzle) loadNewPuzzle(newPuzzle);
   });
 
   // --- File drop from load modal ---
   const handleFileDrop = (contents: ArrayBuffer) => {
     const newPuzzle = puzzleFromFile(contents);
-    if (newPuzzle) {
-      newPuzzle.autonumber = puzzle?.autonumber || 'off';
-      newPuzzle.symmetry = newPuzzle.symmetry || puzzle?.symmetry || null;
-      clock.setTime(newPuzzle.time || 0);
-      dispatch({ type: 'puzzleFetched', puzzle: numberPuzzle(newPuzzle) });
-    } else {
-      dispatch({ type: 'fetchFailed', error: 'Not a valid .puz file' });
-    }
+    if (newPuzzle) loadNewPuzzle(newPuzzle);
+    else dispatch({ type: 'fetchFailed', error: 'Not a valid .puz file' });
   };
 
   // --- Modal dismiss ---
@@ -235,7 +230,7 @@ export default function PuzzleLoader() {
               onSubmit={handleLoadPuzzleSubmit}
               onCancel={handleLoadPuzzleCancel}
               onFileDrop={handleFileDrop}
-              error={(state as any).error || ''}
+              error={state.mode === 'pickingDate' ? state.error || '' : ''}
               defaultDate={getDefaultDate()}
               loading={false}
             />
@@ -248,12 +243,20 @@ export default function PuzzleLoader() {
       )}
 
       {state.mode === 'choosing' && puzzle && (
-        <SolveModeModal onChoose={(mode) => dispatch({ type: 'solveModePicked', mode })} />
+        <SolveModeModal onChoose={(mode) => {
+          const showHelp = mode === 'diagramless' && !localStorage.getItem('diagramless-help-seen');
+          if (showHelp) localStorage.setItem('diagramless-help-seen', 'true');
+          dispatch({ type: 'solveModePicked', mode, showHelp });
+        }} />
+      )}
+
+      {state.mode === 'showingHelp' && (
+        <HelpModal onClose={() => dispatch({ type: 'modalDismissed' })} />
       )}
 
       {puzzle && (
         <>
-          <div className={state.mode === 'paused' ? 'app-obscured' : ''}>
+          <div className={shouldObscurePuzzle(state) ? 'app-obscured' : ''}>
             <Puzzle
               puzzle={puzzle}
               setPuzzle={setPuzzle}
@@ -263,6 +266,7 @@ export default function PuzzleLoader() {
               onPause={() => dispatch({ type: 'pauseRequested' })}
               onClearAndRestart={() => dispatch({ type: 'clearAndRestart' })}
               diagramRevealed={'diagramRevealed' in state && !!state.diagramRevealed}
+              onHelp={() => dispatch({ type: 'helpRequested' })}
             />
           </div>
           {modalReason && <PuzzleModal reason={modalReason} onClose={handleModalClose} />}

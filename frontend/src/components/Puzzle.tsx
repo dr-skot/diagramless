@@ -20,9 +20,10 @@ interface PuzzleProps {
   onPause?: () => void;
   onClearAndRestart?: () => void;
   diagramRevealed?: boolean;
+  onHelp?: () => void;
 }
 
-export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle, onPause, onClearAndRestart, diagramRevealed }: PuzzleProps) {
+export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle, onPause, onClearAndRestart, diagramRevealed, onHelp }: PuzzleProps) {
   const [isEditingRebus, setEditingRebus] = useState(false);
   const rebusValue = useRef('');
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -59,6 +60,7 @@ export default function Puzzle({ puzzle, setPuzzle, clock, onDrop, onLoadPuzzle,
         onPause={onPause}
         onClearAndRestart={onClearAndRestart}
         diagramRevealed={diagramRevealed}
+        onHelp={onHelp}
       />
       <PuzzleHeader title={puzzle.title} author={puzzle.author} date={puzzle.date} />
       <div className="layout-puzzle" onDrop={onDrop} onDragOver={(e) => e.preventDefault()}>

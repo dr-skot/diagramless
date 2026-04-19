@@ -9,6 +9,7 @@ export type AppState =
   | { mode: 'confirmSubscription'; puzzle: XwdPuzzle }
   | { mode: 'choosing'; puzzle: XwdPuzzle }
   | { mode: 'playing'; puzzle: XwdPuzzle; diagramRevealed?: boolean }
+  | { mode: 'showingHelp'; puzzle: XwdPuzzle; diagramRevealed?: boolean }
   | { mode: 'pausePending'; puzzle: XwdPuzzle }
   | { mode: 'paused'; puzzle: XwdPuzzle }
   | { mode: 'filled'; puzzle: XwdPuzzle }
@@ -22,18 +23,26 @@ export type AppEvent =
   | { type: 'puzzleRestored'; puzzle: XwdPuzzle }
   | { type: 'puzzleFetched'; puzzle: XwdPuzzle }
   | { type: 'subscriptionConfirmed' }
-  | { type: 'solveModePicked'; mode: 'diagramless' | 'withDiagram' }
+  | { type: 'solveModePicked'; mode: 'diagramless' | 'withDiagram'; showHelp?: boolean }
   | { type: 'puzzleUpdated'; puzzle: XwdPuzzle }
   | { type: 'gridChanged'; puzzle: XwdPuzzle }
   | { type: 'blurred' }
   | { type: 'focused' }
   | { type: 'blurTimedOut' }
   | { type: 'modalDismissed' }
+  | { type: 'helpRequested' }
   | { type: 'loadRequested' }
   | { type: 'pauseRequested' }
   | { type: 'dateSubmitted' }
   | { type: 'clearAndRestart' }
   | { type: 'fetchFailed'; error: string };
+
+// --- Queries ---
+
+export function shouldObscurePuzzle(state: AppState): boolean {
+  return state.mode === 'paused' || state.mode === 'showingHelp' ||
+    state.mode === 'confirmSubscription' || state.mode === 'choosing';
+}
 
 // --- Helpers ---
 
@@ -86,14 +95,14 @@ export function reducer(state: AppState, event: AppEvent): AppState {
 
     case 'choosing':
       switch (event.type) {
-        case 'solveModePicked':
-          return {
-            mode: 'playing',
-            puzzle: event.mode === 'withDiagram'
-              ? applyRevealMeta(state.puzzle)
-              : state.puzzle,
-            diagramRevealed: event.mode === 'withDiagram',
-          };
+        case 'solveModePicked': {
+          const puzzle = event.mode === 'withDiagram'
+            ? applyRevealMeta(state.puzzle) : state.puzzle;
+          const diagramRevealed = event.mode === 'withDiagram';
+          return event.showHelp
+            ? { mode: 'showingHelp' as const, puzzle, diagramRevealed }
+            : { mode: 'playing' as const, puzzle, diagramRevealed };
+        }
         default:
           return state;
       }
@@ -111,8 +120,18 @@ export function reducer(state: AppState, event: AppEvent): AppState {
           return { mode: 'pausePending', puzzle: state.puzzle };
         case 'pauseRequested':
           return { mode: 'paused', puzzle: state.puzzle };
+        case 'helpRequested':
+          return { mode: 'showingHelp', puzzle: state.puzzle, diagramRevealed: state.diagramRevealed };
         case 'loadRequested':
           return { mode: 'pickingDate', puzzle: state.puzzle };
+        default:
+          return state;
+      }
+
+    case 'showingHelp':
+      switch (event.type) {
+        case 'modalDismissed':
+          return { mode: 'playing', puzzle: state.puzzle, diagramRevealed: state.diagramRevealed };
         default:
           return state;
       }
