@@ -128,6 +128,6 @@ export default function PuzzleKeys({ setPuzzle, onRebus, diagramRevealed }: Puzz
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [setPuzzle, showToast]);
+  }, [setPuzzle, showToast, diagramRevealed]);
   return null;
 }
