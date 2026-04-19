@@ -43,12 +43,20 @@ describe('reducer', () => {
     expect((next as any).puzzle).toBe(puzzle);
   });
 
-  it('puzzleFetched transitions loading to choosing', () => {
+  it('puzzleFetched transitions loading to confirmSubscription', () => {
     const state: AppState = { mode: 'loading' };
     const puzzle = makePuzzle();
     const next = reducer(state, { type: 'puzzleFetched', puzzle });
-    expect(next.mode).toBe('choosing');
+    expect(next.mode).toBe('confirmSubscription');
     expect((next as any).puzzle).toBe(puzzle);
+  });
+
+  // --- confirmSubscription ---
+  it('subscriptionConfirmed transitions to choosing', () => {
+    const puzzle = makePuzzle();
+    const state: AppState = { mode: 'confirmSubscription', puzzle };
+    const next = reducer(state, { type: 'subscriptionConfirmed' });
+    expect(next.mode).toBe('choosing');
   });
 
   it('fetchFailed transitions loading to pickingDate with error', () => {
@@ -197,11 +205,11 @@ describe('reducer', () => {
     expect(next.mode).toBe('loading');
   });
 
-  it('puzzleFetched transitions pickingDate to choosing', () => {
+  it('puzzleFetched transitions pickingDate to confirmSubscription', () => {
     const puzzle = makePuzzle();
     const state: AppState = { mode: 'pickingDate' };
     const next = reducer(state, { type: 'puzzleFetched', puzzle });
-    expect(next.mode).toBe('choosing');
+    expect(next.mode).toBe('confirmSubscription');
   });
 
   it('fetchFailed stays in pickingDate with error', () => {

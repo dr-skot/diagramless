@@ -1,6 +1,6 @@
 import { findCell, mapCells, newGrid, XwdCellCallback, XwdDirection, XwdGrid } from './grid';
 import { currentCell, currentWord, crossingWord, XwdCursor } from './cursor';
-import { enforceSymmetry, getSisterCell, XwdSymmetry } from './symmetry';
+import { enforceSymmetry, getSisterCell, undoSymmetry, XwdSymmetry } from './symmetry';
 import { puzzleFromFileData } from '../parsers/puz';
 import { ACROSS, DOWN } from './navigation';
 import { formatDate } from '../utils/dateUtils';
@@ -211,8 +211,11 @@ export const migratePuzzle = (puzzle: XwdPuzzle): XwdPuzzle => ({
 export const applySymmetry = (puzzle: XwdPuzzle, symmetryType = puzzle.symmetry) =>
   symmetryType ? { ...puzzle, grid: enforceSymmetry(puzzle.grid, symmetryType) } : puzzle;
 
-export const setSymmetry = (symmetryType: XwdSymmetry) => (puzzle: XwdPuzzle) =>
-  numberPuzzle(applySymmetry({ ...puzzle, symmetry: symmetryType }));
+export const setSymmetry = (symmetryType: XwdSymmetry) => (puzzle: XwdPuzzle) => {
+  // Undo the current symmetry before applying the new one
+  const grid = puzzle.symmetry ? undoSymmetry(puzzle.grid, puzzle.symmetry) : puzzle.grid;
+  return numberPuzzle(applySymmetry({ ...puzzle, grid, symmetry: symmetryType }));
+};
 
 export const setAutonumber = (value: XwdNumbering) => (p: XwdPuzzle) =>
   numberPuzzle({

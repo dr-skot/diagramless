@@ -6,6 +6,7 @@ import { clearCell, revealMeta } from './cell';
 
 export type AppState =
   | { mode: 'loading' }
+  | { mode: 'confirmSubscription'; puzzle: XwdPuzzle }
   | { mode: 'choosing'; puzzle: XwdPuzzle }
   | { mode: 'playing'; puzzle: XwdPuzzle; diagramRevealed?: boolean }
   | { mode: 'pausePending'; puzzle: XwdPuzzle }
@@ -20,6 +21,7 @@ export type AppState =
 export type AppEvent =
   | { type: 'puzzleRestored'; puzzle: XwdPuzzle }
   | { type: 'puzzleFetched'; puzzle: XwdPuzzle }
+  | { type: 'subscriptionConfirmed' }
   | { type: 'solveModePicked'; mode: 'diagramless' | 'withDiagram' }
   | { type: 'puzzleUpdated'; puzzle: XwdPuzzle }
   | { type: 'gridChanged'; puzzle: XwdPuzzle }
@@ -67,9 +69,17 @@ export function reducer(state: AppState, event: AppEvent): AppState {
         case 'puzzleRestored':
           return { mode: 'playing', puzzle: event.puzzle };
         case 'puzzleFetched':
-          return { mode: 'choosing', puzzle: event.puzzle };
+          return { mode: 'confirmSubscription', puzzle: event.puzzle };
         case 'fetchFailed':
           return { mode: 'pickingDate', error: event.error };
+        default:
+          return state;
+      }
+
+    case 'confirmSubscription':
+      switch (event.type) {
+        case 'subscriptionConfirmed':
+          return { mode: 'choosing', puzzle: state.puzzle };
         default:
           return state;
       }
@@ -164,7 +174,7 @@ export function reducer(state: AppState, event: AppEvent): AppState {
         case 'dateSubmitted':
           return { mode: 'loading' };
         case 'puzzleFetched':
-          return { mode: 'choosing', puzzle: event.puzzle };
+          return { mode: 'confirmSubscription', puzzle: event.puzzle };
         case 'fetchFailed':
           return { ...state, error: event.error };
         case 'modalDismissed':

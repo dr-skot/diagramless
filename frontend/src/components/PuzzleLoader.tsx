@@ -14,6 +14,7 @@ import { getPuzzleDate } from '../model/puzzle';
 import { AppState, reducer } from '../model/appState';
 import PuzzleModal, { ModalReason } from './PuzzleModal';
 import SolveModeModal from './SolveModeModal';
+import SubscriptionModal from './SubscriptionModal';
 
 const BLUR_INTERVAL = 10000;
 
@@ -86,6 +87,18 @@ export default function PuzzleLoader() {
     fetchPuzzleForDate(dateParam);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // --- Auto-confirm subscription if already acknowledged ---
+  useEffect(() => {
+    if (state.mode === 'confirmSubscription' && localStorage.getItem('nyt-subscription-confirmed')) {
+      dispatch({ type: 'subscriptionConfirmed' });
+    }
+  }, [state.mode]);
+
+  const handleSubscriptionConfirm = () => {
+    localStorage.setItem('nyt-subscription-confirmed', 'true');
+    dispatch({ type: 'subscriptionConfirmed' });
+  };
 
   // --- Clock syncs with state ---
   useEffect(() => {
@@ -228,6 +241,10 @@ export default function PuzzleLoader() {
             />
           </div>
         </div>
+      )}
+
+      {state.mode === 'confirmSubscription' && (
+        <SubscriptionModal onConfirm={handleSubscriptionConfirm} />
       )}
 
       {state.mode === 'choosing' && puzzle && (
